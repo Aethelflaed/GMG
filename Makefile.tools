@@ -1,0 +1,60 @@
+#Makefile tools
+
+#include configuration
+include Makefile.conf
+
+#	Commands
+#Set the various commands used in the makefile
+#You can configure additional options in the method call
+
+RM := rm -vrf
+COPY := @cp -Rv
+CP := @cp -R
+ECHO := @echo
+MKDIR := mkdir -p
+
+ifeq ($(OS_TYPE), windows)
+	MKDIR := mkdir
+	CP := copy
+	COPY := copy
+	RM := rmdir /S /Q
+	SHELL := cmd
+endif
+
+#	Includes and libraries
+#Compute the include and library paths
+#For macos target, also add frameworks
+
+INCLUDES := 
+ifneq ($(INCLUDES_DIR),)
+	INCLUDES := $(addprefix -I , $(INCLUDES_DIR))
+endif
+
+LIBRARIES := 
+ifneq ($(LIBRARIES_DIR),)
+	LIBRARIES := $(addprefix -L , $(LIBRARIES_DIR))
+endif
+
+LIBRARIES += $(LIBS)
+
+ifeq ($(TARGET),macos)
+	ifneq ($(FRAMEWORKS_DIR),)
+		INCLUDES += $(addprefix -F , $(FRAMEWORKS_DIR))
+		LIBRARIES += $(addprefix -F , $(FRAMEWORKS_DIR))
+	endif
+	LIBRARIES += $(addprefix -framework , $(FRAMEWORKS))
+endif
+
+ifeq ($(DEBUG), yes)
+	CXXFLAGS += -g3 -gdwarf-2 -W -Wall
+	LDFLAGS += 
+else
+	CXXFLAGS += -Os
+	LDFLAGS += 
+endif
+
+ifeq ($(VERBOSE), yes)
+	CXXFLAGS += -v
+	LDFLAGS += -v
+endif
+
