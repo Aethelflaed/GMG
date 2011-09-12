@@ -1,0 +1,96 @@
+%{
+#include <iostream>
+#include <string>
+
+extern "C"
+{
+    int yyparse();
+    int yylex();
+
+    int yywrap()
+    {
+            return 1;
+    }
+
+	void yyerror(const char *str)
+	{
+		fprintf(stderr,"error: %s\n",str);
+	}
+}
+
+%}
+
+%union
+{
+	char string[100];
+	int integer;
+	void* pointer;
+	char* charPointer;
+}
+
+%token T_OPTION
+%token T_TARGET
+%token T_SET
+%token T_ADD
+%token T_EDIT
+%token T_RM
+%token T_END
+%token <string> T_LIST
+%token <string> T_NAME
+%token <string> T_VALUE
+
+%type <charPointer> configurations
+%type <charPointer> configuration
+%type <charPointer> option_list
+%type <charPointer> option_command
+%type <charPointer> option_set
+%type <charPointer> option
+
+%%
+
+configurations: end
+			  | configurations configuration
+
+end: T_END
+   {
+		std::cout << "Bye!" << std::endl;
+		exit(0);
+   }
+
+configuration:/* target
+			 |*/ option
+
+option: T_OPTION option_command
+	  {
+		std::cout << "Option selected : " << $2 << std::endl;
+	  }
+
+option_command: option_set
+			  | option_list
+
+option_list: T_LIST
+		   {
+				$$ = 
+				$$ = (char*) malloc(sizeof(char)*100);
+				sprintf($$, "Command used : %s", $1);
+		   }
+
+option_set: T_SET
+		  {
+		  }
+/*
+target:	T_TARGET target_command
+
+target_command: add
+			  | edit
+			  | rm
+			  | list
+*/
+
+%%
+
+int main()
+{
+	yyparse();
+}
+
