@@ -1,114 +1,74 @@
 include Makefile.tools
 
 #Defines special targets
-.PHONY: clean, mrproper, all, checkdirs, bin, lib, lib_target, exec_target, test, test_target
+.PHONY: build, gen, clean, mrproper, all, checkdirs, exec_target
 
-ifeq ($(OS), macos)
-	CXX := /usr/local/bin/x86_64-apple-darwin10.7.0-g++
-else
-	CXX := g++
-endif
-ifeq ($(OS), win32)
-	CXX := mingw32-g++
-endif
-
-LD = $(CXX)
-
-CXXFLAGS := -std=c++0x
-
-SRC_DIR := $(addprefix src/, $(MODULES))
-SRC_DIR += src
-BUILD_DIR := $(addprefix build/, $(MODULES))
-BUILD_DIR += build
+SRC_DIR := src
+SRC_DIR += $(addprefix src/, $(MODULES))
+BUILD_DIR := build
+BUILD_DIR += $(addprefix build/, $(MODULES))
+GEN_DIR := gen
+GEN_DIR += $(addprefix gen/, $(MODULES))
 
 SRC := $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
-OBJ := $(patsubst src/%.cpp, build/%.o, $(SRC))
+SRC += $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp))
+SRC += $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l))
+GEN := $(patsubst src/%.ypp, gen/%.cpp, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp)))
+GEN += $(patsubst src/%.l, gen/%.c,     $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
+OBJ := $(patsubst src/%.cpp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)))
 
-SRCLIB_DIR := $(addprefix lib/src/, $(LIB_MODULES))
-SRCLIB_DIR += lib/src
-BUILDLIB_DIR := $(addprefix build/__lib/, $(LIB_MODULES))
-BUILDLIB_DIR += build/__lib
+INCLUDES += -iquote gen
 
-LIBSRC := $(foreach sldir, $(SRCLIB_DIR), $(wildcard $(sldir)/*.cpp))
-LIBOBJ := $(patsubst lib/src/%.cpp, build/__lib/%.o, $(LIBSRC))
-
-SRCTEST_DIR := $(addprefix testing/, $(TEST_MODULES))
-SRCTEST_DIR += testing
-BUILDTEST_DIR := $(addprefix build/__testing/, $(TEST_MODULES))
-BUILDTEST_DIR += build/__testing
-
-TESTSRC := $(foreach stdir, $(SRCTEST_DIR), $(wildcard $(stdir)/*.cpp))
-TESTOBJ := $(patsubst testing/%.cpp, build/__testing/%.o, $(TESTSRC))
+GEN_OBJ :=
 
 vpath %.cpp $(SRC_DIR)
-vpath %.cpp $(SRCLIB_DIR)
-vpath %.cpp $(SRCTEST_DIR)
+vpath %.l $(SRC_DIR)
+vpath %.ypp $(SRC_DIR)
 
 EXEC_NAME := $(EXEC) $(VERSION)
-BUNDLE_NAME := $(EXEC) $(VERSION).app
-ifeq ($(OS), win32)
-	EXEC_NAME := $(EXEC) $(VERSION).exe
-endif
-ifeq ($(OS), win64)
-	EXEC_NAME := $(EXEC) $(VERSION).exe
-endif
-ifeq ($(OS), macos)
+ifeq ($(TARGET), macos)
 	EXEC_NAME := $(EXEC)
 	BUNDLE_NAME := $(EXEC) $(VERSION).app
 endif
 
-LIB_NAME := lib$(LIB).so
-ifeq ($(OS), win32)
-	LIB_NAME := $(LIB).dll
-endif
-ifeq ($(OS), win64)
-	LIB_NAME := $(LIB).dll
-endif
-
-TEST_NAME := $(TEST)
-ifeq ($(OS), win32)
-	TEST_NAME := $(TEST).exe
-endif
-ifeq ($(OS), win64)
-	TEST_NAME := $(TEST).exe
-endif
-
-define make-goal
+define make-build-goal
 $1/%.o: %.cpp
 	$(CXX) -c $$< -o $$@ $(CXXFLAGS) $(INCLUDES) 
+$1/%.o: %.c
+	$(C) -c $$< -o $$@ $(CFLAGS) $(INCLUDES) 
+endef
+
+define make-gen-goal
+$1/%.c: %.l
+	$(LEX) $(LEXFLAGS) -o $$@ $$^
+$1/%.cpp: %.ypp
+	$(YACC) $(YACCFLAGS) $$^ -o $$@
+endef
+
+define make-build-gen-goal
+$(ECHO) $1
 endef
 
 #Build all
-all: checkdirs lib_target exec_target test_target
+all: checkdirs exec_target
 	$(ECHO) "\nBinary generated in bin/"
 
-exec_target: $(OBJ)
-	$(LD) $^ -o "bin/$(EXEC_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES)
+exec_target: gen $(OBJ)
+	$(foreach gen, $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp))), $(CXX) -c $(patsubst build/%.o, gen/%.cpp, $(gen)) -o $(gen) $(CXXFLAGS) $(INCLUDES))
+	$(foreach gen, $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c))), $(C) -c $(patsubst build/%.o, gen/%.c, $(gen)) -o $(gen) $(CFLAGS) $(INCLUDES))
+	$(LD) $(GEN_OBJ) $(OBJ) -o "bin/$(EXEC_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES)
 
-lib: checkdirs lib_target
+build: $(OBJ) $(GEN_OBJ)
 
-lib_target: $(LIBOBJ)
-	$(CXX) --shared $^ -o "bin/$(LIB_NAME)" $(CXXFLAGS) $(INCLUDES) $(LIBRARIES)
-
-test: checkdirs test_target
-
-test_target: $(TESTOBJ)
-	$(LD) $^ -o "bin/$(TEST_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES) -lunit++
-
+gen: $(GEN)
+	$(eval GEN_OBJ += $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c))))
+	$(eval GEN_OBJ += $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp))))
+	
 #Check for directories existences
-checkdirs: $(BUILD_DIR) $(BUILDLIB_DIR) $(BUILDTEST_DIR) bin
-
-$(BUILD_DIR):
-	$(MKDIR) $@
-
-$(BUILDLIB_DIR):
-	$(MKDIR) $@
-
-$(BUILDTEST_DIR):
-	$(MKDIR) $@
-
-bin:
-	$(MKDIR) $@
+checkdirs:
+	$(MKDIR) $(BUILD_DIR)
+	$(MKDIR) $(GEN_DIR)
+	$(MKDIR) bin
 
 #Clean temporary object files
 clean:
@@ -117,9 +77,9 @@ clean:
 #Clean all except sources
 mrproper: clean
 	$(RM) bin/*
+	$(RM) gen/*
 
 #Build implicit rules for building all files
-$(foreach bdir, $(BUILD_DIR), $(eval $(call make-goal, $(bdir))))
-$(foreach lbdir, $(BUILDLIB_DIR), $(eval $(call make-goal, $(lbdir))))
-$(foreach tbdir, $(BUILDTEST_DIR), $(eval $(call make-goal, $(tbdir))))
+$(foreach gdir, $(GEN_DIR),   $(eval $(call make-gen-goal, $(gdir))))
+$(foreach bdir, $(BUILD_DIR), $(eval $(call make-build-goal, $(bdir))))
 

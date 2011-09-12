@@ -1,7 +1,7 @@
 include Makefile.tools
 
 #Defines special targets
-.PHONY: clean, mrproper, all, checkdirs, bin, lib, lib_target, exec_target, test, test_target
+.PHONY: clean, mrproper, all, checkdirs, bin, exec_target
 
 ifeq ($(OS), macos)
 	CXX := /usr/local/bin/x86_64-apple-darwin10.7.0-g++

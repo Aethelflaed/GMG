@@ -1,6 +1,6 @@
 %{
 
-#include "grammar.tab.hpp"
+#include "grammar.hpp"
 #include <string.h>
 
 %}

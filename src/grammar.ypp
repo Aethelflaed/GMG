@@ -70,7 +70,6 @@ option_command: option_set
 
 option_list: T_LIST
 		   {
-				$$ = 
 				$$ = (char*) malloc(sizeof(char)*100);
 				sprintf($$, "Command used : %s", $1);
 		   }
