@@ -1,10 +1,9 @@
 %{
 #include <iostream>
-#include <string>
 
 extern "C"
 {
-    int yyparse();
+	int yyparse();
     int yylex();
 
     int yywrap()
@@ -45,6 +44,7 @@ extern "C"
 %type <charPointer> option_command
 %type <charPointer> option_set
 %type <charPointer> option
+%type <charPointer> end
 
 %%
 
@@ -53,7 +53,7 @@ configurations: end
 
 end: T_END
    {
-		std::cout << "Bye!" << std::endl;
+		std::cout << "Bye Bye!" << std::endl;
 		exit(0);
    }
 
@@ -87,9 +87,4 @@ target_command: add
 */
 
 %%
-
-int main()
-{
-	yyparse();
-}
 
