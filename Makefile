@@ -1,7 +1,7 @@
 include Makefile.tools
 
 #Defines special targets
-.PHONY: build, gen, clean, mrproper, all, checkdirs, exec_target
+.PHONY: gen, clean, mrproper, all, checkdirs
 
 SRC_DIR := src
 SRC_DIR += $(addprefix src/, $(MODULES))
@@ -19,8 +19,8 @@ OBJ := $(patsubst src/%.cpp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $
 
 INCLUDES += -iquote gen -iquote src
 
-GEN_OBJ := $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c)))
-GEN_OBJ += $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp)))
+GEN_OBJ := $(patsubst src/%.l, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
+GEN_OBJ += $(patsubst src/%.ypp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp)))
 
 vpath %.cpp $(SRC_DIR)
 vpath %.l $(SRC_DIR)
@@ -47,20 +47,14 @@ $1/%.cpp: %.ypp
 endef
 
 #Build all
-all: checkdirs exec_target
+all: checkdirs $(GEN_OBJ) $(OBJ)
+	$(LD) $(GEN_OBJ) $(OBJ) -o "bin/$(EXEC_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES)
 	$(ECHO) "\nBinary generated in bin/"
 
-exec_target: $(GEN_OBJ) $(OBJ)
-	$(LD) $(GEN_OBJ) $(OBJ) -o "bin/$(EXEC_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES)
-
-build: $(OBJ) $(GEN_OBJ)
-
+#Generate object files from generated files
 $(GEN_OBJ): $(GEN)
 	$(foreach gen, $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp))), $(CXX) -c $(patsubst build/%.o, gen/%.cpp, $(gen)) -o $(gen) $(CXXFLAGS) $(INCLUDES))
 	$(foreach gen, $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c))), $(C) -c $(patsubst build/%.o, gen/%.c, $(gen)) -o $(gen) $(CFLAGS) $(INCLUDES))
-
-gen: $(GEN)
-	$(ECHO) dump
 	
 #Check for directories existences
 checkdirs:
