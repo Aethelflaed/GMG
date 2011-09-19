@@ -50,7 +50,7 @@ ifeq ($(DEBUG), yes)
 	CXXFLAGS += -g3 -gdwarf-2 -W -Wall
 	CFLAGS += -g3 -gdwarf-2 -W -Wall
 	LDFLAGS += 
-	LEXFLAGS += --debug
+	#LEXFLAGS += --debug
 	YACCFLAGS += --debug
 else
 	CFLAGS += -Os

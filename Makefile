@@ -17,9 +17,10 @@ GEN := $(patsubst src/%.ypp, gen/%.cpp, $(foreach sdir, $(SRC_DIR), $(wildcard $
 GEN += $(patsubst src/%.l, gen/%.c,     $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
 OBJ := $(patsubst src/%.cpp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)))
 
-INCLUDES += -iquote gen
+INCLUDES += -iquote gen -iquote src
 
-GEN_OBJ :=
+GEN_OBJ := $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c)))
+GEN_OBJ += $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp)))
 
 vpath %.cpp $(SRC_DIR)
 vpath %.l $(SRC_DIR)
@@ -49,16 +50,17 @@ endef
 all: checkdirs exec_target
 	$(ECHO) "\nBinary generated in bin/"
 
-exec_target: gen $(OBJ)
-	$(eval GEN_OBJ += $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c))))
-	$(eval GEN_OBJ += $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp))))
+exec_target: $(GEN_OBJ) $(OBJ)
 	$(LD) $(GEN_OBJ) $(OBJ) -o "bin/$(EXEC_NAME)" $(LDFLAGS) $(INCLUDES) $(LIBRARIES)
 
 build: $(OBJ) $(GEN_OBJ)
 
-gen: $(GEN)
+$(GEN_OBJ): $(GEN)
 	$(foreach gen, $(patsubst gen/%.cpp, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.cpp))), $(CXX) -c $(patsubst build/%.o, gen/%.cpp, $(gen)) -o $(gen) $(CXXFLAGS) $(INCLUDES))
 	$(foreach gen, $(patsubst gen/%.c, build/%.o, $(foreach gdir, $(GEN_DIR), $(wildcard $(gdir)/*.c))), $(C) -c $(patsubst build/%.o, gen/%.c, $(gen)) -o $(gen) $(CFLAGS) $(INCLUDES))
+
+gen: $(GEN)
+	$(ECHO) dump
 	
 #Check for directories existences
 checkdirs:
