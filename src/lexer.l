@@ -5,35 +5,32 @@
 
 %}
 
-%s TARGET
-%s TARGET_NAME
-%s TARGET_MODE
-%s OPTION
-%s OPTION_NAME
-%s OPTION_VALUE
-
 NAME		".+"
+WORD		[a-zA-Z_][a-zA-Z0-9_]+
+VALUE		[a-z0-9]+
+WS			[ \t\r\n]
 
 %%
 
-<INITIAL>target				{BEGIN TARGET; return T_TARGET;}
-<INITIAL>option				{BEGIN OPTION; return T_OPTION;}
+target/{WS}			{return T_TARGET;}
+option/{WS}			{return T_OPTION;}
 
-<TARGET>add					{BEGIN TARGET_NAME; return T_ADD;}
-<TARGET>edit				{BEGIN TARGET_NAME; return T_EDIT;}
-<TARGET>rm					{BEGIN TARGET_NAME; return T_RM;}
-<TARGET>list				{BEGIN TARGET_NAME; return T_LIST;}
+add					{return T_ADD;}
+edit				{return T_EDIT;}
+rm					{return T_RM;}
+list				{return T_LIST;}
 
-<TARGET_NAME>{NAME}			{strcpy(yylval.string, yytext); BEGIN TARGET_MODE; return T_NAME;}
+{NAME}				{strcpy(yylval.string, yytext); return T_NAME;}
 
-<OPTION>list				{strcpy(yylval.string, yytext); return T_LIST;}
-<OPTION>set					{BEGIN OPTION_NAME; return T_SET;}
+list/{WS}			{strcpy(yylval.string, yytext); return T_LIST;}
+set/{WS}			{return T_SET;}
 
-<OPTION_NAME>{NAME}			{strcpy(yylval.string, yytext); BEGIN OPTION_VALUE; return T_NAME;}
-<OPTION_VALUE>{NAME}		{strcpy(yylval.string, yytext); BEGIN OPTION; return T_VALUE;}
+{WORD}/{WS}			{strcpy(yylval.string, yytext); return T_NAME;}
+{VALUE}/{WS}		{yylval.integer = (int) yytext[0]; return T_VALUE;}
 
-<INITIAL>exit				{return T_END;}
-exit						{BEGIN INITIAL;}
+exit				{return T_END;}
+
+[ \t\n]+			/*ignore whitespace*/
 
 %%
 

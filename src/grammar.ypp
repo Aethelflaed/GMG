@@ -1,5 +1,9 @@
 %{
+#include <string.h>
+#include <stdlib.h>
+
 #include <iostream>
+
 #include "Makefile/Options.hpp"
 
 extern "C"
@@ -14,9 +18,11 @@ extern "C"
 
 	void yyerror(const char* str)
 	{
-		fprintf(stderr, "error: %s\n", str);
+		std::cerr << "Error : " << str << std::endl;
 	}
 }
+
+using namespace Makefile;
 
 %}
 
@@ -35,18 +41,10 @@ extern "C"
 %token T_EDIT
 %token T_RM
 %token T_END
-%token <string> T_LIST
+%token T_LIST
 %token <string> T_NAME
-%token <string> T_VALUE
+%token <integer> T_VALUE
 
-/*%type configurations
-%type configuration
-%type option_list
-%type option_command
-%type option_set
-%type option
-%type end
-*/
 %start configurations
 
 %%
@@ -57,8 +55,8 @@ configurations: /* empty */
 
 end: T_END
    {
-		std::cout << "Bye Bye!" << std::endl;
-		exit(0);
+				std::cout << "Bye Bye!" << std::endl;
+				exit(0);
    }
 
 configuration:/* target
@@ -66,21 +64,26 @@ configuration:/* target
 
 option: T_OPTION option_command
 	  {
-		std::cout << "Option selected" << std::endl;
 	  }
 
-option_command: option_set
-			  | option_list
+option_command: T_SET T_NAME T_VALUE
+			{
+				if (strcmp($2, "debug") == 0)
+				{
+					Options::currentOptions().setDebug($3 == (int)'t' || ($3 != (int)'f' && $3 != 0));
+				}
+				else if (strcmp($2, "verbose") == 0)
+				{
+					Options::currentOptions().setVerbose($3 == (int)'t' || ($3 != (int)'f' && $3 != 0));
+				}
+			}
+				| T_LIST
+			{
+				std::cout << "Debug\t: " << Options::currentOptions().getDebug() << std::endl;
+				std::cout << "Verbose\t: " << Options::currentOptions().getVerbose() << std::endl;
+			}
 
-option_list: T_LIST
-		   {
-				std::cout << "Debug\t: " << Makefile::Options::currentOptions().getDebug() << std::endl;
-				std::cout << "Verbose\t: " << Makefile::Options::currentOptions().getVerbose() << std::endl;
-		   }
 
-option_set: T_SET
-		  {
-		  }
 /*
 target:	T_TARGET target_command
 
@@ -89,5 +92,6 @@ target_command: add
 			  | rm
 			  | list
 */
+
 %%
 
