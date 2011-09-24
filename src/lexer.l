@@ -3,14 +3,17 @@
 #include "grammar.hpp"
 #include <string.h>
 
+extern void prompt();
+
 %}
 
-NAME		".+"
 WORD		[a-zA-Z_][a-zA-Z0-9_]+
-VALUE		[a-z0-9]+
 WS			[ \t\r\n]
+BOOL		0|1|[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
 
 %%
+
+exit/{WS}			{return T_EXIT;}
 
 target/{WS}			{return T_TARGET;}
 option/{WS}			{return T_OPTION;}
@@ -20,17 +23,23 @@ edit				{return T_EDIT;}
 rm					{return T_RM;}
 list				{return T_LIST;}
 
-{NAME}				{strcpy(yylval.string, yytext); return T_NAME;}
-
-list/{WS}			{strcpy(yylval.string, yytext); return T_LIST;}
+list/{WS}			{return T_LIST;}
 set/{WS}			{return T_SET;}
 
-{WORD}/{WS}			{strcpy(yylval.string, yytext); return T_NAME;}
-{VALUE}/{WS}		{yylval.integer = (int) yytext[0]; return T_VALUE;}
+{BOOL}/{WS}			{
+		char firstChar = yytext[0];
+		yylval.boolean = (firstChar == 't' || firstChar == 'T' || firstChar == '1');
+		return T_BOOL_VALUE;
+	}
 
-exit				{return T_END;}
+debug|verbose		{
+		strcpy(yylval.string, yytext);
+		return T_BOOL_OPTION;
+	}
 
-[ \t\n]+			/*ignore whitespace*/
+[\r\n]				{ prompt(); }
+[ \t]+				{/* ignore whitespace */}
+.					{/* ignore others */}
 
 %%
 

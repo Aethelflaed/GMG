@@ -45,13 +45,12 @@ ifeq ($(TARGET),macos)
 	LIBRARIES += $(addprefix -framework , $(FRAMEWORKS))
 endif
 
-
 ifeq ($(DEBUG), yes)
 	CXXFLAGS += -g3 -gdwarf-2 -W -Wall
 	CFLAGS += -g3 -gdwarf-2 -W -Wall
 	LDFLAGS += 
-	#LEXFLAGS += --debug
-	YACCFLAGS += --debug
+	#LFLAGS += --debug
+	YFLAGS += --debug
 else
 	CFLAGS += -Os
 	CXXFLAGS += -Os
@@ -62,8 +61,8 @@ ifeq ($(VERBOSE), yes)
 	CFLAGS += -v
 	CXXFLAGS += -v
 	LDFLAGS += -v
-	LEXFLAGS += -v
-	YACCFLAGS += -v
+	LFLAGS += -v
+	YFLAGS += -v
 endif
 
 LEX := /usr/bin/flex

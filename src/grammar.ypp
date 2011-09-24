@@ -1,6 +1,8 @@
 %{
+
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include <iostream>
 
@@ -16,10 +18,14 @@ extern "C"
         return 1;
     }
 
+	extern char* yytext;
 	void yyerror(const char* str)
 	{
-		std::cerr << "Error : " << str << std::endl;
+		std::cerr << "Error : \"" << str << "\"" << std::endl;
+		std::cerr << "Scanning : \"" << yytext << "\"" << std::endl;
 	}
+
+	void prompt();
 }
 
 using namespace Makefile;
@@ -30,59 +36,63 @@ using namespace Makefile;
 {
 	char string[100];
 	int integer;
+	int boolean;
 	void* pointer;
 	char* charPointer;
 }
 
+%token T_EXIT
+
 %token T_OPTION
+%token T_LIST
+%token <string>T_BOOL_OPTION
+%token <boolean> T_BOOL_VALUE
+
 %token T_TARGET
 %token T_SET
 %token T_ADD
 %token T_EDIT
 %token T_RM
-%token T_END
-%token T_LIST
-%token <string> T_NAME
-%token <integer> T_VALUE
 
 %start configurations
 
 %%
 
 configurations: /* empty */
-			  | end
 			  | configurations configuration
-
-end: T_END
-   {
-				std::cout << "Bye Bye!" << std::endl;
-				exit(0);
-   }
 
 configuration:/* target
 			 |*/ option
+			 | exit
+
+exit: T_EXIT
+   {
+		std::cout << "Bye!" << std::endl;
+		exit(0);
+   }
 
 option: T_OPTION option_command
 	  {
 	  }
 
-option_command: T_SET T_NAME T_VALUE
-			{
-				if (strcmp($2, "debug") == 0)
-				{
-					Options::currentOptions().setDebug($3 == (int)'t' || ($3 != (int)'f' && $3 != 0));
-				}
-				else if (strcmp($2, "verbose") == 0)
-				{
-					Options::currentOptions().setVerbose($3 == (int)'t' || ($3 != (int)'f' && $3 != 0));
-				}
-			}
-				| T_LIST
+option_command: T_SET option_set
+			  | T_LIST
 			{
 				std::cout << "Debug\t: " << Options::currentOptions().getDebug() << std::endl;
 				std::cout << "Verbose\t: " << Options::currentOptions().getVerbose() << std::endl;
 			}
 
+option_set: T_BOOL_OPTION T_BOOL_VALUE
+		  {
+				if (strcmp($1, "debug") == 0)
+				{
+					Options::currentOptions().setDebug($2);
+				}
+				else if (strcmp($1, "verbose") == 0)
+				{
+					Options::currentOptions().setVerbose($2);
+				}
+		  }
 
 /*
 target:	T_TARGET target_command

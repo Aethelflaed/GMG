@@ -41,9 +41,9 @@ endef
 
 define make-gen-goal
 $1/%.c: %.l
-	$(LEX) $(LEXFLAGS) -o $$@ $$^
+	$(LEX) $(LFLAGS) -o $$@ $$^
 $1/%.cpp: %.ypp
-	$(YACC) $(YACCFLAGS) $$^ -o $$@
+	$(YACC) $(YFLAGS) -d $$^ -o $$@
 endef
 
 #Build all

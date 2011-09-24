@@ -7,6 +7,11 @@
 extern "C"
 {
 	int yyparse();
+
+	void prompt()
+	{
+		std::cout << ">";
+	}
 }
 
 extern FILE* yyin;
@@ -23,6 +28,7 @@ int main(int argc, const char** argv)
 		}
 	}
 
+	prompt();
 	yyparse();
 
 	if (input != nullptr)
