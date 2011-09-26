@@ -9,6 +9,7 @@ extern void prompt();
 
 WS			[ \t\r\n]
 BOOL		0|1|[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
+WORD		[a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
@@ -34,6 +35,12 @@ set/{WS}			{return T_SET;}
 debug|verbose		{
 		strcpy(yylval.string, yytext);
 		return T_BOOL_OPTION;
+	}
+
+\"					{return '"';}
+{WORD}				{
+		strcpy(yylval.string, yytext);
+		return T_WORD;
 	}
 
 [\r\n]				{ prompt(); }

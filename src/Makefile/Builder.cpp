@@ -31,7 +31,7 @@ Target& Builder::addTarget(const std::string& name)
 
 	if (result.second == false)
 	{
-		throw new std::invalid_argument("Target already exists");
+		throw std::invalid_argument{"Target already exists"};
 	}
 
 	return result.first->second;
@@ -46,7 +46,7 @@ Target& Builder::getTarget(const std::string& name)
 	}
 	catch(std::out_of_range ex)
 	{
-		throw new std::out_of_range("No such target");
+		throw std::out_of_range{"No such target"};
 	}
 }
 
@@ -56,7 +56,7 @@ void Builder::removeTarget(const std::string& name)
 	targets_map::size_type count = this->targets.erase(name);
 	if (count < 1)
 	{
-		throw new std::out_of_range("No such target");
+		throw std::out_of_range{"No such target"};
 	}
 }
 

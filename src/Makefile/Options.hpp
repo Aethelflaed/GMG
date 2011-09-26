@@ -20,8 +20,8 @@ namespace Makefile
 		friend std::ostream& operator<< (std::ostream& stream, Options& options)
 		{
 			stream << "Options :" << std::endl;
-			stream << "\tDebug :\t" << options.getDebug() << std::endl;
-			stream << "\tVerbose :\t" << options.getVerbose() << std::endl;
+			stream << " - debug   : " << options.getDebug() << std::endl;
+			stream << " - verbose : " << options.getVerbose() << std::endl;
 			return stream;
 		}
 

@@ -27,7 +27,7 @@ extern "C"
 	}
 }
 
-using namespace Makefile;
+Makefile::Builder makefile{};
 
 %}
 
@@ -54,6 +54,9 @@ using namespace Makefile;
 %token T_EDIT
 %token T_RM
 
+%token <string>T_WORD
+%type <string>quoted_name
+
 %start configurations
 
 %%
@@ -78,15 +81,18 @@ option: T_OPTION option_command
 option_command: T_SET option_set
 			  | T_LIST
 			{
+				std::cout << makefile.getOptions() << std::endl;
 			}
 
 option_set: T_BOOL_OPTION T_BOOL_VALUE
 		  {
 				if (strcmp($1, "debug") == 0)
 				{
+					makefile.getOptions().setDebug($2);
 				}
 				else if (strcmp($1, "verbose") == 0)
 				{
+					makefile.getOptions().setVerbose($2);
 				}
 		  }
 
@@ -97,13 +103,45 @@ target_command: target_add
 			  | target_rm
 			  | target_list
 
-target_add: T_ADD
+target_add: T_ADD quoted_name
+		  {
+				try
+				{
+					makefile.addTarget($2);
+				}
+				catch (std::invalid_argument ex)
+				{
+					std::cerr << ex.what() << std::endl;
+				}
+		  }
 
 target_edit: T_EDIT
 
-target_rm: T_RM
+target_rm: T_RM quoted_name
+		 {
+				try
+				{
+					makefile.removeTarget($2);
+				}
+				catch (std::out_of_range ex)
+				{
+					std::cerr << ex.what() << std::endl;
+				}
+		 }
 
 target_list: T_LIST
+		   {
+				std::cout << "Targets list :" << std::endl;
+				for (auto pair : makefile.getTargets())
+				{
+					std::cout << " - " << pair.second;
+				}
+		   }
+
+quoted_name: '"' T_WORD '"'
+		   {
+				strcpy($$, $2);
+		   }
 
 %%
 
