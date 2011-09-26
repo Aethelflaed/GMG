@@ -6,6 +6,7 @@
 
 #include <iostream>
 
+#include "parser.h"
 #include "Makefile/Builder.hpp"
 
 extern "C"
@@ -27,7 +28,10 @@ extern "C"
 	}
 }
 
+ParserState state = INITIAL;
 Makefile::Builder makefile{};
+
+Makefile::Target* currentTarget = nullptr;
 
 %}
 
@@ -107,7 +111,8 @@ target_add: T_ADD quoted_name
 		  {
 				try
 				{
-					makefile.addTarget($2);
+					currentTarget = &(makefile.addTarget($2));
+					state = TARGET;
 				}
 				catch (std::invalid_argument ex)
 				{
@@ -115,7 +120,18 @@ target_add: T_ADD quoted_name
 				}
 		  }
 
-target_edit: T_EDIT
+target_edit: T_EDIT quoted_name
+		   {
+				try
+				{
+					currentTarget = &(makefile.getTarget($2));
+					state = TARGET;
+				}
+				catch (std::out_of_range ex)
+				{
+					std::cerr << ex.what() << std::endl;
+				}
+		   }
 
 target_rm: T_RM quoted_name
 		 {
