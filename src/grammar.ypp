@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "Makefile/Options.hpp"
+#include "Makefile/Builder.hpp"
 
 extern "C"
 {
@@ -19,13 +19,12 @@ extern "C"
     }
 
 	extern char* yytext;
+
 	void yyerror(const char* str)
 	{
 		std::cerr << "Error : \"" << str << "\"" << std::endl;
 		std::cerr << "Scanning : \"" << yytext << "\"" << std::endl;
 	}
-
-	void prompt();
 }
 
 using namespace Makefile;
@@ -43,13 +42,14 @@ using namespace Makefile;
 
 %token T_EXIT
 
-%token T_OPTION
 %token T_LIST
+
+%token T_OPTION
+%token T_SET
 %token <string>T_BOOL_OPTION
 %token <boolean> T_BOOL_VALUE
 
 %token T_TARGET
-%token T_SET
 %token T_ADD
 %token T_EDIT
 %token T_RM
@@ -61,8 +61,8 @@ using namespace Makefile;
 configurations: /* empty */
 			  | configurations configuration
 
-configuration:/* target
-			 |*/ option
+configuration: target
+			 | option
 			 | exit
 
 exit: T_EXIT
@@ -78,30 +78,32 @@ option: T_OPTION option_command
 option_command: T_SET option_set
 			  | T_LIST
 			{
-				std::cout << "Debug\t: " << Options::currentOptions().getDebug() << std::endl;
-				std::cout << "Verbose\t: " << Options::currentOptions().getVerbose() << std::endl;
 			}
 
 option_set: T_BOOL_OPTION T_BOOL_VALUE
 		  {
 				if (strcmp($1, "debug") == 0)
 				{
-					Options::currentOptions().setDebug($2);
 				}
 				else if (strcmp($1, "verbose") == 0)
 				{
-					Options::currentOptions().setVerbose($2);
 				}
 		  }
 
-/*
 target:	T_TARGET target_command
 
-target_command: add
-			  | edit
-			  | rm
-			  | list
-*/
+target_command: target_add
+			  | target_edit
+			  | target_rm
+			  | target_list
+
+target_add: T_ADD
+
+target_edit: T_EDIT
+
+target_rm: T_RM
+
+target_list: T_LIST
 
 %%
 

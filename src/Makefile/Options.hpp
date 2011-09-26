@@ -1,23 +1,31 @@
 #ifndef MAKEFILE_OPTIONS_HPP
 #define MAKEFILE_OPTIONS_HPP
 
+#include <ostream>
+
 namespace Makefile
 {
 	class Options
 	{
 	public:
-		static Options& currentOptions();
+		Options();
+		~Options() = default;
 
 		bool getDebug() const;
 		void setDebug(bool debug);
 
 		bool getVerbose() const;
 		void setVerbose(bool verbose);
+
+		friend std::ostream& operator<< (std::ostream& stream, Options& options)
+		{
+			stream << "Options :" << std::endl;
+			stream << "\tDebug :\t" << options.getDebug() << std::endl;
+			stream << "\tVerbose :\t" << options.getVerbose() << std::endl;
+			return stream;
+		}
+
 	private:
-		Options();
-
-		static Options* instance;
-
 		bool debug;
 		bool verbose;
 	};

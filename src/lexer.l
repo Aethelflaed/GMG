@@ -7,7 +7,6 @@ extern void prompt();
 
 %}
 
-WORD		[a-zA-Z_][a-zA-Z0-9_]+
 WS			[ \t\r\n]
 BOOL		0|1|[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
 
@@ -39,7 +38,6 @@ debug|verbose		{
 
 [\r\n]				{ prompt(); }
 [ \t]+				{/* ignore whitespace */}
-.					{/* ignore others */}
 
 %%
 
