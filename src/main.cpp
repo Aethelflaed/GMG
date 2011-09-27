@@ -1,20 +1,16 @@
 #include <iostream>
 #include <stdio.h>
 
+#include "Parser.h"
 #include "grammar.hpp"
-#include "Makefile/Options.hpp"
+#include "Makefile/Builder.hpp"
 
 extern "C"
 {
 	int yyparse();
 
-	void prompt()
-	{
-		std::cout << ">";
-	}
+	extern FILE* yyin;
 }
-
-extern FILE* yyin;
 
 int main(int argc, const char** argv)
 {
@@ -25,10 +21,11 @@ int main(int argc, const char** argv)
 		if (input != nullptr)
 		{
 			yyin = input;
+			Parser::getParser().setInteractive(false);
 		}
 	}
 
-	prompt();
+	Parser::getParser().prompt();
 	yyparse();
 
 	if (input != nullptr)

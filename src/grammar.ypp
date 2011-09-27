@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "parser.h"
+#include "Parser.h"
 #include "Makefile/Builder.hpp"
 
 extern "C"
@@ -27,11 +27,6 @@ extern "C"
 		std::cerr << "Scanning : \"" << yytext << "\"" << std::endl;
 	}
 }
-
-ParserState state = INITIAL;
-Makefile::Builder makefile{};
-
-Makefile::Target* currentTarget = nullptr;
 
 %}
 
@@ -85,18 +80,24 @@ option: T_OPTION option_command
 option_command: T_SET option_set
 			  | T_LIST
 			{
-				std::cout << makefile.getOptions() << std::endl;
+				std::cout << Parser::getParser()
+									.getMakefile()
+									.getOptions() << std::endl;
 			}
 
 option_set: T_BOOL_OPTION T_BOOL_VALUE
 		  {
 				if (strcmp($1, "debug") == 0)
 				{
-					makefile.getOptions().setDebug($2);
+					Parser::getParser()
+							.getMakefile()
+							.getOptions().setDebug($2);
 				}
 				else if (strcmp($1, "verbose") == 0)
 				{
-					makefile.getOptions().setVerbose($2);
+					Parser::getParser()
+							.getMakefile()
+							.getOptions().setVerbose($2);
 				}
 		  }
 
@@ -111,8 +112,9 @@ target_add: T_ADD quoted_name
 		  {
 				try
 				{
-					currentTarget = &(makefile.addTarget($2));
-					state = TARGET;
+					Parser& parser = Parser::getParser();
+					parser.setTarget(&parser.getMakefile().addTarget($2));
+					parser.setState(TARGET);
 				}
 				catch (std::invalid_argument ex)
 				{
@@ -124,8 +126,9 @@ target_edit: T_EDIT quoted_name
 		   {
 				try
 				{
-					currentTarget = &(makefile.getTarget($2));
-					state = TARGET;
+					Parser& parser = Parser::getParser();
+					parser.setTarget(&parser.getMakefile().addTarget($2));
+					parser.setState(TARGET);
 				}
 				catch (std::out_of_range ex)
 				{
@@ -137,7 +140,7 @@ target_rm: T_RM quoted_name
 		 {
 				try
 				{
-					makefile.removeTarget($2);
+					Parser::getParser().getMakefile().removeTarget($2);
 				}
 				catch (std::out_of_range ex)
 				{
@@ -148,7 +151,7 @@ target_rm: T_RM quoted_name
 target_list: T_LIST
 		   {
 				std::cout << "Targets list :" << std::endl;
-				for (auto pair : makefile.getTargets())
+				for (auto pair : Parser::getParser().getMakefile().getTargets())
 				{
 					std::cout << " - " << pair.second;
 				}

@@ -1,11 +1,8 @@
 %{
 
-#include "parser.h"
+#include "Parser.h"
 #include "grammar.hpp"
 #include <string.h>
-
-extern void prompt();
-extern ParserState state;
 
 %}
 
@@ -18,8 +15,7 @@ NUMBER		[0-9]+(\.[0-9]*)?
 
 %%
 	{
-		/* Initialization code */
-		if (state == TARGET)
+		if (Parser_getState() == TARGET)
 		{
 			BEGIN TARGET;
 		}
@@ -39,15 +35,15 @@ NUMBER		[0-9]+(\.[0-9]*)?
 <INITIAL>list/{WS}			{return T_LIST;}
 <INITIAL>set/{WS}			{return T_SET;}
 
+<INITIAL>debug|verbose		{
+		strcpy(yylval.string, yytext);
+		return T_BOOL_OPTION;
+	}
+
 {BOOL}/{WS}			{
 		char firstChar = yytext[0];
 		yylval.boolean = (firstChar == 't' || firstChar == 'T' || firstChar == '1');
 		return T_BOOL_VALUE;
-	}
-
-<INITIAL>debug|verbose		{
-		strcpy(yylval.string, yytext);
-		return T_BOOL_OPTION;
 	}
 
 \"					{return '"';}
@@ -56,7 +52,7 @@ NUMBER		[0-9]+(\.[0-9]*)?
 		return T_WORD;
 	}
 
-[\r\n]				{ prompt(); }
+[\r\n]				{ Parser_prompt(); }
 [ \t]+				{/* ignore whitespace */}
 
 %%
