@@ -53,6 +53,8 @@ extern "C"
 %token T_EDIT
 %token T_RM
 
+%token T_END
+
 %token <string>T_WORD
 %type <string>quoted_name
 
@@ -69,7 +71,10 @@ configuration: target
 
 exit: T_EXIT
    {
-		std::cout << "Bye!" << std::endl;
+		if (Parser::getParser().isInteractive())
+		{
+			std::cout << "Bye!" << std::endl;
+		}
 		exit(0);
    }
 
@@ -102,6 +107,13 @@ option_set: T_BOOL_OPTION T_BOOL_VALUE
 		  }
 
 target:	T_TARGET target_command
+	  | target_mode
+
+target_mode: T_END
+		   {
+				Parser::getParser().setTarget(nullptr);
+				Parser::getParser().setState(INITIAL);
+		   }
 
 target_command: target_add
 			  | target_edit
@@ -127,7 +139,7 @@ target_edit: T_EDIT quoted_name
 				try
 				{
 					Parser& parser = Parser::getParser();
-					parser.setTarget(&parser.getMakefile().addTarget($2));
+					parser.setTarget(&parser.getMakefile().getTarget($2));
 					parser.setState(TARGET);
 				}
 				catch (std::out_of_range ex)

@@ -21,39 +21,44 @@ NUMBER		[0-9]+(\.[0-9]*)?
 		}
 	}
 
-<<EOF>>					{return T_EXIT;}
-<INITIAL>exit/{WS}		{return T_EXIT;}
+<<EOF>>						{ return T_EXIT; }
+<INITIAL>exit/{WS}			{ return T_EXIT; }
 
-<INITIAL>target/{WS}			{return T_TARGET;}
-<INITIAL>option/{WS}			{return T_OPTION;}
+<INITIAL>target/{WS}		{ return T_TARGET; }
+<INITIAL>option/{WS}		{ return T_OPTION; }
 
-<INITIAL>add					{return T_ADD;}
-<INITIAL>edit				{return T_EDIT;}
-<INITIAL>rm					{return T_RM;}
-<INITIAL>list				{return T_LIST;}
+<INITIAL>add				{ return T_ADD; }
+<INITIAL>edit				{ return T_EDIT; }
+<INITIAL>rm					{ return T_RM; }
+<INITIAL>list				{ return T_LIST; }
 
-<INITIAL>list/{WS}			{return T_LIST;}
-<INITIAL>set/{WS}			{return T_SET;}
+<INITIAL>list/{WS}			{ return T_LIST; }
+<INITIAL>set/{WS}			{ return T_SET; }
 
 <INITIAL>debug|verbose		{
 		strcpy(yylval.string, yytext);
 		return T_BOOL_OPTION;
 	}
 
-{BOOL}/{WS}			{
+<TARGET>end|quit			{
+		BEGIN INITIAL;
+		return T_END;
+	}
+
+{BOOL}/{WS}					{
 		char firstChar = yytext[0];
 		yylval.boolean = (firstChar == 't' || firstChar == 'T' || firstChar == '1');
 		return T_BOOL_VALUE;
 	}
 
-\"					{return '"';}
-{WORD}				{
+\"							{ return '"'; }
+{WORD}						{
 		strcpy(yylval.string, yytext);
 		return T_WORD;
 	}
 
-[\r\n]				{ Parser_prompt(); }
-[ \t]+				{/* ignore whitespace */}
+[\r\n]						{ Parser_prompt(); }
+[ \t]+						{ /* ignore whitespace */ }
 
 %%
 
