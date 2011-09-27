@@ -54,9 +54,16 @@ extern "C"
 %token T_RM
 
 %token T_END
+%token T_MODULE
+%token T_VERSION
+%token T_SHOW
 
+%token <string>T_FILE
+%token <string>T_NUMBER
 %token <string>T_WORD
+
 %type <string>quoted_name
+%type <string>quoted_file
 
 %start configurations
 
@@ -114,6 +121,33 @@ target_mode: T_END
 				Parser::getParser().setTarget(nullptr);
 				Parser::getParser().setState(INITIAL);
 		   }
+		   | T_SHOW
+		   {
+				std::cout << Parser::getParser().getTarget() << std::endl;
+		   }
+		   | target_mode_version
+		   | T_MODULE target_mode_modules
+
+target_mode_version: T_SET T_VERSION T_NUMBER
+				   {
+						Parser::getParser().getTarget().setVersion($3);
+				   }
+
+target_mode_modules: T_ADD quoted_file
+				   {
+						Parser::getParser().getTarget().addModule($2);
+				   }
+				   | T_RM quoted_file
+				   {
+						try
+						{
+							Parser::getParser().getTarget().removeModule($2);
+						}
+						catch (std::out_of_range ex)
+						{
+							std::cerr << ex.what() << std::endl;
+						}
+				   }
 
 target_command: target_add
 			  | target_edit
@@ -173,6 +207,16 @@ quoted_name: '"' T_WORD '"'
 		   {
 				strcpy($$, $2);
 		   }
+
+quoted_file: '"' T_FILE '"'
+		   {
+				strcpy($$, $2);
+		   }
+		   | '"' T_WORD '"'
+		   {
+				strcpy($$, $2);
+		   }
+
 
 %%
 

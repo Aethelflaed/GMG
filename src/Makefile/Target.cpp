@@ -10,7 +10,7 @@ Target::Target()
 }
 
 Target::Target(const std::string& name)
-	:name{name}
+	:name{name}, version{}, modules{}
 {
 }
 

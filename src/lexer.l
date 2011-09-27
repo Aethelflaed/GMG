@@ -10,6 +10,7 @@ WS			[ \t\r\n]
 BOOL		0|1|[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
 WORD		[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER		[0-9]+(\.[0-9]*)?
+FILE		[a-zA-Z0-9_./\\-]+
 
 %s TARGET
 
@@ -21,44 +22,55 @@ NUMBER		[0-9]+(\.[0-9]*)?
 		}
 	}
 
-<<EOF>>						{ return T_EXIT; }
-<INITIAL>exit/{WS}			{ return T_EXIT; }
+<<EOF>>							{ return T_EXIT; }
+<INITIAL>exit/{WS}				{ return T_EXIT; }
 
-<INITIAL>target/{WS}		{ return T_TARGET; }
-<INITIAL>option/{WS}		{ return T_OPTION; }
+<INITIAL>target/{WS}			{ return T_TARGET; }
+<INITIAL>option/{WS}			{ return T_OPTION; }
 
-<INITIAL>add				{ return T_ADD; }
-<INITIAL>edit				{ return T_EDIT; }
-<INITIAL>rm					{ return T_RM; }
-<INITIAL>list				{ return T_LIST; }
+add/{WS}						{ return T_ADD; }
+list/{WS}						{ return T_LIST; }
+set/{WS}						{ return T_SET; }
+rm/{WS}							{ return T_RM; }
 
-<INITIAL>list/{WS}			{ return T_LIST; }
-<INITIAL>set/{WS}			{ return T_SET; }
+<INITIAL>edit/{WS}				{ return T_EDIT; }
 
-<INITIAL>debug|verbose		{
+<INITIAL>(debug|verbose)/{WS}	{
 		strcpy(yylval.string, yytext);
 		return T_BOOL_OPTION;
 	}
 
-<TARGET>end|quit			{
+<TARGET>(end|quit)/{WS}			{
 		BEGIN INITIAL;
 		return T_END;
 	}
 
-{BOOL}/{WS}					{
+<TARGET>module(s)?/{WS}			{ return T_MODULE; }
+<TARGET>version/{WS}			{ return T_VERSION; }
+<TARGET>show/{WS}				{ return T_SHOW; }
+
+{BOOL}/{WS}						{
 		char firstChar = yytext[0];
 		yylval.boolean = (firstChar == 't' || firstChar == 'T' || firstChar == '1');
 		return T_BOOL_VALUE;
 	}
 
-\"							{ return '"'; }
-{WORD}						{
+\"								{ return '"'; }
+{WORD}							{
 		strcpy(yylval.string, yytext);
 		return T_WORD;
 	}
+{NUMBER}						{
+		strcpy(yylval.string, yytext);
+		return T_NUMBER;
+	}
+{FILE}							{
+		strcpy(yylval.string, yytext);
+		return T_FILE;
+	}
 
-[\r\n]						{ Parser_prompt(); }
-[ \t]+						{ /* ignore whitespace */ }
+[\r\n]							{ Parser_prompt(); }
+[ \t]+							{ /* ignore whitespace */ }
 
 %%
 
