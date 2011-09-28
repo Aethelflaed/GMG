@@ -7,7 +7,7 @@
 %}
 
 WS			[ \t\r\n]
-BOOL		[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
+BOOL		(?i:(t(r(u(e)?)?)?|f(a(l(s(e)?)?)?)?))
 WORD		[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER		[0-9]+(\.[0-9]*)?
 FILE		[a-zA-Z0-9_./\\-]+
