@@ -11,6 +11,13 @@ namespace Makefile
 	class Target
 	{
 	public:
+		enum class Type : unsigned int
+		{
+			Application = 0,
+			UnitTest = 1,
+			Library = 2
+		};
+
 		Target();
 		explicit Target(const std::string& name);
 		~Target() = default;
@@ -25,6 +32,9 @@ namespace Makefile
 		std::vector<std::string>& getModules();
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module) throw (std::out_of_range);
+
+		Type getType() const;
+		void setType(Type type);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
@@ -42,6 +52,7 @@ namespace Makefile
 		std::string name;
 		std::string version;
 		std::vector<std::string> modules;
+		Type type;
 	};
 }
 

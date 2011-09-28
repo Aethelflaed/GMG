@@ -5,12 +5,12 @@
 using namespace Makefile;
 
 Target::Target()
-	:name{}, version{}, modules{}
+	:name{}, version{}, modules{}, type{Type::Application}
 {
 }
 
 Target::Target(const std::string& name)
-	:name{name}, version{}, modules{}
+	:name{name}, version{}, modules{}, type{Type::Application}
 {
 }
 
@@ -61,5 +61,15 @@ void Target::removeModule(const std::string& module)
 	}
 
 	this->modules.erase(iterator);
+}
+
+auto Target::getType() const -> Type
+{
+	return this->type;
+}
+
+void Target::setType(Type type)
+{
+	this->type = type;
 }
 
