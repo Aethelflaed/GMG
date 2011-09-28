@@ -64,6 +64,7 @@ extern "C"
 
 %type <string>quoted_name
 %type <string>quoted_file
+%type <boolean>bool_value
 
 %start configurations
 
@@ -97,7 +98,7 @@ option_command: T_SET option_set
 									.getOptions() << std::endl;
 			}
 
-option_set: T_BOOL_OPTION T_BOOL_VALUE
+option_set: T_BOOL_OPTION bool_value
 		  {
 				if (strcmp($1, "debug") == 0)
 				{
@@ -110,22 +111,6 @@ option_set: T_BOOL_OPTION T_BOOL_VALUE
 					Parser::getParser()
 							.getMakefile()
 							.getOptions().setVerbose($2);
-				}
-		  }
-		  | T_BOOL_OPTION T_NUMBER
-		  {
-				bool value = strtol($2, nullptr, 10) != 0;
-				if (strcmp($1, "debug") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setDebug(value);
-				}
-				else if (strcmp($1, "verbose") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setVerbose(value);
 				}
 		  }
 
@@ -233,6 +218,14 @@ quoted_file: '"' T_FILE '"'
 				strcpy($$, $2);
 		   }
 
+bool_value: T_BOOL_VALUE
+		  {
+				$$ = $1;
+		  }
+		  | T_NUMBER
+		  {
+				$$ = strtol($1, nullptr, 10) != 0;
+		  }
 
 %%
 
