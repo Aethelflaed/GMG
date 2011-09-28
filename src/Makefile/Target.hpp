@@ -14,8 +14,8 @@ namespace Makefile
 		enum class Type : unsigned int
 		{
 			Application = 0,
-			UnitTest = 1,
-			Library = 2
+			Library = 1,
+			UnitTest = 2
 		};
 
 		Target();
@@ -38,8 +38,25 @@ namespace Makefile
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
+			std::string type;
+			switch(target.getType())
+			{
+				case Type::Application:
+					type = "Application";
+					break;
+				case Type::Library:
+					type = "Library";
+					break;
+				case Type::UnitTest:
+					type = "UnitTest";
+					break;
+				default:
+					type = "Unknow";
+					break;
+			}
 			stream << "Target \"" << target.getName()
-				   << "\" version \"" << target.getVersion()
+				   << "\", version \"" << target.getVersion()
+				   << "\", type \"" << type
 				   << "\"\n  Modules :\n";
 			for (std::string module : target.getModules())
 			{

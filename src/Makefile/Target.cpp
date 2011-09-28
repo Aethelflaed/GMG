@@ -5,12 +5,12 @@
 using namespace Makefile;
 
 Target::Target()
-	:name{}, version{}, modules{}, type{Type::Application}
+	:name{}, version{"1.0"}, modules{}, type{Type::Application}
 {
 }
 
 Target::Target(const std::string& name)
-	:name{name}, version{}, modules{}, type{Type::Application}
+	:name{name}, version{"1.0"}, modules{}, type{Type::Application}
 {
 }
 

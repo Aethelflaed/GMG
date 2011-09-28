@@ -32,7 +32,7 @@ extern "C"
 
 %union
 {
-	char string[100];
+	char string[256];
 	int integer;
 	int boolean;
 	void* pointer;
@@ -57,6 +57,9 @@ extern "C"
 %token T_MODULE
 %token T_VERSION
 %token T_SHOW
+
+%token T_TYPE
+%token <integer>T_TARGET_TYPE
 
 %token <string>T_FILE
 %token <string>T_NUMBER
@@ -126,13 +129,17 @@ target_mode: T_END
 		   {
 				std::cout << Parser::getParser().getTarget() << std::endl;
 		   }
-		   | target_mode_version
+		   | T_SET target_mode_param
 		   | T_MODULE target_mode_modules
 
-target_mode_version: T_SET T_VERSION T_NUMBER
-				   {
-						Parser::getParser().getTarget().setVersion($3);
-				   }
+target_mode_param: T_VERSION T_NUMBER
+				 {
+						Parser::getParser().getTarget().setVersion($2);
+				 }
+				 | T_TYPE T_TARGET_TYPE
+				 {
+						Parser::getParser().getTarget().setType(Makefile::Target::Type($2));
+				 }
 
 target_mode_modules: T_ADD quoted_file
 				   {

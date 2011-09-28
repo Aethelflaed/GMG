@@ -3,14 +3,16 @@
 #include "Parser.h"
 #include "grammar.hpp"
 #include <string.h>
+#include <ctype.h>
 
 %}
 
-WS			[ \t\r\n]
-BOOL		(?i:(t(r(u(e)?)?)?|f(a(l(s(e)?)?)?)?))
-WORD		[a-zA-Z_][a-zA-Z0-9_]*
-NUMBER		[0-9]+(\.[0-9]*)?
-FILE		[a-zA-Z0-9_./\\-]+
+WS				[ \t\r\n]
+BOOL			(?i:(t(r(u(e)?)?)?|f(a(l(s(e)?)?)?)?))
+TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
+WORD			[a-zA-Z_][a-zA-Z0-9_]*
+NUMBER			[0-9]+(\.[0-9]*)?
+FILE			[a-zA-Z0-9_./\\-]+
 
 %s TARGET
 
@@ -48,10 +50,19 @@ rm/{WS}							{ return T_RM; }
 <TARGET>module(s)?/{WS}			{ return T_MODULE; }
 <TARGET>version/{WS}			{ return T_VERSION; }
 <TARGET>show/{WS}				{ return T_SHOW; }
+<TARGET>type/{WS}				{ return T_TYPE; }
+
+<TARGET>{TARGET_TYPE}/{WS}		{
+		char firstChar = (char) tolower((int) yytext[0]);
+		if (firstChar == 'a')		{ yylval.integer = 0; }
+		else if (firstChar == 'l')	{ yylval.integer = 1; }
+		else						{ yylval.integer = 2; }
+		return T_TARGET_TYPE;
+	}
 
 {BOOL}/{WS}						{
-		char firstChar = yytext[0];
-		yylval.boolean = (firstChar == 't' || firstChar == 'T');
+		char firstChar = (char) tolower((int) yytext[0]);
+		yylval.boolean = firstChar == 't';
 		return T_BOOL_VALUE;
 	}
 
