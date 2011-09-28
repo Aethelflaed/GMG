@@ -112,6 +112,22 @@ option_set: T_BOOL_OPTION T_BOOL_VALUE
 							.getOptions().setVerbose($2);
 				}
 		  }
+		  | T_BOOL_OPTION T_NUMBER
+		  {
+				bool value = strtol($2, nullptr, 10) != 0;
+				if (strcmp($1, "debug") == 0)
+				{
+					Parser::getParser()
+							.getMakefile()
+							.getOptions().setDebug(value);
+				}
+				else if (strcmp($1, "verbose") == 0)
+				{
+					Parser::getParser()
+							.getMakefile()
+							.getOptions().setVerbose(value);
+				}
+		  }
 
 target:	T_TARGET target_command
 	  | target_mode

@@ -7,7 +7,7 @@
 %}
 
 WS			[ \t\r\n]
-BOOL		0|1|[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
+BOOL		[tT]([rR]([uU]([eE])?)?)?|[fF]([aA]([lL]([sS]([eE])?)?)?)?
 WORD		[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER		[0-9]+(\.[0-9]*)?
 FILE		[a-zA-Z0-9_./\\-]+
@@ -51,18 +51,19 @@ rm/{WS}							{ return T_RM; }
 
 {BOOL}/{WS}						{
 		char firstChar = yytext[0];
-		yylval.boolean = (firstChar == 't' || firstChar == 'T' || firstChar == '1');
+		yylval.boolean = (firstChar == 't' || firstChar == 'T');
 		return T_BOOL_VALUE;
+	}
+
+{NUMBER}/{WS}					{
+		strcpy(yylval.string, yytext);
+		return T_NUMBER;
 	}
 
 \"								{ return '"'; }
 {WORD}							{
 		strcpy(yylval.string, yytext);
 		return T_WORD;
-	}
-{NUMBER}						{
-		strcpy(yylval.string, yytext);
-		return T_NUMBER;
 	}
 {FILE}							{
 		strcpy(yylval.string, yytext);
