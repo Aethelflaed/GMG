@@ -25,8 +25,8 @@ FILE		[a-zA-Z0-9_./\\-]+
 <<EOF>>							{ return T_EXIT; }
 <INITIAL>exit/{WS}				{ return T_EXIT; }
 
-<INITIAL>target/{WS}			{ return T_TARGET; }
-<INITIAL>option/{WS}			{ return T_OPTION; }
+<INITIAL>target(s)?/{WS}		{ return T_TARGET; }
+<INITIAL>option(s)?/{WS}		{ return T_OPTION; }
 
 add/{WS}						{ return T_ADD; }
 list/{WS}						{ return T_LIST; }
