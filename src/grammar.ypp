@@ -151,7 +151,7 @@ target_mode_modules: T_ADD quoted_file
 						{
 							Parser::getParser().getTarget().removeModule($2);
 						}
-						catch (std::out_of_range ex)
+						catch (const std::out_of_range& ex)
 						{
 							std::cerr << ex.what() << std::endl;
 						}
@@ -170,7 +170,7 @@ target_add: T_ADD quoted_name
 					parser.setTarget(&parser.getMakefile().addTarget($2));
 					parser.setState(TARGET);
 				}
-				catch (std::invalid_argument ex)
+				catch (const std::invalid_argument& ex)
 				{
 					std::cerr << ex.what() << std::endl;
 				}
@@ -184,7 +184,7 @@ target_edit: T_EDIT quoted_name
 					parser.setTarget(&parser.getMakefile().getTarget($2));
 					parser.setState(TARGET);
 				}
-				catch (std::out_of_range ex)
+				catch (const std::out_of_range& ex)
 				{
 					std::cerr << ex.what() << std::endl;
 				}
@@ -196,7 +196,7 @@ target_rm: T_RM quoted_name
 				{
 					Parser::getParser().getMakefile().removeTarget($2);
 				}
-				catch (std::out_of_range ex)
+				catch (const std::out_of_range& ex)
 				{
 					std::cerr << ex.what() << std::endl;
 				}

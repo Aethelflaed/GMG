@@ -1,0 +1,22 @@
+option set debug true
+options list
+targets list
+target add "Program"
+set type Application
+set version 3.0
+module add "GUI"
+module add "helpers"
+module add "helpers/web"
+end
+target add "Library"
+set type lib
+set version 1.134
+module add "web"
+end
+target add "Tester"
+set type unitTest
+set version 0.1
+module add "helpers"
+end
+targets list
+exit

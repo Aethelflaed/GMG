@@ -63,6 +63,9 @@ void Parser::setInteractive(bool interactive)
 	this->interactive = interactive;
 }
 
+/*
+ * Implement the C accessors
+ */
 extern "C"
 {
 	ParserState Parser_getState()
