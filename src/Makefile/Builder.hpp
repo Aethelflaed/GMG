@@ -2,7 +2,6 @@
 #define MAKEFILE_BUILDER_HPP
 
 #include <stdexcept>
-#include <memory>
 #include <string>
 #include <unordered_map>
 
