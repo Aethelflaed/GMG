@@ -19,6 +19,7 @@ namespace Makefile
 		};
 
 		Config();
+		Config(const Config& config);
 		~Config() = default;
 
 		OperatingSystem getTargetOS() const;
@@ -34,7 +35,7 @@ namespace Makefile
 
 		const std::vector<std::string>& getLibraries() const;
 		std::vector<std::string>& getLibraries();
-		void addIncludePath(std::string library);
+		void addLibrary(std::string library);
 	private:
 #if defined MACOSX
 		static const OperatingSystem currentOS = OperatingSystem::MacOSX;

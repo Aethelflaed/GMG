@@ -75,4 +75,8 @@ Config& Target::getConfig()
 {
 	return this->config;
 }
+void Target::setConfig(const Config& config)
+{
+	this->config = Config{config};
+}
 

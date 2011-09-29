@@ -40,6 +40,7 @@ namespace Makefile
 
 		const Config& getConfig() const;
 		Config& getConfig();
+		void setConfig(const Config& config);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{

@@ -7,6 +7,12 @@ Config::Config()
 {
 }
 
+Config::Config(const Config& config)
+	:targetOS{config.targetOS}, includePaths{config.includePaths},
+	 libraryPaths{config.libraryPaths}, libraries{libraries}
+{
+}
+
 auto Config::getTargetOS() const -> OperatingSystem
 {
 	return this->targetOS;
@@ -50,7 +56,7 @@ std::vector<std::string>& Config::getLibraries()
 {
 	return this->libraries;
 }
-void Config::addIncludePath(std::string library)
+void Config::addLibrary(std::string library)
 {
 	this->libraries.push_back(library);
 }
