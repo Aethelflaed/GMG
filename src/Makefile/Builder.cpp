@@ -11,7 +11,6 @@ const Options& Builder::getOptions() const
 {
 	return this->options;
 }
-
 Options& Builder::getOptions()
 {
 	return this->options;
@@ -21,7 +20,6 @@ Builder::targets_map Builder::getTargets() const
 {
 	return this->targets;
 }
-
 Target& Builder::addTarget(const std::string& name)
 	throw (std::invalid_argument)
 {
@@ -36,7 +34,6 @@ Target& Builder::addTarget(const std::string& name)
 
 	return result.first->second;
 }
-
 Target& Builder::getTarget(const std::string& name)
 	throw (std::out_of_range)
 {
@@ -49,7 +46,6 @@ Target& Builder::getTarget(const std::string& name)
 		throw std::out_of_range{"No such target"};
 	}
 }
-
 void Builder::removeTarget(const std::string& name)
 	throw (std::out_of_range)
 {
