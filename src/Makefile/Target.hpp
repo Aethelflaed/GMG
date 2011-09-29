@@ -6,6 +6,8 @@
 #include <vector>
 #include <stdexcept>
 
+#include "Config.hpp"
+
 namespace Makefile
 {
 	class Target
@@ -35,6 +37,9 @@ namespace Makefile
 
 		Type getType() const;
 		void setType(Type type);
+
+		const Config& getConfig() const;
+		Config& getConfig();
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
@@ -70,6 +75,7 @@ namespace Makefile
 		std::string version;
 		std::vector<std::string> modules;
 		Type type;
+		Config config;
 	};
 }
 
