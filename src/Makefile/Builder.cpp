@@ -16,7 +16,7 @@ Options& Builder::getOptions()
 	return this->options;
 }
 
-Builder::targets_map Builder::getTargets() const
+const Builder::targets_map& Builder::getTargets() const
 {
 	return this->targets;
 }

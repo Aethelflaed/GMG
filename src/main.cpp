@@ -33,6 +33,6 @@ int main(int argc, const char** argv)
 		fclose(input);
 	}
 
-	return EXIT_SUCCESS;
+	return 0;
 }
 

@@ -14,7 +14,7 @@ namespace Makefile
 	public:
 		enum class Type : int
 		{
-			OTHER = -1
+			OTHER = -1,
 			C = 0,
 			CXX,
 			LEX,
