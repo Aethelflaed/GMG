@@ -1,5 +1,7 @@
 #include "Tool.hpp"
 
+#include <algorithm>
+
 using namespace Makefile;
 
 std::map<int, std::string> Tool::typeNames {
@@ -40,12 +42,19 @@ std::map<int, std::vector<std::string>> Tool::debugFlags {
 	},
 	std::pair<int, std::vector<std::string>>{(int) Type::YACC,
 		std::vector<std::string> { "--debug" }
+	},
+	std::pair<int, std::vector<std::string>>{(int) Type::TEX,
+		std::vector<std::string> { "" }
 	}
 };
 
-/*std::map<int, std::string> Tool::verboseFlags {
-	std::pair<int, std::string>{(int) Type::C, "-v">}
-};*/
+std::map<int, std::string> Tool::verboseFlags {
+	std::pair<int, std::string>{(int) Type::C,    "-v"},
+	std::pair<int, std::string>{(int) Type::CXX,  "-v"},
+	std::pair<int, std::string>{(int) Type::LEX,  "-v"},
+	std::pair<int, std::string>{(int) Type::YACC, "-v"},
+	std::pair<int, std::string>{(int) Type::TEX,  ""}
+};
 
 Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
 	:type{Type::OTHER}, customType{-1}, name{}, path{}, flags{}
@@ -121,5 +130,33 @@ std::vector<std::string>& Tool::getFlags()
 void Tool::addFlag(const std::string& flag)
 {
 	this->flags.push_back(flag);
+}
+
+void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
+{
+	auto iterator =  std::find(this->flags.begin(),
+		this->flags.end(),
+		flag);
+	if (iterator == this->flags.end())
+	{
+		throw std::out_of_range("No such flag");
+	}
+
+	this->flags.erase(iterator);
+}
+
+void Tool::removeFlag(int index) throw (std::out_of_range)
+{
+	std::string flag;
+	try
+	{
+		flag = this->flags.at(index);
+	}
+	catch(const std::out_of_range& ex)
+	{
+		throw std::out_of_range("No such flag");
+	}
+
+	this->removeFlag(flag);
 }
 

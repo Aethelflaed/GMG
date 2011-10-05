@@ -1,8 +1,10 @@
 #ifndef MAKEFILE_TOOL_HPP
 #define MAKEFILE_TOOL_HPP
 
+#include <ostream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 #include <map>
 
 namespace Makefile
@@ -10,14 +12,14 @@ namespace Makefile
 	class Tool
 	{
 	public:
-		enum class Type : unsigned int
+		enum class Type : int
 		{
+			OTHER = -1
 			C = 0,
 			CXX,
 			LEX,
 			YACC,
-			TEX,
-			OTHER
+			TEX
 		};
 
 		static std::map<int, std::string> typeNames;
@@ -46,8 +48,8 @@ namespace Makefile
 		const std::vector<std::string>& getFlags() const;
 		std::vector<std::string>& getFlags();
 		void addFlag(const std::string& flag);
-		void removeFlag(const std::string& flag);
-		void removeFlag(int index);
+		void removeFlag(const std::string& flag) throw (std::out_of_range);
+		void removeFlag(int index) throw (std::out_of_range);
 
 		void addDebugFlag();
 		void addVerboseFlag();
