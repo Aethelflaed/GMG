@@ -4,3 +4,4 @@ gen/*
 .cproject
 .project
 .settings/*
+doc/uml/*.vpp\~*
