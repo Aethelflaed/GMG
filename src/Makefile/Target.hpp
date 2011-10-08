@@ -6,6 +6,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include "define.hpp"
 #include "Config.hpp"
 
 namespace Makefile
@@ -20,8 +21,8 @@ namespace Makefile
 			UnitTest = 2
 		};
 
-		Target();
-		explicit Target(const std::string& name);
+		explicit Target(Builder& builder);
+		Target(Builder& builder, const std::string& name);
 		~Target() = default;
 
 		const std::string& getName() const;
@@ -74,11 +75,13 @@ namespace Makefile
 		}
 
 	private:
+		Builder& builder;
 		std::string name;
 		std::string version;
 		std::vector<std::string> modules;
 		Type type;
 		Config config;
+		std::vector<Tool> tool;
 	};
 }
 

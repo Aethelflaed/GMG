@@ -4,13 +4,15 @@
 
 using namespace Makefile;
 
-Target::Target()
-	:name{}, version{"1.0"}, modules{}, type{Type::Application}, config{}
+Target::Target(Builder& builder)
+	:builder{builder}, name{}, version{"1.0"},
+	 modules{}, type{Type::Application}, config{}
 {
 }
 
-Target::Target(const std::string& name)
-	:name{name}, version{"1.0"}, modules{}, type{Type::Application}, config{}
+Target::Target(Builder& builder, const std::string& name)
+	:builder{builder}, name{name}, version{"1.0"},
+	 modules{}, type{Type::Application}, config{}
 {
 }
 
