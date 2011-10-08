@@ -19,7 +19,7 @@ Parser& Parser::getParser()
 	return *parser;
 }
 
-void Parser::prompt()
+void Parser::prompt() const
 {
 	if (this->interactive == true)
 	{

@@ -33,7 +33,7 @@ class Parser
 public:
 	static Parser& getParser();
 
-	void prompt();
+	void prompt() const;
 
 	ParserState getState() const;
 	void setState(ParserState state);
