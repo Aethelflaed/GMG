@@ -34,6 +34,7 @@ namespace Makefile
 		std::vector<std::string>& getModules();
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module) throw (std::out_of_range);
+		void removeModule(int index) throw (std::out_of_range);
 
 		Type getType() const;
 		void setType(Type type);
@@ -64,9 +65,10 @@ namespace Makefile
 				   << "\", version \"" << target.getVersion()
 				   << "\", type \"" << type
 				   << "\"\n  Modules :\n";
-			for (std::string module : target.getModules())
+			auto modules = target.getModules();
+			for (size_t i = 0; i < modules.size(); i++)
 			{
-				stream << "\t" << module << "\n";
+				stream << "\t" << i << "\t: " << modules[i] << "\n";
 			}
 			return stream;
 		}

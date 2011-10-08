@@ -57,6 +57,21 @@ void Target::removeModule(const std::string& module)
 
 	this->modules.erase(iterator);
 }
+void Target::removeModule(int index)
+	throw (std::out_of_range)
+{
+	std::string module;
+	try
+	{
+		module = this->modules.at(index);
+	}
+	catch (const std::out_of_range& ex)
+	{
+		throw std::out_of_range("No such module");
+	}
+
+	this->removeModule(module);
+}
 
 auto Target::getType() const -> Type
 {
