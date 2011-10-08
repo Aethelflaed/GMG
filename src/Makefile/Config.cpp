@@ -3,7 +3,7 @@
 using namespace Makefile;
 
 Config::Config()
-	:targetOS{Config::currentOS}, includePaths{}, libraryPaths{}, libraries{}
+	:targetOS{Config::getCurrentOS()}, includePaths{}, libraryPaths{}, libraries{}
 {
 }
 
@@ -11,6 +11,17 @@ Config::Config(const Config& config)
 	:targetOS{config.targetOS}, includePaths{config.includePaths},
 	 libraryPaths{config.libraryPaths}, libraries{libraries}
 {
+}
+
+constexpr auto Config::getCurrentOS() -> OperatingSystem
+{
+#if defined MACOSX
+	return OperatingSystem::MacOSX;
+#elif defined LINUX
+	return OperatingSystem::Linux;
+#elif defined WINDOWS
+	return OperatingSystem::Windows;
+#endif
 }
 
 auto Config::getTargetOS() const -> OperatingSystem
