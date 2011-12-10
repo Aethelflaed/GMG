@@ -5,19 +5,19 @@
 using namespace Makefile;
 
 std::map<int, std::string> Tool::typeNames {
-	std::pair<int, std::string>{(int) Type::C, "C"},
-	std::pair<int, std::string>{(int) Type::CXX, "CXX"},
-	std::pair<int, std::string>{(int) Type::LEX, "LEX"},
-	std::pair<int, std::string>{(int) Type::YACC, "YACC"},
-	std::pair<int, std::string>{(int) Type::TEX, "TEX"}
+	std::pair<int, std::string>((int) Type::C, "C"),
+	std::pair<int, std::string>((int) Type::CXX, "CXX"),
+	std::pair<int, std::string>((int) Type::LEX, "LEX"),
+	std::pair<int, std::string>((int) Type::YACC, "YACC"),
+	std::pair<int, std::string>((int) Type::TEX, "TEX")
 };
 
 std::map<int, std::string> Tool::typeFlagNames {
-	std::pair<int, std::string>{(int) Type::C, "CFLAGS"},
-	std::pair<int, std::string>{(int) Type::CXX, "CXXFLAGS"},
-	std::pair<int, std::string>{(int) Type::LEX, "LEXFLAGS"},
-	std::pair<int, std::string>{(int) Type::YACC, "YFLAGS"},
-	std::pair<int, std::string>{(int) Type::TEX, "TEXFLAGS"}
+	std::pair<int, std::string>((int) Type::C, "CFLAGS"),
+	std::pair<int, std::string>((int) Type::CXX, "CXXFLAGS"),
+	std::pair<int, std::string>((int) Type::LEX, "LEXFLAGS"),
+	std::pair<int, std::string>((int) Type::YACC, "YFLAGS"),
+	std::pair<int, std::string>((int) Type::TEX, "TEXFLAGS")
 };
 
 std::map<int, std::vector<std::string>> Tool::debugFlags {
@@ -38,7 +38,7 @@ std::map<int, std::vector<std::string>> Tool::debugFlags {
 		}
 	},
 	std::pair<int, std::vector<std::string>>{(int) Type::LEX,
-		std::vector<std::string> {}
+		std::vector<std::string> ()
 	},
 	std::pair<int, std::vector<std::string>>{(int) Type::YACC,
 		std::vector<std::string> { "--debug" }
@@ -49,15 +49,15 @@ std::map<int, std::vector<std::string>> Tool::debugFlags {
 };
 
 std::map<int, std::string> Tool::verboseFlags {
-	std::pair<int, std::string>{(int) Type::C,    "-v"},
-	std::pair<int, std::string>{(int) Type::CXX,  "-v"},
-	std::pair<int, std::string>{(int) Type::LEX,  "-v"},
-	std::pair<int, std::string>{(int) Type::YACC, "-v"},
-	std::pair<int, std::string>{(int) Type::TEX,  ""}
+	std::pair<int, std::string>((int) Type::C,    "-v"),
+	std::pair<int, std::string>((int) Type::CXX,  "-v"),
+	std::pair<int, std::string>((int) Type::LEX,  "-v"),
+	std::pair<int, std::string>((int) Type::YACC, "-v"),
+	std::pair<int, std::string>((int) Type::TEX,  "")
 };
 
 Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
-	:type{Type::OTHER}, customType{-1}, name{}, path{}, flags{}
+	:type(Type::OTHER), customType(-1), name(), path(), flags()
 {
 	int typeId = typeNames.size();
 	typeNames[typeId] = typeName;
@@ -65,7 +65,7 @@ Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
 }
 
 Tool::Tool(Type type)
-	:type{type}, customType{-1}, name{}, path{}, flags{}
+	:type(type), customType(-1), name(), path(), flags()
 {
 	if (this->type == Type::YACC)
 	{
@@ -74,7 +74,7 @@ Tool::Tool(Type type)
 }
 
 Tool::Tool(int type)
-	:type{Type::OTHER}, customType{type}, name{}, path{}, flags{}
+	:type(Type::OTHER), customType(type), name(), path(), flags()
 {
 }
 

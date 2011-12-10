@@ -3,7 +3,7 @@
 using namespace Makefile;
 
 Options::Options()
-	: debug{false}, verbose{false}
+	: debug(false), verbose(false)
 {
 }
 
