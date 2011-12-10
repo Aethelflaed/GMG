@@ -13,7 +13,7 @@ Config::Config(const Config& config)
 {
 }
 
-constexpr auto Config::getCurrentOS() -> OperatingSystem
+auto Config::getCurrentOS() -> OperatingSystem
 {
 #if defined MACOSX
 	return OperatingSystem::MacOSX;

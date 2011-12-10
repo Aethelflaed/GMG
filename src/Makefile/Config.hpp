@@ -22,7 +22,7 @@ namespace Makefile
 		Config(const Config& config);
 		~Config() = default;
 
-		constexpr static OperatingSystem getCurrentOS();
+		static OperatingSystem getCurrentOS();
 
 		OperatingSystem getTargetOS() const;
 		void setTargetOS(OperatingSystem system);

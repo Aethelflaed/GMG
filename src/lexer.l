@@ -34,6 +34,7 @@ add/{WS}						{ return T_ADD; }
 list/{WS}						{ return T_LIST; }
 set/{WS}						{ return T_SET; }
 rm/{WS}							{ return T_RM; }
+h[elp]/{WS}						{ return T_HELP; }
 
 <INITIAL>edit/{WS}				{ return T_EDIT; }
 

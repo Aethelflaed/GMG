@@ -67,7 +67,7 @@ endif
 
 LEX := /usr/bin/flex
 YACC := /usr/bin/bison
-CXX := /usr/local/bin/x86_64-apple-darwin10.7.0-g++
+CXX := /usr/local/bin/x86_64-apple-darwin10.7.0-c++
 C := /usr/local/bin/x86_64-apple-darwin10.7.0-gcc-4.6.0
 LD := $(CXX)
 

@@ -8,6 +8,7 @@
 
 #include "define.hpp"
 #include "Config.hpp"
+#include "Tool.hpp"
 
 namespace Makefile
 {

@@ -5,8 +5,8 @@
 Parser* Parser::parser = nullptr;
 
 Parser::Parser()
-	:state{INITIAL}, makefile{new Makefile::Builder{}},
-	 target{nullptr}, interactive{true}
+	:state(INITIAL), makefile(new Makefile::Builder()),
+	 target(nullptr), interactive(true)
 {
 }
 
@@ -14,7 +14,7 @@ Parser& Parser::getParser()
 {
 	if (parser == nullptr)
 	{
-		parser = new Parser{};
+		parser = new Parser();
 	}
 	return *parser;
 }

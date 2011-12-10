@@ -14,7 +14,7 @@ extern "C"
 
 int main(int argc, const char** argv)
 {
-	FILE* input;
+	FILE* input = nullptr;
 	if (argc > 1)
 	{
 		input = fopen(argv[1], "r");

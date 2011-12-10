@@ -5,14 +5,14 @@
 using namespace Makefile;
 
 Target::Target(Builder& builder)
-	:builder{builder}, name{}, version{"1.0"},
-	 modules{}, type{Type::Application}, config{}
+	:builder(builder), name(), version("1.0"),
+	 modules(), type(Type::Application), config()
 {
 }
 
 Target::Target(Builder& builder, const std::string& name)
-	:builder{builder}, name{name}, version{"1.0"},
-	 modules{}, type{Type::Application}, config{}
+	:builder(builder), name(name), version("1.0"),
+	 modules(), type(Type::Application), config()
 {
 }
 
@@ -94,6 +94,6 @@ Config& Target::getConfig()
 }
 void Target::setConfig(const Config& config)
 {
-	this->config = Config{config};
+	this->config = Config(config);
 }
 

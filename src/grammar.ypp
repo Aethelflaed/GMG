@@ -40,6 +40,7 @@ extern "C"
 }
 
 %token T_EXIT
+%token T_HELP
 
 %token T_LIST
 
@@ -65,6 +66,8 @@ extern "C"
 %token <string>T_NUMBER
 %token <string>T_WORD
 
+%type <integer>help_command
+
 %type <string>quoted_name
 %type <string>quoted_file
 %type <boolean>bool_value
@@ -78,6 +81,7 @@ configurations: /* empty */
 
 configuration: target
 			 | option
+			 | configuration_help
 			 | exit
 
 exit: T_EXIT
@@ -88,6 +92,16 @@ exit: T_EXIT
 		}
 		exit(0);
    }
+
+configuration_help: T_HELP help_command
+	{
+		int command = $2;
+#include "grammar_help_part.h"
+	}
+
+help_command: /* empty */	{ $$ = 0			}
+			| T_TARGET		{ $$ = T_TARGET		}
+			| T_OPTION		{ $$ = T_OPTION		}
 
 option: T_OPTION option_command
 	  {

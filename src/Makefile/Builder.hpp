@@ -4,6 +4,9 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+
+#include "define.hpp"
+
 #include "Options.hpp"
 #include "Target.hpp"
 
