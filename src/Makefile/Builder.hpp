@@ -7,7 +7,6 @@
 
 #include "define.hpp"
 
-#include "Options.hpp"
 #include "Target.hpp"
 
 namespace Makefile
@@ -20,9 +19,6 @@ namespace Makefile
 		Builder();
 		~Builder() = default;
 
-		const Options& getOptions() const;
-		Options& getOptions();
-
 		const targets_map& getTargets() const;
 		Target& addTarget(const std::string& name) throw (std::invalid_argument);
 		Target& getTarget(const std::string& name) throw (std::out_of_range);
@@ -30,8 +26,6 @@ namespace Makefile
 
 	private:
 		targets_map targets;
-
-		Options options;
 	};
 }
 

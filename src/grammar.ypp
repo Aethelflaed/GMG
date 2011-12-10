@@ -112,30 +112,8 @@ option: T_OPTION option_command
 
 option_command: T_SET option_set
 			  | T_LIST
-			{
-				if (Parser::getParser().isInteractive())
-				{
-					std::cout << Parser::getParser()
-										.getMakefile()
-										.getOptions() << std::endl;
-				}
-			}
 
 option_set: T_BOOL_OPTION bool_value
-		  {
-				if (strcmp($1, "debug") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setDebug($2);
-				}
-				else if (strcmp($1, "verbose") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setVerbose($2);
-				}
-		  }
 
 target:	T_TARGET target_command
 	  | target_mode

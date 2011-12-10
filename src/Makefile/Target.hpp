@@ -33,7 +33,6 @@ namespace Makefile
 		void setVersion(const std::string& version);
 
 		const std::vector<std::string>& getModules() const;
-		std::vector<std::string>& getModules();
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module) throw (std::out_of_range);
 		void removeModule(int index) throw (std::out_of_range);
@@ -42,7 +41,6 @@ namespace Makefile
 		void setType(TargetType type);
 
 		const Config& getConfig() const;
-		Config& getConfig();
 		void setConfig(const Config& config);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)

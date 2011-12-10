@@ -38,10 +38,6 @@ const std::vector<std::string>& Target::getModules() const
 {
 	return this->modules;
 }
-std::vector<std::string>& Target::getModules()
-{
-	return this->modules;
-}
 void Target::addModule(const std::string& module)
 {
 	this->modules.push_back(module);
@@ -85,10 +81,6 @@ void Target::setType(TargetType type)
 }
 
 const Config& Target::getConfig() const
-{
-	return this->config;
-}
-Config& Target::getConfig()
 {
 	return this->config;
 }
