@@ -95,8 +95,11 @@ exit: T_EXIT
 
 configuration_help: T_HELP help_command
 	{
-		int command = $2;
-#include "grammar_help_part.h"
+		if (Parser::getParser().isInteractive())
+		{
+			int command = $2;
+#			include "grammar_help_part.h"
+		}
 	}
 
 help_command: /* empty */	{ $$ = 0			}
@@ -110,9 +113,12 @@ option: T_OPTION option_command
 option_command: T_SET option_set
 			  | T_LIST
 			{
-				std::cout << Parser::getParser()
-									.getMakefile()
-									.getOptions() << std::endl;
+				if (Parser::getParser().isInteractive())
+				{
+					std::cout << Parser::getParser()
+										.getMakefile()
+										.getOptions() << std::endl;
+				}
 			}
 
 option_set: T_BOOL_OPTION bool_value
@@ -141,7 +147,10 @@ target_mode: T_END
 		   }
 		   | T_SHOW
 		   {
+			if (Parser::getParser().isInteractive())
+			{
 				std::cout << Parser::getParser().getTarget() << std::endl;
+			}
 		   }
 		   | T_SET target_mode_param
 		   | T_MODULE target_mode_modules
@@ -218,11 +227,14 @@ target_rm: T_RM quoted_name
 
 target_list: T_LIST
 		   {
+			if (Parser::getParser().isInteractive())
+			{
 				std::cout << "Targets list :" << std::endl;
 				for (auto pair : Parser::getParser().getMakefile().getTargets())
 				{
 					std::cout << " - " << pair.second;
 				}
+			}
 		   }
 
 quoted_name: '"' T_WORD '"'
