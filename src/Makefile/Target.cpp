@@ -6,13 +6,13 @@ using namespace Makefile;
 
 Target::Target(Builder& builder)
 	:builder(builder), name(), version("1.0"),
-	 modules(), type(Type::Application), config()
+	 modules(), type(TargetType::Application), config()
 {
 }
 
 Target::Target(Builder& builder, const std::string& name)
 	:builder(builder), name(name), version("1.0"),
-	 modules(), type(Type::Application), config()
+	 modules(), type(TargetType::Application), config()
 {
 }
 
@@ -75,11 +75,11 @@ void Target::removeModule(int index)
 	this->removeModule(module);
 }
 
-auto Target::getType() const -> Type
+auto Target::getType() const -> TargetType
 {
 	return this->type;
 }
-void Target::setType(Type type)
+void Target::setType(TargetType type)
 {
 	this->type = type;
 }

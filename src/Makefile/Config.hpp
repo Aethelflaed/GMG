@@ -8,15 +8,16 @@
 
 namespace Makefile
 {
+	enum class OperatingSystem : unsigned int
+	{
+		MacOSX = 0,
+		Linux = 1,
+		Windows = 2
+	};
+
 	class Config
 	{
 	public:
-		enum class OperatingSystem : unsigned int
-		{
-			MacOSX = 0,
-			Linux = 1,
-			Windows = 2
-		};
 
 		Config();
 		Config(const Config& config);

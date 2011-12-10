@@ -12,16 +12,16 @@
 
 namespace Makefile
 {
+	enum class TargetType : unsigned int
+	{
+		Application = 0,
+		Library = 1,
+		UnitTest = 2
+	};
+
 	class Target
 	{
 	public:
-		enum class Type : unsigned int
-		{
-			Application = 0,
-			Library = 1,
-			UnitTest = 2
-		};
-
 		explicit Target(Builder& builder);
 		Target(Builder& builder, const std::string& name);
 		~Target() = default;
@@ -38,8 +38,8 @@ namespace Makefile
 		void removeModule(const std::string& module) throw (std::out_of_range);
 		void removeModule(int index) throw (std::out_of_range);
 
-		Type getType() const;
-		void setType(Type type);
+		TargetType getType() const;
+		void setType(TargetType type);
 
 		const Config& getConfig() const;
 		Config& getConfig();
@@ -50,13 +50,13 @@ namespace Makefile
 			std::string type;
 			switch(target.getType())
 			{
-				case Type::Application:
+				case TargetType::Application:
 					type = "Application";
 					break;
-				case Type::Library:
+				case TargetType::Library:
 					type = "Library";
 					break;
-				case Type::UnitTest:
+				case TargetType::UnitTest:
 					type = "UnitTest";
 					break;
 				default:
@@ -80,7 +80,7 @@ namespace Makefile
 		std::string name;
 		std::string version;
 		std::vector<std::string> modules;
-		Type type;
+		TargetType type;
 		Config config;
 		std::vector<Tool> tool;
 	};

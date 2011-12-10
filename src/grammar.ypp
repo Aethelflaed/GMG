@@ -152,7 +152,7 @@ target_mode_param: T_VERSION T_NUMBER
 				 }
 				 | T_TYPE T_TARGET_TYPE
 				 {
-						Parser::getParser().getTarget().setType(Makefile::Target::Type($2));
+						Parser::getParser().getTarget().setType(Makefile::TargetType($2));
 				 }
 
 target_mode_modules: T_ADD quoted_file
