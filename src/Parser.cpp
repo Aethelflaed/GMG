@@ -1,6 +1,9 @@
 #include "Parser.h"
+#include "grammar.hpp"
 
 #include <iostream>
+
+#define HELP_SEE(name)	"Type `help " << name << "' for more details."
 
 Parser* Parser::parser = nullptr;
 
@@ -28,6 +31,26 @@ void Parser::prompt() const
 			std::cout << "target:" << this->target->getName();
 		}
 		std::cout << ">";
+	}
+}
+
+void Parser::help(int command) const
+{
+	if (this->interactive == true)
+	{
+		switch(command)
+		{
+			case 0:
+				std::cout << "Global help" << std::endl;
+				std::cout << "\t\"target\"\tConfigure targets. " << HELP_SEE("target") << std::endl;
+				std::cout << "\t\"config\"\tSpecify global configuration options. " << HELP_SEE("config") << std::endl;
+				std::cout << "\t\"exit\"\tExit configuration and build makefile." << std::endl;
+				break;
+			case T_TARGET:
+				break;
+			case T_CONFIG:
+				break;
+		}
 	}
 }
 

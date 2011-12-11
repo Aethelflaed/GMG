@@ -32,6 +32,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 <INITIAL>(?i:target(s)?)/{WS}	{ return T_TARGET; }
 <INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
 
+(?i:h(elp)?)[ \t]*[\r\n]		{ return T_HELP_; }
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
 (?i:list|show)/{WS}				{ return T_LIST; }
 

@@ -35,6 +35,7 @@ public:
 	static Parser& getParser();
 
 	void prompt() const;
+	void help(int command) const;
 
 	ParserState getState() const;
 	void setState(ParserState state);

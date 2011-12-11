@@ -42,6 +42,7 @@ extern "C"
 
 %token T_EXIT
 %token T_HELP
+%token T_HELP_
 
 %token T_LIST
 
@@ -104,15 +105,15 @@ exit: T_EXIT
 
 configuration_help: T_HELP help_command
 	{
-		if (Parser::getParser().isInteractive())
-		{
-			int command = $2;
-#			include "grammar_help_part.h"
-		}
+		Parser::getParser().help($2);
+	}
+				  | T_HELP_
+	{
+		Parser::getParser().help(0);
+		Parser::getParser().prompt();
 	}
 
-help_command: /* empty */	{ $$ = 0;			}
-			| T_TARGET		{ $$ = T_TARGET;	}
+help_command: T_TARGET		{ $$ = T_TARGET;	}
 			| T_CONFIG		{ $$ = T_CONFIG;	}
 
 config: T_CONFIG config_command

@@ -66,7 +66,7 @@ ifeq ($(VERBOSE), yes)
 endif
 
 LEX := /usr/bin/flex
-YACC := /usr/bin/bison
+YACC := /usr/bin/bison -v
 CXX := /usr/bin/g++
 C := /usr/bin/gcc
 LD := $(CXX)
