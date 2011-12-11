@@ -78,7 +78,7 @@ namespace Makefile
 			auto modules = target.getModules();
 			for (size_t i = 0; i < modules.size(); i++)
 			{
-				stream << "\t " << i << "\t: " << modules[i] << "\n";
+				stream << "\t  " << modules[i] << "\n";
 			}
 			return stream;
 		}
