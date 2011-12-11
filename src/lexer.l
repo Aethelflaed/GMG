@@ -41,6 +41,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 (?i:set)/{WS}					{ return T_SET; }
 
 (?i:path)/{WS}					{ return T_PATH; }
+(?i:dep(endency)?)/{WS}			{ return T_DEPENDENCY; }
 
 (?i:library|include)/{WS}	{
 		strcpy(yylval.String, yytext);

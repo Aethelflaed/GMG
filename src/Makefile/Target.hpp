@@ -30,6 +30,8 @@ namespace Makefile
 		Target(Generator& generator, const std::string& name);
 		~Target() = default;
 
+		void clean();
+
 		const std::string& getName() const;
 		void setName(const std::string& name);
 
@@ -39,7 +41,6 @@ namespace Makefile
 		const std::vector<std::string>& getModules() const;
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module) throw (std::out_of_range);
-		void removeModule(int index) throw (std::out_of_range);
 
 		TargetType getType() const;
 		void setType(TargetType type);
@@ -49,6 +50,7 @@ namespace Makefile
 
 		const dependencies_vector& getDependencies() const;
 		void addDependency(const std::string& name) throw (std::out_of_range);
+		void removeDependency(const std::string& name) throw (std::out_of_range);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{

@@ -54,7 +54,9 @@ extern "C"
 %token <Boolean>T_BOOL_VALUE
 
 %token <String>T_CONFIG_PARAM
+
 %token T_PATH
+%token T_DEPENDENCY
 
 %token T_TARGET
 %token T_CONFIG
@@ -240,7 +242,8 @@ target_mode: T_END
 		}
 	}
 		   | T_SET target_mode_param
-		   | T_MODULE target_mode_modules
+		   | target_mode_add_values
+		   | target_mode_rm_values
 
 target_mode_param: T_VERSION T_NUMBER
 	{
@@ -251,15 +254,31 @@ target_mode_param: T_VERSION T_NUMBER
 		Parser::getParser().getTarget().setType(Makefile::TargetType($2));
 	}
 
-target_mode_modules: T_ADD quoted_file
+target_mode_add_values: T_ADD T_MODULE quoted_file
 	{
-		Parser::getParser().getTarget().addModule($2);
+		Parser::getParser().getTarget().addModule($3);
 	}
-				   | T_RM quoted_file
+					  | T_ADD T_DEPENDENCY quoted_name
+	{
+		Parser::getParser().getTarget().addDependency($3);
+	}
+
+target_mode_rm_values: T_RM T_MODULE quoted_file
 	{
 		try
 		{
-			Parser::getParser().getTarget().removeModule($2);
+			Parser::getParser().getTarget().removeModule($3);
+		}
+		catch (const std::out_of_range& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+		}
+	}
+					 | T_RM T_DEPENDENCY quoted_name
+	{
+		try
+		{
+			Parser::getParser().getTarget().removeDependency($3);
 		}
 		catch (const std::out_of_range& ex)
 		{

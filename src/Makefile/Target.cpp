@@ -10,6 +10,28 @@ Target::Target(Generator& generator, const std::string& name)
 {
 }
 
+void Target::clean()
+{
+	std::vector<dependencies_vector::iterator> deprecated_iterators;
+
+	for (auto iterator = this->dependencies.begin();
+		iterator != this->dependencies.end();
+		iterator++)
+	{
+		if (iterator->expired())
+		{
+			deprecated_iterators.push_back(iterator);
+		}
+	}
+
+	for (dependencies_vector::iterator& iterator : deprecated_iterators)
+	{
+		this->dependencies.erase(iterator);
+	}
+
+	throw std::out_of_range("No such dependencies");
+}
+
 const std::string& Target::getName() const
 {
 	return this->name;
@@ -49,23 +71,8 @@ void Target::removeModule(const std::string& module)
 
 	this->modules.erase(iterator);
 }
-void Target::removeModule(int index)
-	throw (std::out_of_range)
-{
-	std::string module;
-	try
-	{
-		module = this->modules.at(index);
-	}
-	catch (const std::out_of_range& ex)
-	{
-		throw std::out_of_range("No such module");
-	}
 
-	this->removeModule(module);
-}
-
-auto Target::getType() const -> TargetType
+TargetType Target::getType() const
 {
 	return this->type;
 }
@@ -90,5 +97,31 @@ const Target::dependencies_vector& Target::getDependencies() const
 void Target::addDependency(const std::string& name) throw (std::out_of_range)
 {
 	this->dependencies.push_back(this->generator.getTargetPointer(name));
+}
+void Target::removeDependency(const std::string& name) throw (std::out_of_range)
+{
+	std::vector<dependencies_vector::iterator> deprecated_iterators;
+
+	for (auto iterator = this->dependencies.begin();
+		iterator != this->dependencies.end();
+		iterator++)
+	{
+		if (iterator->expired())
+		{
+			deprecated_iterators.push_back(iterator);
+			continue;
+		}
+		if (iterator->lock()->getName() == name)
+		{
+			deprecated_iterators.push_back(iterator);
+		}
+	}
+
+	for (dependencies_vector::iterator& iterator : deprecated_iterators)
+	{
+		this->dependencies.erase(iterator);
+	}
+
+	throw std::out_of_range("No such dependencies");
 }
 

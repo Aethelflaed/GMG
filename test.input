@@ -20,9 +20,11 @@ target add "Program"
 
 	config set verbose true
 
-	module add "GUI"
-	module add "helpers"
+	add module "GUI"
 	add module "helpers/web"
+	add module "junk"
+	rm module "junk"
+	remove module "GUI"
 
 	add dependency "Library"
 end
@@ -31,7 +33,7 @@ target add "Library"
 	set type lib
 	set version 1.134
 
-	module add "web"
+	add module "web"
 end
 
 target add "Tester"
@@ -42,7 +44,7 @@ target add "Tester"
 	config add library path "/path/to/unit/test/library/lib"
 	config add library "unitTester"
 
-	module add "helpers"
+	add module "helpers"
 end
 
 targets list
