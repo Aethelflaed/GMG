@@ -58,7 +58,7 @@ Target& Generator::addTarget(const std::string& name)
 	{
 		throw std::invalid_argument("Target already exists");
 	}
-	target = target_type(new Target(name));
+	target = target_type(new Target(*this, name));
 
 	return *(target.get());
 }

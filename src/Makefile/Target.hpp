@@ -9,6 +9,7 @@
 
 #include "define.hpp"
 #include "Config.hpp"
+#include "Generator.hpp"
 #include "Tool.hpp"
 
 namespace Makefile
@@ -26,7 +27,7 @@ namespace Makefile
 		typedef std::weak_ptr<Target> dependency_type;
 		typedef std::vector<dependency_type> dependencies_vector;
 
-		explicit Target(const std::string& name);
+		Target(Generator& generator, const std::string& name);
 		~Target() = default;
 
 		const std::string& getName() const;
@@ -85,6 +86,7 @@ namespace Makefile
 		std::string version;
 		std::vector<std::string> modules;
 
+		Generator& generator;
 		TargetType type;
 		Config config;
 

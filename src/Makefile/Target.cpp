@@ -4,9 +4,9 @@
 
 using namespace Makefile;
 
-Target::Target(const std::string& name)
+Target::Target(Generator& generator, const std::string& name)
 	:name(name), version("1.0"),
-	 modules(), type(TargetType::Application), config()
+	 modules(), generator(generator), type(TargetType::Application), config()
 {
 }
 
