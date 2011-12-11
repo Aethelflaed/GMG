@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "Parser.h"
-#include "Makefile/Builder.hpp"
+#include "Makefile/Generator.hpp"
 
 extern "C"
 {
@@ -32,26 +32,29 @@ extern "C"
 
 %union
 {
-	char string[256];
-	int integer;
-	int boolean;
-	void* pointer;
-	char* charPointer;
+	char String[256];
+	long long Integer;
+	unsigned int Natural;
+	int Boolean;
+	double Double;
+	float Float;
 }
 
 %token T_EXIT
 %token T_HELP
 
 %token T_LIST
-%token T_SHOW
 
 %token T_ADD
 %token T_EDIT
 %token T_RM
 %token T_SET
 
-%token <string>T_BOOL_OPTION
-%token <boolean> T_BOOL_VALUE
+%token <String>T_BOOL_OPTION
+%token <Boolean>T_BOOL_VALUE
+
+%token <String>T_CONFIG_PARAM
+%token T_PATH
 
 %token T_TARGET
 %token T_CONFIG
@@ -61,17 +64,17 @@ extern "C"
 %token T_VERSION
 
 %token T_TYPE
-%token <integer>T_TARGET_TYPE
+%token <Natural>T_TARGET_TYPE
 
-%token <string>T_FILE
-%token <string>T_NUMBER
-%token <string>T_WORD
+%token <String>T_FILE
+%token <String>T_NUMBER
+%token <String>T_WORD
 
-%type <integer>help_command
+%type <Natural>help_command
 
-%type <string>quoted_name
-%type <string>quoted_file
-%type <boolean>bool_value
+%type <String>quoted_name
+%type <String>quoted_file
+%type <Boolean>bool_value
 
 %start configurations
 
@@ -81,6 +84,7 @@ configurations: /* empty */
 			  | configurations configuration
 
 configuration: target
+			 | config
 			 | configuration_help
 			 | exit
 
@@ -90,6 +94,9 @@ exit: T_EXIT
 		{
 			std::cout << "Bye!" << std::endl;
 		}
+
+		Parser::getParser().getMakefileGenerator().generate();
+
 		exit(0);
    }
 
@@ -102,8 +109,57 @@ configuration_help: T_HELP help_command
 		}
 	}
 
-help_command: /* empty */	{ $$ = 0			}
-			| T_TARGET		{ $$ = T_TARGET		}
+help_command: /* empty */	{ $$ = 0;			}
+			| T_TARGET		{ $$ = T_TARGET;	}
+			| T_CONFIG		{ $$ = T_CONFIG;	}
+
+config: T_CONFIG config_command
+
+config_command: config_bool_param
+			  | config_path_param
+			  | config_param
+			  | config_list
+
+config_bool_param: T_SET T_BOOL_OPTION bool_value
+	{
+		Makefile::Config& config = Parser::getParser().getCurrentConfig();
+		char firstChar = (char) tolower((int) $2[0]);
+		if (firstChar == 'd')
+		{
+			config.setDebug($3 != 0);
+		}
+		else
+		{
+			config.setVerbose($3 != 0);
+		}
+	}
+
+config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_name
+	{
+		Makefile::Config& config = Parser::getParser().getCurrentConfig();
+		char firstChar = (char) tolower((int) $2[0]);
+		if (firstChar == 'i')
+		{
+			config.addIncludePath($4);
+		}
+		else
+		{
+			config.addLibraryPath($4);
+		}
+	}
+
+config_param: T_ADD T_CONFIG_PARAM quoted_name
+	{
+		Parser::getParser().getCurrentConfig().addLibrary($3);
+	}
+
+config_list: T_LIST
+	{
+		if (Parser::getParser().isInteractive())
+		{
+			std::cout << Parser::getParser().getCurrentConfig() << std::endl;
+		}
+	}
 
 target:	T_TARGET target_command
 	  | target_mode
@@ -113,7 +169,7 @@ target_mode: T_END
 				Parser::getParser().setTarget(nullptr);
 				Parser::getParser().setState(INITIAL);
 		   }
-		   | T_SHOW
+		   | T_LIST
 		   {
 			if (Parser::getParser().isInteractive())
 			{
@@ -158,7 +214,7 @@ target_add: T_ADD quoted_name
 				try
 				{
 					Parser& parser = Parser::getParser();
-					parser.setTarget(&parser.getMakefile().addTarget($2));
+					parser.setTarget(&parser.getMakefileGenerator().addTarget($2));
 					parser.setState(TARGET);
 				}
 				catch (const std::invalid_argument& ex)
@@ -172,7 +228,7 @@ target_edit: T_EDIT quoted_name
 				try
 				{
 					Parser& parser = Parser::getParser();
-					parser.setTarget(&parser.getMakefile().getTarget($2));
+					parser.setTarget(&parser.getMakefileGenerator().getTarget($2));
 					parser.setState(TARGET);
 				}
 				catch (const std::out_of_range& ex)
@@ -185,7 +241,7 @@ target_rm: T_RM quoted_name
 		 {
 				try
 				{
-					Parser::getParser().getMakefile().removeTarget($2);
+					Parser::getParser().getMakefileGenerator().removeTarget($2);
 				}
 				catch (const std::out_of_range& ex)
 				{
@@ -198,7 +254,7 @@ target_list: T_LIST
 			if (Parser::getParser().isInteractive())
 			{
 				std::cout << "Targets list :" << std::endl;
-				for (auto pair : Parser::getParser().getMakefile().getTargets())
+				for (auto pair : Parser::getParser().getMakefileGenerator().getTargets())
 				{
 					std::cout << " - " << pair.second;
 				}

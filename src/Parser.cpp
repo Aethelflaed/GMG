@@ -5,7 +5,7 @@
 Parser* Parser::parser = nullptr;
 
 Parser::Parser()
-	:state(INITIAL), makefile(new Makefile::Builder()),
+	:state(INITIAL), generator(new Makefile::Generator()),
 	 target(nullptr), interactive(true)
 {
 }
@@ -49,9 +49,18 @@ void Parser::setTarget(Makefile::Target* target)
 	this->target = target;
 }
 
-Makefile::Builder& Parser::getMakefile()
+Makefile::Generator& Parser::getMakefileGenerator()
 {
-	return *this->makefile;
+	return *this->generator;
+}
+
+Makefile::Config& Parser::getCurrentConfig()
+{
+	if (this->target != nullptr)
+	{
+		return this->target->getConfig();
+	}
+	return this->generator->getConfig();
 }
 
 bool Parser::isInteractive() const

@@ -3,7 +3,7 @@
 
 #include "Parser.h"
 #include "grammar.hpp"
-#include "Makefile/Builder.hpp"
+#include "Makefile/Generator.hpp"
 
 extern "C"
 {

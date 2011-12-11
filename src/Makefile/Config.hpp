@@ -48,7 +48,7 @@ namespace Makefile
 		{
 			stream << "Configuration:" << std::endl;
 			stream << "\tDebug:   " << (config.debug ? "Yes" : " No") << std::endl;
-			stream << "\tVerbose: " << (config.debug ? "Yes" : " No") << std::endl;
+			stream << "\tVerbose: " << (config.verbose  ? "Yes" : " No") << std::endl;
 
 			stream << "\tInclude paths :" << std::endl;
 			for (std::string& name : config.includePaths)

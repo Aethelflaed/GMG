@@ -22,8 +22,7 @@ namespace Makefile
 	class Target
 	{
 	public:
-		explicit Target(Builder& builder);
-		Target(Builder& builder, const std::string& name);
+		explicit Target(const std::string& name);
 		~Target() = default;
 
 		const std::string& getName() const;
@@ -40,7 +39,7 @@ namespace Makefile
 		TargetType getType() const;
 		void setType(TargetType type);
 
-		const Config& getConfig() const;
+		Config& getConfig();
 		void setConfig(const Config& config);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
@@ -74,12 +73,13 @@ namespace Makefile
 		}
 
 	private:
-		Builder& builder;
 		std::string name;
 		std::string version;
 		std::vector<std::string> modules;
+
 		TargetType type;
 		Config config;
+
 		std::vector<Tool> tool;
 	};
 }

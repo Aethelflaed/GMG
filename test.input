@@ -22,7 +22,9 @@ target add "Program"
 
 	module add "GUI"
 	module add "helpers"
-	module add "helpers/web"
+	add module "helpers/web"
+
+	add dependency "Library"
 end
 
 target add "Library"
@@ -35,6 +37,10 @@ end
 target add "Tester"
 	set type unitTest
 	set version 0.1
+
+	config add include path "/path/to/unit/test/library/include"
+	config add library path "/path/to/unit/test/library/lib"
+	config add library "unitTester"
 
 	module add "helpers"
 end

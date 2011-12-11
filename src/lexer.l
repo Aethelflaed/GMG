@@ -33,16 +33,22 @@ FILE			[a-zA-Z0-9_./\\-]+
 <INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
 
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
-(?i:show)/{WS}					{ return T_SHOW; }
-(?i:list)/{WS}					{ return T_LIST; }
+(?i:list|show)/{WS}				{ return T_LIST; }
 
 (?i:add)/{WS}					{ return T_ADD; }
 (?i:edit)/{WS}					{ return T_EDIT; }
 (?i:(rm|remove))/{WS}			{ return T_RM; }
 (?i:set)/{WS}					{ return T_SET; }
 
-<INITIAL>(?i:debug|verbose)/{WS}	{
-		strcpy(yylval.string, yytext);
+(?i:path)/{WS}					{ return T_PATH; }
+
+(?i:library|include)/{WS}	{
+		strcpy(yylval.String, yytext);
+		return T_CONFIG_PARAM;
+	}
+
+(?i:debug|verbose)/{WS}	{
+		strcpy(yylval.String, yytext);
 		return T_BOOL_OPTION;
 	}
 
@@ -57,30 +63,30 @@ FILE			[a-zA-Z0-9_./\\-]+
 
 <TARGET>{TARGET_TYPE}/{WS}		{
 		char firstChar = (char) tolower((int) yytext[0]);
-		if (firstChar == 'a')		{ yylval.integer = 0; }
-		else if (firstChar == 'l')	{ yylval.integer = 1; }
-		else						{ yylval.integer = 2; }
+		if (firstChar == 'a')		{ yylval.Natural = 0; }
+		else if (firstChar == 'l')	{ yylval.Natural = 1; }
+		else						{ yylval.Natural = 2; }
 		return T_TARGET_TYPE;
 	}
 
 {BOOL}/{WS}						{
 		char firstChar = (char) tolower((int) yytext[0]);
-		yylval.boolean = firstChar == 't';
+		yylval.Boolean = firstChar == 't';
 		return T_BOOL_VALUE;
 	}
 
 {NUMBER}/{WS}					{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_NUMBER;
 	}
 
 \"								{ return '"'; }
 {WORD}							{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_WORD;
 	}
 {FILE}							{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_FILE;
 	}
 

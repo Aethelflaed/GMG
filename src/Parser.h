@@ -26,7 +26,8 @@ extern void Parser_prompt();
  * Define the Parser class, only in C++ files
  */
 
-#include "Makefile/Builder.hpp"
+#include "Makefile/Generator.hpp"
+#include "Makefile/Target.hpp"
 
 class Parser
 {
@@ -41,7 +42,8 @@ public:
 	Makefile::Target& getTarget();
 	void setTarget(Makefile::Target* target);
 
-	Makefile::Builder& getMakefile();
+	Makefile::Generator& getMakefileGenerator();
+	Makefile::Config& getCurrentConfig();
 
 	bool isInteractive() const;
 	void setInteractive(bool interactive);
@@ -52,7 +54,7 @@ private:
 	static Parser* parser;
 
 	ParserState state;
-	Makefile::Builder* makefile;
+	Makefile::Generator* generator;
 	Makefile::Target* target;
 	bool interactive;
 };

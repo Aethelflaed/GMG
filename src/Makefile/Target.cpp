@@ -4,14 +4,8 @@
 
 using namespace Makefile;
 
-Target::Target(Builder& builder)
-	:builder(builder), name(), version("1.0"),
-	 modules(), type(TargetType::Application), config()
-{
-}
-
-Target::Target(Builder& builder, const std::string& name)
-	:builder(builder), name(name), version("1.0"),
+Target::Target(const std::string& name)
+	:name(name), version("1.0"),
 	 modules(), type(TargetType::Application), config()
 {
 }
@@ -80,7 +74,7 @@ void Target::setType(TargetType type)
 	this->type = type;
 }
 
-const Config& Target::getConfig() const
+Config& Target::getConfig()
 {
 	return this->config;
 }
