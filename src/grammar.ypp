@@ -61,6 +61,7 @@ extern "C"
 
 %token T_TARGET
 %token T_CONFIG
+%token T_CONFIG_
 
 %token T_END
 %token T_MODULE
@@ -117,6 +118,8 @@ help_command: T_TARGET		{ $$ = T_TARGET;	}
 			| T_CONFIG		{ $$ = T_CONFIG;	}
 
 config: T_CONFIG config_command
+
+config_: T_CONFIG_ config_command
 
 config_command: config_bool_param
 			  | config_path_param
@@ -245,6 +248,7 @@ target_mode: T_END
 		   | T_SET target_mode_param
 		   | target_mode_add_values
 		   | target_mode_rm_values
+		   | config_
 
 target_mode_param: T_VERSION T_NUMBER
 	{

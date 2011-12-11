@@ -14,9 +14,16 @@ config list
 config show
 
 # Configure targets
+target add "Library"
+	set type lib
+	set version 1.134
+
+	add module "web"
+end
+
 target add "Program"
 	set type Application
-	set version "3.0"
+	set version 3.0
 
 	config set verbose true
 
@@ -27,13 +34,6 @@ target add "Program"
 	remove module "GUI"
 
 	add dependency "Library"
-end
-
-target add "Library"
-	set type lib
-	set version 1.134
-
-	add module "web"
 end
 
 target add "Tester"
