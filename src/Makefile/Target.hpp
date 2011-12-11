@@ -48,7 +48,7 @@ namespace Makefile
 		void setConfig(const Config& config);
 
 		const dependencies_vector& getDependencies() const;
-		void addDependency(dependency_type target);
+		void addDependency(const std::string& name) throw (std::out_of_range);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{

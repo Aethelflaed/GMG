@@ -87,8 +87,8 @@ const Target::dependencies_vector& Target::getDependencies() const
 {
 	return this->dependencies;
 }
-void Target::addDependency(dependency_type target)
+void Target::addDependency(const std::string& name) throw (std::out_of_range)
 {
-	this->dependencies.push_back(target);
+	this->dependencies.push_back(this->generator.getTargetPointer(name));
 }
 
