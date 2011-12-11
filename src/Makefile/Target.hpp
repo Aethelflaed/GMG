@@ -85,7 +85,7 @@ namespace Makefile
 			{
 				if (dep.expired())
 				{
-					stream << "\t  <<expired module>>\n";
+					stream << "\t  <<expired target>>\n";
 				}
 				else
 				{
