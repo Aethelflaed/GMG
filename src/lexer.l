@@ -30,28 +30,28 @@ FILE			[a-zA-Z0-9_./\\-]+
 <INITIAL>(?i:target(s)?)/{WS}	{ return T_TARGET; }
 <INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
 
-h(elp)?/{WS}					{ return T_HELP; }
-show/{WS}						{ return T_SHOW; }
-list/{WS}						{ return T_LIST; }
+(?i:h(elp)?)/{WS}				{ return T_HELP; }
+(?i:show)/{WS}					{ return T_SHOW; }
+(?i:list)/{WS}					{ return T_LIST; }
 
-add/{WS}						{ return T_ADD; }
-edit/{WS}						{ return T_EDIT; }
-(rm|remove)/{WS}				{ return T_RM; }
-set/{WS}						{ return T_SET; }
+(?i:add)/{WS}					{ return T_ADD; }
+(?i:edit)/{WS}					{ return T_EDIT; }
+(?i:(rm|remove))/{WS}			{ return T_RM; }
+(?i:set)/{WS}					{ return T_SET; }
 
-<INITIAL>(debug|verbose)/{WS}	{
+<INITIAL>(?i:debug|verbose)/{WS}	{
 		strcpy(yylval.string, yytext);
 		return T_BOOL_OPTION;
 	}
 
-<TARGET>(end|quit)/{WS}			{
+<TARGET>(?i:end|quit)/{WS}		{
 		BEGIN INITIAL;
 		return T_END;
 	}
 
-<TARGET>module(s)?/{WS}			{ return T_MODULE; }
-<TARGET>version/{WS}			{ return T_VERSION; }
-<TARGET>type/{WS}				{ return T_TYPE; }
+<TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
+<TARGET>(?i:version)/{WS}		{ return T_VERSION; }
+<TARGET>(?i:type)/{WS}			{ return T_TYPE; }
 
 <TARGET>{TARGET_TYPE}/{WS}		{
 		char firstChar = (char) tolower((int) yytext[0]);
