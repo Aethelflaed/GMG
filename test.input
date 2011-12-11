@@ -1,5 +1,5 @@
-option set debug true
-options list
+
+# Configure targets
 targets list
 target add "Program"
 set type Application
