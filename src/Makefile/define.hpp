@@ -1,9 +1,12 @@
 
 namespace Makefile
 {
-	class Builder;
+	enum class OperatingSystem : unsigned int;
+	enum class TargetType : unsigned int;
+	enum class ToolType : int;
+
+	class Generator;
 	class Config;
-	class Options;
 	class Target;
 	class Tool;
 }

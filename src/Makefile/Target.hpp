@@ -5,26 +5,32 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 
 #include "define.hpp"
 #include "Config.hpp"
+#include "Generator.hpp"
 #include "Tool.hpp"
 
 namespace Makefile
 {
+	enum class TargetType : unsigned int
+	{
+		Application = 0,
+		Library = 1,
+		UnitTest = 2
+	};
+
 	class Target
 	{
 	public:
-		enum class Type : unsigned int
-		{
-			Application = 0,
-			Library = 1,
-			UnitTest = 2
-		};
+		typedef std::weak_ptr<Target> dependency_type;
+		typedef std::vector<dependency_type> dependencies_vector;
 
-		explicit Target(Builder& builder);
-		Target(Builder& builder, const std::string& name);
+		Target(Generator& generator, const std::string& name);
 		~Target() = default;
+
+		void clean();
 
 		const std::string& getName() const;
 		void setName(const std::string& name);
@@ -33,56 +39,75 @@ namespace Makefile
 		void setVersion(const std::string& version);
 
 		const std::vector<std::string>& getModules() const;
-		std::vector<std::string>& getModules();
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module) throw (std::out_of_range);
-		void removeModule(int index) throw (std::out_of_range);
 
-		Type getType() const;
-		void setType(Type type);
+		TargetType getType() const;
+		void setType(TargetType type);
 
-		const Config& getConfig() const;
 		Config& getConfig();
 		void setConfig(const Config& config);
+
+		const dependencies_vector& getDependencies() const;
+		void addDependency(const std::string& name) throw (std::out_of_range);
+		void removeDependency(const std::string& name) throw (std::out_of_range);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
 			std::string type;
 			switch(target.getType())
 			{
-				case Type::Application:
+				case TargetType::Application:
 					type = "Application";
 					break;
-				case Type::Library:
+				case TargetType::Library:
 					type = "Library";
 					break;
-				case Type::UnitTest:
+				case TargetType::UnitTest:
 					type = "UnitTest";
 					break;
 				default:
 					type = "Unknow";
 					break;
 			}
-			stream << "Target \"" << target.getName()
-				   << "\", version \"" << target.getVersion()
-				   << "\", type \"" << type
-				   << "\"\n  Modules :\n";
+
+			stream << "Target: \"" << target.name << "\"" << std::endl
+				   << "\tVersion: \"" << target.version << "\"" << std::endl
+				   << "\tType: \"" << type << "\"" << std::endl
+				   << "\tModules:" << std::endl;
 			auto modules = target.getModules();
-			for (size_t i = 0; i < modules.size(); i++)
+			for (std::string& module : target.modules)
 			{
-				stream << "\t" << i << "\t: " << modules[i] << "\n";
+				stream << "\t  " << module << "\n";
 			}
+			stream << "\tDependencies:\n";
+			for (dependency_type& dep : target.dependencies)
+			{
+				if (dep.expired())
+				{
+					stream << "\t  <<expired target>>\n";
+				}
+				else
+				{
+					stream << "\t  " << dep.lock()->getName() << "\n";
+				}
+			}
+
+			stream << "Target's " << target.config;
 			return stream;
 		}
 
 	private:
-		Builder& builder;
 		std::string name;
 		std::string version;
 		std::vector<std::string> modules;
-		Type type;
+
+		Generator& generator;
+		TargetType type;
 		Config config;
+
 		std::vector<Tool> tool;
+		dependencies_vector dependencies;
 	};
 }
 

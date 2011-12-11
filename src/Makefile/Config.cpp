@@ -3,17 +3,19 @@
 using namespace Makefile;
 
 Config::Config()
-	:targetOS{Config::getCurrentOS()}, includePaths{}, libraryPaths{}, libraries{}
+	:targetOS(Config::getCurrentOS()), debug(false), verbose(false),
+	 includePaths(), libraryPaths(), libraries()
 {
 }
 
 Config::Config(const Config& config)
-	:targetOS{config.targetOS}, includePaths{config.includePaths},
-	 libraryPaths{config.libraryPaths}, libraries{libraries}
+	:targetOS(config.targetOS), debug(config.debug), verbose(config.verbose),
+	 includePaths(config.includePaths),
+	 libraryPaths(config.libraryPaths), libraries(libraries)
 {
 }
 
-auto Config::getCurrentOS() -> OperatingSystem
+OperatingSystem Config::getCurrentOS()
 {
 #if defined MACOSX
 	return OperatingSystem::MacOSX;
@@ -24,20 +26,34 @@ auto Config::getCurrentOS() -> OperatingSystem
 #endif
 }
 
-auto Config::getTargetOS() const -> OperatingSystem
+OperatingSystem Config::getTargetOS() const
 {
 	return this->targetOS;
 }
-void Config::setTargetOS(OperatingSystem system)
+void Config::setTargetOS(OperatingSystem os)
 {
-	this->targetOS = system;
+	this->targetOS = os;
+}
+
+bool Config::isDebug() const
+{
+	return this->debug;
+}
+void Config::setDebug(bool debug)
+{
+	this->debug = debug;
+}
+
+bool Config::isVerbose() const
+{
+	return this->verbose;
+}
+void Config::setVerbose(bool verbose)
+{
+	this->verbose = verbose;
 }
 
 const std::vector<std::string>& Config::getIncludePaths() const
-{
-	return this->includePaths;
-}
-std::vector<std::string>& Config::getIncludePaths()
 {
 	return this->includePaths;
 }
@@ -50,20 +66,12 @@ const std::vector<std::string>& Config::getLibraryPaths() const
 {
 	return this->libraryPaths;
 }
-std::vector<std::string>& Config::getLibraryPaths()
-{
-	return this->libraryPaths;
-}
 void Config::addLibraryPath(std::string libraryPath)
 {
 	this->libraryPaths.push_back(libraryPath);
 }
 
 const std::vector<std::string>& Config::getLibraries() const
-{
-	return this->libraries;
-}
-std::vector<std::string>& Config::getLibraries()
 {
 	return this->libraries;
 }

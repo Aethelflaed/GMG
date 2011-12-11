@@ -1,22 +1,52 @@
-option set debug true
-options list
-targets list
-target add "Program"
-set type Application
-set version 3.0
-module add "GUI"
-module add "helpers"
-module add "helpers/web"
-end
+# Test file for GMG projects
+
+# Global configuration
+config set debug false
+config set debug true
+config set verbose 1
+config set verbose 0
+
+config add include path "/usr/local/include/"
+config add library path "/usr/local/lib/"
+config add library "boost-regex"
+
+config list
+config show
+
+# Configure targets
 target add "Library"
-set type lib
-set version 1.134
-module add "web"
+	set type lib
+	set version 1.134
+
+	add module "web"
 end
+
+target add "Program"
+	set type Application
+	set version 3.0
+
+	config set verbose true
+
+	add module "GUI"
+	add module "helpers/web"
+	add module "junk"
+	rm module "junk"
+	remove module "GUI"
+
+	add dependency "Library"
+end
+
 target add "Tester"
-set type unitTest
-set version 0.1
-module add "helpers"
+	set type unitTest
+	set version 0.1
+
+	config add include path "/path/to/unit/test/library/include"
+	config add library path "/path/to/unit/test/library/lib"
+	config add library "unitTester"
+
+	add module "helpers"
 end
+
 targets list
-exit
+
+exit # Not very useful as <<EOF>> follows, and do the same

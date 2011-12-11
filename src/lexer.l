@@ -8,7 +8,7 @@
 %}
 
 WS				[ \t\r\n]
-BOOL			(?i:(t(r(u(e)?)?)?|f(a(l(s(e)?)?)?)?))
+BOOL			(?i:(t(rue)?|f(alse)?))
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
@@ -24,61 +24,72 @@ FILE			[a-zA-Z0-9_./\\-]+
 		}
 	}
 
+#.+[\r\n]						{ Parser_prompt(); }
+
 <<EOF>>							{ return T_EXIT; }
-<INITIAL>exit/{WS}				{ return T_EXIT; }
+<INITIAL>(?i:exit)/{WS}			{ return T_EXIT; }
 
-<INITIAL>target(s)?/{WS}		{ return T_TARGET; }
-<INITIAL>option(s)?/{WS}		{ return T_OPTION; }
+<INITIAL>(?i:target(s)?)/{WS}	{ return T_TARGET; }
+<INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
+<TARGET>(?i:config)/{WS}		{ return T_CONFIG_; }
 
-add/{WS}						{ return T_ADD; }
-list/{WS}						{ return T_LIST; }
-set/{WS}						{ return T_SET; }
-rm/{WS}							{ return T_RM; }
-h[elp]/{WS}						{ return T_HELP; }
+(?i:h(elp)?)[ \t]*[\r\n]		{ return T_HELP_; }
+(?i:h(elp)?)/{WS}				{ return T_HELP; }
+(?i:list|show)/{WS}				{ return T_LIST; }
 
-<INITIAL>edit/{WS}				{ return T_EDIT; }
+(?i:add)/{WS}					{ return T_ADD; }
+(?i:edit)/{WS}					{ return T_EDIT; }
+(?i:(rm|remove))/{WS}			{ return T_RM; }
+(?i:set)/{WS}					{ return T_SET; }
 
-<INITIAL>(debug|verbose)/{WS}	{
-		strcpy(yylval.string, yytext);
+(?i:path)/{WS}					{ return T_PATH; }
+(?i:dep(endency)?)/{WS}			{ return T_DEPENDENCY; }
+
+(?i:library|include)/{WS}	{
+		strcpy(yylval.String, yytext);
+		return T_CONFIG_PARAM;
+	}
+
+(?i:debug|verbose)/{WS}	{
+		strcpy(yylval.String, yytext);
 		return T_BOOL_OPTION;
 	}
 
-<TARGET>(end|quit)/{WS}			{
+<TARGET>(?i:end|quit)/{WS}		{
 		BEGIN INITIAL;
 		return T_END;
 	}
 
-<TARGET>module(s)?/{WS}			{ return T_MODULE; }
-<TARGET>version/{WS}			{ return T_VERSION; }
-<TARGET>show/{WS}				{ return T_SHOW; }
-<TARGET>type/{WS}				{ return T_TYPE; }
+<TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
+<TARGET>(?i:version)/{WS}		{ return T_VERSION; }
+<TARGET>(?i:type)/{WS}			{ return T_TYPE; }
 
 <TARGET>{TARGET_TYPE}/{WS}		{
 		char firstChar = (char) tolower((int) yytext[0]);
-		if (firstChar == 'a')		{ yylval.integer = 0; }
-		else if (firstChar == 'l')	{ yylval.integer = 1; }
-		else						{ yylval.integer = 2; }
+		if (firstChar == 'a')		{ yylval.Natural = 0; }
+		else if (firstChar == 'l')	{ yylval.Natural = 1; }
+		else						{ yylval.Natural = 2; }
 		return T_TARGET_TYPE;
 	}
 
 {BOOL}/{WS}						{
 		char firstChar = (char) tolower((int) yytext[0]);
-		yylval.boolean = firstChar == 't';
+		yylval.Boolean = firstChar == 't';
 		return T_BOOL_VALUE;
 	}
 
 {NUMBER}/{WS}					{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_NUMBER;
 	}
 
 \"								{ return '"'; }
 {WORD}							{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_WORD;
 	}
 {FILE}							{
-		strcpy(yylval.string, yytext);
+		strcpy(yylval.String, yytext);
 		return T_FILE;
 	}
 
