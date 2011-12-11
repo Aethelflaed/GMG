@@ -28,8 +28,6 @@ void Target::clean()
 	{
 		this->dependencies.erase(iterator);
 	}
-
-	throw std::out_of_range("No such dependencies");
 }
 
 const std::string& Target::getName() const

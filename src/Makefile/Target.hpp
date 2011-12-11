@@ -71,14 +71,26 @@ namespace Makefile
 					break;
 			}
 
-			stream << "Target: \"" << target.getName() << "\"" << std::endl
-				   << "\tVersion: \"" << target.getVersion() << "\"" << std::endl
+			stream << "Target: \"" << target.name << "\"" << std::endl
+				   << "\tVersion: \"" << target.version << "\"" << std::endl
 				   << "\tType: \"" << type << "\"" << std::endl
 				   << "\tModules:" << std::endl;
 			auto modules = target.getModules();
-			for (size_t i = 0; i < modules.size(); i++)
+			for (std::string& module : target.modules)
 			{
-				stream << "\t  " << modules[i] << "\n";
+				stream << "\t  " << module << "\n";
+			}
+			stream << "\tDependencies:\n";
+			for (dependency_type& dep : target.dependencies)
+			{
+				if (dep.expired())
+				{
+					stream << "\t  <<expired module>>\n";
+				}
+				else
+				{
+					stream << "\t  " << dep.lock()->getName() << "\n";
+				}
 			}
 			return stream;
 		}
