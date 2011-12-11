@@ -24,6 +24,8 @@ FILE			[a-zA-Z0-9_./\\-]+
 		}
 	}
 
+#.+[\r\n]						{ Parser_prompt(); }
+
 <<EOF>>							{ return T_EXIT; }
 <INITIAL>(?i:exit)/{WS}			{ return T_EXIT; }
 
