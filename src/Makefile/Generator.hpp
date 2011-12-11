@@ -15,7 +15,7 @@ namespace Makefile
 	class Generator
 	{
 	public:
-		typedef std::unordered_map<std::string, Target> targets_map;
+		typedef std::unordered_map<std::string, Target*> targets_map;
 
 		Generator();
 		~Generator() = default;

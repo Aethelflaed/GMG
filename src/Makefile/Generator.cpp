@@ -1,4 +1,5 @@
 #include "Generator.hpp"
+#include <iostream>
 
 using namespace Makefile;
 
@@ -20,7 +21,7 @@ Target& Generator::getTarget(const std::string& name)
 {
 	try
 	{
-		return this->targets.at(name);
+		return *(this->targets.at(name));
 	}
 	catch(std::out_of_range ex)
 	{
@@ -42,23 +43,25 @@ Target& Generator::addTarget(const std::string& name)
 		throw std::invalid_argument(std::string("Invalid use of reserved name : ") + name);
 	}
 
-	auto result = this->targets.insert(target_type(name, Target(name)));
-
-	if (result.second == false)
+	Target*& target = this->targets[name];
+	if (target != nullptr)
 	{
 		throw std::invalid_argument("Target already exists");
 	}
+	target = new Target(name);
 
-	return result.first->second;
+	return *target;
 }
 void Generator::removeTarget(const std::string& name)
 	throw (std::out_of_range)
 {
-	targets_map::size_type count = this->targets.erase(name);
-	if (count < 1)
+	Target* target = this->targets[name];
+	if (target == nullptr)
 	{
 		throw std::out_of_range("No such target");
 	}
+	delete target;
+	this->targets.erase(name);
 }
 
 Config& Generator::getConfig()

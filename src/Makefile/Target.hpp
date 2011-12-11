@@ -60,14 +60,15 @@ namespace Makefile
 					type = "Unknow";
 					break;
 			}
-			stream << "Target \"" << target.getName()
-				   << "\", version \"" << target.getVersion()
-				   << "\", type \"" << type
-				   << "\"\n  Modules :\n";
+
+			stream << "Target: \"" << target.getName() << "\"" << std::endl
+				   << "\tVersion: \"" << target.getVersion() << "\"" << std::endl
+				   << "\tType: \"" << type << "\"" << std::endl
+				   << "\tModules:" << std::endl;
 			auto modules = target.getModules();
 			for (size_t i = 0; i < modules.size(); i++)
 			{
-				stream << "\t" << i << "\t: " << modules[i] << "\n";
+				stream << "\t " << i << "\t: " << modules[i] << "\n";
 			}
 			return stream;
 		}

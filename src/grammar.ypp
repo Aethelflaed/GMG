@@ -204,62 +204,66 @@ target_mode_modules: T_ADD quoted_file
 						}
 				   }
 
+/* Target commands : add, edit, remove, list */
+
 target_command: target_add
 			  | target_edit
 			  | target_rm
 			  | target_list
 
 target_add: T_ADD quoted_name
-		  {
-				try
-				{
-					Parser& parser = Parser::getParser();
-					parser.setTarget(&parser.getMakefileGenerator().addTarget($2));
-					parser.setState(TARGET);
-				}
-				catch (const std::invalid_argument& ex)
-				{
-					std::cerr << ex.what() << std::endl;
-				}
-		  }
+	{
+		try
+		{
+			Parser& parser = Parser::getParser();
+			parser.setTarget(&(parser.getMakefileGenerator().addTarget($2)));
+			parser.setState(TARGET);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+		}
+	}
 
 target_edit: T_EDIT quoted_name
-		   {
-				try
-				{
-					Parser& parser = Parser::getParser();
-					parser.setTarget(&parser.getMakefileGenerator().getTarget($2));
-					parser.setState(TARGET);
-				}
-				catch (const std::out_of_range& ex)
-				{
-					std::cerr << ex.what() << std::endl;
-				}
-		   }
+	{
+		try
+		{
+			Parser& parser = Parser::getParser();
+			parser.setTarget(&parser.getMakefileGenerator().getTarget($2));
+			parser.setState(TARGET);
+		}
+		catch (const std::out_of_range& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+		}
+	}
 
 target_rm: T_RM quoted_name
-		 {
-				try
-				{
-					Parser::getParser().getMakefileGenerator().removeTarget($2);
-				}
-				catch (const std::out_of_range& ex)
-				{
-					std::cerr << ex.what() << std::endl;
-				}
-		 }
+	{
+		try
+		{
+			Parser::getParser().getMakefileGenerator().removeTarget($2);
+		}
+		catch (const std::out_of_range& ex)
+		{
+			std::cerr << ex.what() << std::endl;
+		}
+	}
 
 target_list: T_LIST
-		   {
-			if (Parser::getParser().isInteractive())
+	{
+		if (Parser::getParser().isInteractive())
+		{
+			std::cout << "Targets list :" << std::endl;
+			for (auto pair : Parser::getParser().getMakefileGenerator().getTargets())
 			{
-				std::cout << "Targets list :" << std::endl;
-				for (auto pair : Parser::getParser().getMakefileGenerator().getTargets())
-				{
-					std::cout << " - " << pair.second;
-				}
+				std::cout << *(pair.second) << std::endl;
 			}
-		   }
+		}
+	}
+
+/* Values */
 
 quoted_name: '"' T_WORD '"'
 		   {
