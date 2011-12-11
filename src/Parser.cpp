@@ -45,10 +45,24 @@ void Parser::help(int command) const
 				std::cout << "\t\"target\"\tConfigure targets. " << HELP_SEE("target") << std::endl;
 				std::cout << "\t\"config\"\tSpecify global configuration options. " << HELP_SEE("config") << std::endl;
 				std::cout << "\t\"exit\"\tExit configuration and build makefile." << std::endl;
+				std::cout << std::endl << "Most commands support `show' (or `list') to show or list specific informations." << std::endl;
 				break;
 			case T_TARGET:
+				std::cout << "Manage targets" << std::endl;
+				std::cout << "\t`target add'  Add a new target." << std::endl;
+				std::cout << "\t`target edit' Update an existing target." << std::endl;
+				std::cout << "\t`target rm'   Remove a target." << std::endl;
+				std::cout << "\t`target list' List all targets." << std::endl;
 				break;
 			case T_CONFIG:
+				std::cout << "Specify global configuration options." << std::endl;
+				std::cout << "It is recommended to first tune these settings, because they are then copied to all new target." << std::endl;
+				std::cout << "If you edit these settings later, the changes will only be applied to new targets." << std::endl << std::endl;
+				std::cout << "\t`config set debug (true|false)'             Specify global debug value" << std::endl;
+				std::cout << "\t`config set verbose (true|false)'           Specify global debug value" << std::endl;
+				std::cout << "\t`config add (include|library) path {FILE}'  Add the specified include / library path" << std::endl;
+				std::cout << "\t`config add library {NAME}'                 Add the specified library to be linked" << std::endl;
+				std::cout << "\t`config (show|list)'                        Show configuration" << std::endl;
 				break;
 		}
 	}
