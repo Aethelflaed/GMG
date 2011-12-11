@@ -161,48 +161,10 @@ config_list: T_LIST
 		}
 	}
 
+/* Targets configuration */
+
 target:	T_TARGET target_command
 	  | target_mode
-
-target_mode: T_END
-		   {
-				Parser::getParser().setTarget(nullptr);
-				Parser::getParser().setState(INITIAL);
-		   }
-		   | T_LIST
-		   {
-			if (Parser::getParser().isInteractive())
-			{
-				std::cout << Parser::getParser().getTarget() << std::endl;
-			}
-		   }
-		   | T_SET target_mode_param
-		   | T_MODULE target_mode_modules
-
-target_mode_param: T_VERSION T_NUMBER
-				 {
-						Parser::getParser().getTarget().setVersion($2);
-				 }
-				 | T_TYPE T_TARGET_TYPE
-				 {
-						Parser::getParser().getTarget().setType(Makefile::TargetType($2));
-				 }
-
-target_mode_modules: T_ADD quoted_file
-				   {
-						Parser::getParser().getTarget().addModule($2);
-				   }
-				   | T_RM quoted_file
-				   {
-						try
-						{
-							Parser::getParser().getTarget().removeModule($2);
-						}
-						catch (const std::out_of_range& ex)
-						{
-							std::cerr << ex.what() << std::endl;
-						}
-				   }
 
 /* Target commands : add, edit, remove, list */
 
@@ -260,6 +222,48 @@ target_list: T_LIST
 			{
 				std::cout << *(pair.second) << std::endl;
 			}
+		}
+	}
+
+/* Target configuration, i.e. specific to a target */
+
+target_mode: T_END
+	{
+		Parser::getParser().setTarget(nullptr);
+		Parser::getParser().setState(INITIAL);
+	}
+		   | T_LIST
+	{
+		if (Parser::getParser().isInteractive())
+		{
+			std::cout << Parser::getParser().getTarget() << std::endl;
+		}
+	}
+		   | T_SET target_mode_param
+		   | T_MODULE target_mode_modules
+
+target_mode_param: T_VERSION T_NUMBER
+	{
+		Parser::getParser().getTarget().setVersion($2);
+	}
+				 | T_TYPE T_TARGET_TYPE
+	{
+		Parser::getParser().getTarget().setType(Makefile::TargetType($2));
+	}
+
+target_mode_modules: T_ADD quoted_file
+	{
+		Parser::getParser().getTarget().addModule($2);
+	}
+				   | T_RM quoted_file
+	{
+		try
+		{
+			Parser::getParser().getTarget().removeModule($2);
+		}
+		catch (const std::out_of_range& ex)
+		{
+			std::cerr << ex.what() << std::endl;
 		}
 	}
 

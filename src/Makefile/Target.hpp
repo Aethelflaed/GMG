@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 
 #include "define.hpp"
 #include "Config.hpp"
@@ -22,6 +23,9 @@ namespace Makefile
 	class Target
 	{
 	public:
+		typedef std::weak_ptr<Target> dependency_type;
+		typedef std::vector<dependency_type> dependencies_vector;
+
 		explicit Target(const std::string& name);
 		~Target() = default;
 
@@ -41,6 +45,9 @@ namespace Makefile
 
 		Config& getConfig();
 		void setConfig(const Config& config);
+
+		const dependencies_vector& getDependencies() const;
+		void addDependency(dependency_type target);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
@@ -82,6 +89,7 @@ namespace Makefile
 		Config config;
 
 		std::vector<Tool> tool;
+		dependencies_vector dependencies;
 	};
 }
 

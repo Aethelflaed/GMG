@@ -83,3 +83,12 @@ void Target::setConfig(const Config& config)
 	this->config = Config(config);
 }
 
+const Target::dependencies_vector& Target::getDependencies() const
+{
+	return this->dependencies;
+}
+void Target::addDependency(dependency_type target)
+{
+	this->dependencies.push_back(target);
+}
+
