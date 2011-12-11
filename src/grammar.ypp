@@ -43,21 +43,22 @@ extern "C"
 %token T_HELP
 
 %token T_LIST
+%token T_SHOW
 
-%token T_OPTION
+%token T_ADD
+%token T_EDIT
+%token T_RM
 %token T_SET
+
 %token <string>T_BOOL_OPTION
 %token <boolean> T_BOOL_VALUE
 
 %token T_TARGET
-%token T_ADD
-%token T_EDIT
-%token T_RM
+%token T_CONFIG
 
 %token T_END
 %token T_MODULE
 %token T_VERSION
-%token T_SHOW
 
 %token T_TYPE
 %token <integer>T_TARGET_TYPE
@@ -80,7 +81,6 @@ configurations: /* empty */
 			  | configurations configuration
 
 configuration: target
-			 | option
 			 | configuration_help
 			 | exit
 
@@ -104,38 +104,6 @@ configuration_help: T_HELP help_command
 
 help_command: /* empty */	{ $$ = 0			}
 			| T_TARGET		{ $$ = T_TARGET		}
-			| T_OPTION		{ $$ = T_OPTION		}
-
-option: T_OPTION option_command
-	  {
-	  }
-
-option_command: T_SET option_set
-			  | T_LIST
-			{
-				if (Parser::getParser().isInteractive())
-				{
-					std::cout << Parser::getParser()
-										.getMakefile()
-										.getOptions() << std::endl;
-				}
-			}
-
-option_set: T_BOOL_OPTION bool_value
-		  {
-				if (strcmp($1, "debug") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setDebug($2);
-				}
-				else if (strcmp($1, "verbose") == 0)
-				{
-					Parser::getParser()
-							.getMakefile()
-							.getOptions().setVerbose($2);
-				}
-		  }
 
 target:	T_TARGET target_command
 	  | target_mode

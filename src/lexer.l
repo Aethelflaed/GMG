@@ -8,7 +8,7 @@
 %}
 
 WS				[ \t\r\n]
-BOOL			(?i:(t(r(u(e)?)?)?|f(a(l(s(e)?)?)?)?))
+BOOL			(?i:(t(rue)?|f(alse)?))
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
@@ -25,33 +25,33 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 
 <<EOF>>							{ return T_EXIT; }
-<INITIAL>exit/{WS}				{ return T_EXIT; }
+<INITIAL>(?i:exit)/{WS}			{ return T_EXIT; }
 
-<INITIAL>target(s)?/{WS}		{ return T_TARGET; }
-<INITIAL>option(s)?/{WS}		{ return T_OPTION; }
+<INITIAL>(?i:target(s)?)/{WS}	{ return T_TARGET; }
+<INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
 
-add/{WS}						{ return T_ADD; }
-list/{WS}						{ return T_LIST; }
-set/{WS}						{ return T_SET; }
-rm/{WS}							{ return T_RM; }
-h[elp]/{WS}						{ return T_HELP; }
+(?i:h(elp)?)/{WS}				{ return T_HELP; }
+(?i:show)/{WS}					{ return T_SHOW; }
+(?i:list)/{WS}					{ return T_LIST; }
 
-<INITIAL>edit/{WS}				{ return T_EDIT; }
+(?i:add)/{WS}					{ return T_ADD; }
+(?i:edit)/{WS}					{ return T_EDIT; }
+(?i:(rm|remove))/{WS}			{ return T_RM; }
+(?i:set)/{WS}					{ return T_SET; }
 
-<INITIAL>(debug|verbose)/{WS}	{
+<INITIAL>(?i:debug|verbose)/{WS}	{
 		strcpy(yylval.string, yytext);
 		return T_BOOL_OPTION;
 	}
 
-<TARGET>(end|quit)/{WS}			{
+<TARGET>(?i:end|quit)/{WS}		{
 		BEGIN INITIAL;
 		return T_END;
 	}
 
-<TARGET>module(s)?/{WS}			{ return T_MODULE; }
-<TARGET>version/{WS}			{ return T_VERSION; }
-<TARGET>show/{WS}				{ return T_SHOW; }
-<TARGET>type/{WS}				{ return T_TYPE; }
+<TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
+<TARGET>(?i:version)/{WS}		{ return T_VERSION; }
+<TARGET>(?i:type)/{WS}			{ return T_TYPE; }
 
 <TARGET>{TARGET_TYPE}/{WS}		{
 		char firstChar = (char) tolower((int) yytext[0]);

@@ -6,7 +6,6 @@ namespace Makefile
 	enum class ToolType : int;
 	class Builder;
 	class Config;
-	class Options;
 	class Target;
 	class Tool;
 }

@@ -3,17 +3,8 @@
 using namespace Makefile;
 
 Builder::Builder()
-	:targets(), options()
+	:targets()
 {
-}
-
-const Options& Builder::getOptions() const
-{
-	return this->options;
-}
-Options& Builder::getOptions()
-{
-	return this->options;
 }
 
 const Builder::targets_map& Builder::getTargets() const
