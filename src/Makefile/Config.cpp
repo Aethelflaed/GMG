@@ -3,12 +3,14 @@
 using namespace Makefile;
 
 Config::Config()
-	:targetOS(Config::getCurrentOS()), includePaths(), libraryPaths(), libraries()
+	:targetOS(Config::getCurrentOS()), debug(false), verbose(false),
+	 includePaths(), libraryPaths(), libraries()
 {
 }
 
 Config::Config(const Config& config)
-	:targetOS(config.targetOS), includePaths(config.includePaths),
+	:targetOS(config.targetOS), debug(config.debug), verbose(config.verbose),
+	 includePaths(config.includePaths),
 	 libraryPaths(config.libraryPaths), libraries(libraries)
 {
 }

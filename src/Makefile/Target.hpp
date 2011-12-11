@@ -92,6 +92,8 @@ namespace Makefile
 					stream << "\t  " << dep.lock()->getName() << "\n";
 				}
 			}
+
+			stream << "Target's " << target.config;
 			return stream;
 		}
 
