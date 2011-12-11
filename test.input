@@ -3,8 +3,8 @@
 # Global configuration
 config set debug false
 config set debug true
-config set verbose true
-config set verbose false
+config set verbose 1
+config set verbose 0
 
 config add include path "/usr/local/include/"
 config add library path "/usr/local/lib/"

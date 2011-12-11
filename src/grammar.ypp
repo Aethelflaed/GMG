@@ -134,7 +134,7 @@ config_bool_param: T_SET T_BOOL_OPTION bool_value
 		}
 	}
 
-config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_name
+config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file
 	{
 		Makefile::Config& config = Parser::getParser().getCurrentConfig();
 		char firstChar = (char) tolower((int) $2[0]);
@@ -148,7 +148,7 @@ config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_name
 		}
 	}
 
-config_param: T_ADD T_CONFIG_PARAM quoted_name
+config_param: T_ADD T_CONFIG_PARAM quoted_file
 	{
 		Parser::getParser().getCurrentConfig().addLibrary($3);
 	}
