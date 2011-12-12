@@ -75,13 +75,19 @@ void Parser::help_global() const
 void Parser::help_target() const
 {
 	std::cout << "Manage targets" << std::endl;
-	std::cout << "\t`target add'  Add a new target." << std::endl;
-	std::cout << "\t`target edit' Update an existing target." << std::endl;
-	std::cout << "\t`target rm'   Remove a target." << std::endl;
-	std::cout << "\t`target list' List all targets." << std::endl;
+	std::cout << "\t`target add \"NAME\"'  add a new target." << std::endl;
+	std::cout << "\t`target edit \"NAME\"' update an existing target." << std::endl;
+	std::cout << "\t`target rm \"NAME\"'   remove a target." << std::endl;
+	std::cout << "\t`target list'        list all targets." << std::endl;
 }
 void Parser::help_target_mode() const
 {
+	std::cout << "Configure a specific target" << std::endl;
+	std::cout << "\t`set version X.Y'            Set the version X.Y of the target." << std::endl;
+	std::cout << "\t`set type (app|lib|test)'    Set the type  of the target." << std::endl;
+	std::cout << "\t`config'                     Set target specific configuration. " << HELP_SEE("config") << std::endl;
+	std::cout << "\t`(add|rm) module \"NAME\"'     Add / remove a module, i.e. a source folder." << std::endl;
+	std::cout << "\t`(add|rm) dependency \"NAME\"' Add / remove a dependency target, specified by its name." << std::endl;
 }
 void Parser::help_config() const
 {
