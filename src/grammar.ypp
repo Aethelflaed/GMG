@@ -23,8 +23,9 @@ extern "C"
 
 	void yyerror(const char* str)
 	{
-		std::cerr << "Error : \"" << str << "\"" << std::endl;
-		std::cerr << "Scanning : \"" << yytext << "\"" << std::endl;
+		std::cerr << "Error:        \"" << str << "\"" << std::endl;
+		std::cerr << "Scanning:     \"" << yytext << "\"" << std::endl;
+		std::cerr << "Parser state: \"" << Parser::getParser().getState() << "\"" << std::endl;
 	}
 }
 
@@ -42,7 +43,6 @@ extern "C"
 
 %token T_EXIT
 %token T_HELP
-%token T_HELP_
 
 %token T_LIST
 
@@ -61,7 +61,6 @@ extern "C"
 
 %token T_TARGET
 %token T_CONFIG
-%token T_CONFIG_
 
 %token T_END
 %token T_MODULE
@@ -86,10 +85,14 @@ extern "C"
 
 configurations: /* empty */
 			  | configurations configuration
+	{
+		Parser::getParser().prompt();
+	}
 
 configuration: target
 			 | config
-			 | configuration_help
+			 | help
+			 | newline
 			 | exit
 
 exit: T_EXIT
@@ -104,14 +107,13 @@ exit: T_EXIT
 		exit(0);
    }
 
-configuration_help: T_HELP help_command
+help: T_HELP help_command newline
 	{
 		Parser::getParser().help($2);
 	}
-				  | T_HELP_
+	| T_HELP newline
 	{
 		Parser::getParser().help(0);
-		Parser::getParser().prompt();
 	}
 
 help_command: T_TARGET		{ $$ = T_TARGET;	}
@@ -119,14 +121,12 @@ help_command: T_TARGET		{ $$ = T_TARGET;	}
 
 config: T_CONFIG config_command
 
-config_: T_CONFIG_ config_command
-
 config_command: config_bool_param
 			  | config_path_param
 			  | config_param
 			  | config_list
 
-config_bool_param: T_SET T_BOOL_OPTION bool_value
+config_bool_param: T_SET T_BOOL_OPTION bool_value newline
 	{
 		Makefile::Config& config = Parser::getParser().getCurrentConfig();
 		char firstChar = (char) tolower((int) $2[0]);
@@ -140,7 +140,7 @@ config_bool_param: T_SET T_BOOL_OPTION bool_value
 		}
 	}
 
-config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file
+config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file newline
 	{
 		Makefile::Config& config = Parser::getParser().getCurrentConfig();
 		char firstChar = (char) tolower((int) $2[0]);
@@ -154,12 +154,12 @@ config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file
 		}
 	}
 
-config_param: T_ADD T_CONFIG_PARAM quoted_file
+config_param: T_ADD T_CONFIG_PARAM quoted_file newline
 	{
 		Parser::getParser().getCurrentConfig().addLibrary($3);
 	}
 
-config_list: T_LIST
+config_list: T_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
 		{
@@ -179,7 +179,7 @@ target_command: target_add
 			  | target_rm
 			  | target_list
 
-target_add: T_ADD quoted_name
+target_add: T_ADD quoted_name newline
 	{
 		try
 		{
@@ -193,7 +193,7 @@ target_add: T_ADD quoted_name
 		}
 	}
 
-target_edit: T_EDIT quoted_name
+target_edit: T_EDIT quoted_name newline
 	{
 		try
 		{
@@ -207,7 +207,7 @@ target_edit: T_EDIT quoted_name
 		}
 	}
 
-target_rm: T_RM quoted_name
+target_rm: T_RM quoted_name newline
 	{
 		try
 		{
@@ -219,7 +219,7 @@ target_rm: T_RM quoted_name
 		}
 	}
 
-target_list: T_LIST
+target_list: T_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
 		{
@@ -233,42 +233,41 @@ target_list: T_LIST
 
 /* Target configuration, i.e. specific to a target */
 
-target_mode: T_END
+target_mode: T_END newline
 	{
 		Parser::getParser().setTarget(nullptr);
 		Parser::getParser().setState(INITIAL);
 	}
-		   | T_LIST
+		   | T_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
 		{
 			std::cout << Parser::getParser().getTarget() << std::endl;
 		}
 	}
-		   | T_SET target_mode_param
+		   | target_mode_param
 		   | target_mode_add_values
 		   | target_mode_rm_values
-		   | config_
 
-target_mode_param: T_VERSION T_NUMBER
+target_mode_param: T_SET T_VERSION T_NUMBER newline
 	{
-		Parser::getParser().getTarget().setVersion($2);
+		Parser::getParser().getTarget().setVersion($3);
 	}
-				 | T_TYPE T_TARGET_TYPE
+				 | T_SET T_TYPE T_TARGET_TYPE newline
 	{
-		Parser::getParser().getTarget().setType(Makefile::TargetType($2));
+		Parser::getParser().getTarget().setType(Makefile::TargetType($3));
 	}
 
-target_mode_add_values: T_ADD T_MODULE quoted_file
+target_mode_add_values: T_ADD T_MODULE quoted_file newline
 	{
 		Parser::getParser().getTarget().addModule($3);
 	}
-					  | T_ADD T_DEPENDENCY quoted_name
+					  | T_ADD T_DEPENDENCY quoted_name newline
 	{
 		Parser::getParser().getTarget().addDependency($3);
 	}
 
-target_mode_rm_values: T_RM T_MODULE quoted_file
+target_mode_rm_values: T_RM T_MODULE quoted_file newline
 	{
 		try
 		{
@@ -279,7 +278,7 @@ target_mode_rm_values: T_RM T_MODULE quoted_file
 			std::cerr << ex.what() << std::endl;
 		}
 	}
-					 | T_RM T_DEPENDENCY quoted_name
+					 | T_RM T_DEPENDENCY quoted_name newline
 	{
 		try
 		{
@@ -315,6 +314,8 @@ bool_value: T_BOOL_VALUE
 		  {
 				$$ = strtol($1, nullptr, 10) != 0;
 		  }
+
+newline: '\n'
 
 %%
 

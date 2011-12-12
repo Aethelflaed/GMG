@@ -29,11 +29,9 @@ FILE			[a-zA-Z0-9_./\\-]+
 <<EOF>>							{ return T_EXIT; }
 <INITIAL>(?i:exit)/{WS}			{ return T_EXIT; }
 
-<INITIAL>(?i:target(s)?)/{WS}	{ return T_TARGET; }
-<INITIAL>(?i:config)/{WS}		{ return T_CONFIG; }
-<TARGET>(?i:config)/{WS}		{ return T_CONFIG_; }
+(?i:target(s)?)/{WS}			{ return T_TARGET; }
+(?i:config)/{WS}				{ return T_CONFIG; }
 
-(?i:h(elp)?)[ \t]*[\r\n]		{ return T_HELP_; }
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
 (?i:list|show)/{WS}				{ return T_LIST; }
 
@@ -93,7 +91,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 		return T_FILE;
 	}
 
-[\r\n]							{ Parser_prompt(); }
+[\r\n]							{ return '\n'; }
 [ \t]+							{ /* ignore whitespace */ }
 
 %%
