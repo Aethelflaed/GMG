@@ -92,8 +92,7 @@ void Parser::help_target_mode() const
 void Parser::help_config() const
 {
 	std::cout << "Specify global configuration options." << std::endl;
-	std::cout << "It is recommended to first tune these settings, because they are then copied to all new target." << std::endl;
-	std::cout << "If you edit these settings later, the changes will only be applied to new targets." << std::endl << std::endl;
+	std::cout << "All other configuration inherit from this one, and if no parameter is changed they keep the global value." << std::endl;
 	std::cout << "\t`config set debug (true|false)'             Specify global debug value" << std::endl;
 	std::cout << "\t`config set verbose (true|false)'           Specify global debug value" << std::endl;
 	std::cout << "\t`config add (include|library) path {FILE}'  Add the specified include / library path" << std::endl;
