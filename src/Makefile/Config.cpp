@@ -46,6 +46,10 @@ OperatingSystem Config::getTargetOS() const
 	}
 	return *(this->targetOS);
 }
+bool Config::isTargetOSModified() const
+{
+	return this->targetOS.get() != nullptr;
+}
 void Config::setTargetOS(OperatingSystem os)
 {
 	this->targetOS = std::shared_ptr<OperatingSystem> (new OperatingSystem(os));
@@ -58,6 +62,10 @@ bool Config::isDebug() const
 		return this->dependency->isDebug();
 	}
 	return *(this->debug);
+}
+bool Config::isDebugModified() const
+{
+	return this->debug.get() != nullptr;
 }
 void Config::setDebug(bool debug)
 {
@@ -72,6 +80,10 @@ bool Config::isVerbose() const
 	}
 	return *(this->verbose);
 }
+bool Config::isVerboseModified() const
+{
+	return this->verbose.get() != nullptr;
+}
 void Config::setVerbose(bool verbose)
 {
 	this->verbose = std::shared_ptr<bool> (new bool(verbose));
@@ -84,6 +96,10 @@ const std::vector<std::string>& Config::getIncludePaths() const
 		return this->dependency->getIncludePaths();
 	}
 	return *(this->includePaths);
+}
+bool Config::isIncludePathsModified() const
+{
+	return this->includePaths.get() != nullptr;
 }
 void Config::addIncludePath(std::string includePath)
 {
@@ -102,6 +118,10 @@ const std::vector<std::string>& Config::getLibraryPaths() const
 	}
 	return *(this->libraryPaths);
 }
+bool Config::isLibraryPathsModified() const
+{
+	return this->libraryPaths.get() != nullptr;
+}
 void Config::addLibraryPath(std::string libraryPath)
 {
 	if (this->libraryPaths.get() == nullptr)
@@ -118,6 +138,10 @@ const std::vector<std::string>& Config::getLibraries() const
 		return this->dependency->getLibraries();
 	}
 	return *(this->libraries);
+}
+bool Config::isLibrariesModified() const
+{
+	return this->libraries.get() != nullptr;
 }
 void Config::addLibrary(std::string library)
 {
