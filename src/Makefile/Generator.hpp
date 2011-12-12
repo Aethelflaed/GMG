@@ -18,10 +18,12 @@ namespace Makefile
 		typedef std::shared_ptr<Target> target_type;
 		typedef std::unordered_map<std::string, target_type> targets_map;
 
+
 		Generator();
 		~Generator() = default;
 
 		void generate();
+		void save();
 
 		const targets_map& getTargets() const;
 		Target& getTarget(const std::string& name) throw (std::out_of_range);

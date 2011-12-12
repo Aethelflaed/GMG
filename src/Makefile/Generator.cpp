@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "Generator.hpp"
 #include "Target.hpp"
 
@@ -14,6 +16,7 @@ void Generator::generate()
 	{
 		target_pair.second->clean();
 	}
+	this->save();
 }
 
 const Generator::targets_map& Generator::getTargets() const
