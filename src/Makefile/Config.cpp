@@ -3,16 +3,28 @@
 using namespace Makefile;
 
 Config::Config()
-	:targetOS(Config::getCurrentOS()), debug(false), verbose(false),
-	 includePaths(), libraryPaths(), libraries()
+	:dependency(nullptr), targetOS(new OperatingSystem(Config::getCurrentOS())),
+	 debug(new bool(false)), verbose(new bool(false)),
+	 includePaths(new std::vector<std::string>()),
+	 libraryPaths(new std::vector<std::string>()),
+	 libraries(new std::vector<std::string>())
 {
 }
 
-Config::Config(const Config& config)
-	:targetOS(config.targetOS), debug(config.debug), verbose(config.verbose),
-	 includePaths(config.includePaths),
-	 libraryPaths(config.libraryPaths), libraries(libraries)
+Config::Config(const Config& config, bool dependency)
+	:dependency(&config), targetOS(), debug(), verbose(),
+	 includePaths(), libraryPaths(), libraries()
 {
+	if (dependency == false)
+	{
+		this->dependency = nullptr;
+		this->targetOS = std::shared_ptr<OperatingSystem> (new OperatingSystem(config.getTargetOS()));
+		this->debug = std::shared_ptr<bool> (new bool(config.isDebug()));
+		this->verbose = std::shared_ptr<bool> (new bool(config.isVerbose()));
+		this->includePaths = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>(config.getIncludePaths()));
+		this->libraryPaths = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>(config.getLibraryPaths()));
+		this->libraries = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>(config.getLibraries()));
+	}
 }
 
 OperatingSystem Config::getCurrentOS()
@@ -28,55 +40,91 @@ OperatingSystem Config::getCurrentOS()
 
 OperatingSystem Config::getTargetOS() const
 {
-	return this->targetOS;
+	if (this->targetOS.get() == nullptr)
+	{
+		return this->dependency->getTargetOS();
+	}
+	return *(this->targetOS);
 }
 void Config::setTargetOS(OperatingSystem os)
 {
-	this->targetOS = os;
+	this->targetOS = std::shared_ptr<OperatingSystem> (new OperatingSystem(os));
 }
 
 bool Config::isDebug() const
 {
-	return this->debug;
+	if (this->debug.get() == nullptr)
+	{
+		return this->dependency->isDebug();
+	}
+	return *(this->debug);
 }
 void Config::setDebug(bool debug)
 {
-	this->debug = debug;
+	this->debug = std::shared_ptr<bool> (new bool(debug));
 }
 
 bool Config::isVerbose() const
 {
-	return this->verbose;
+	if (this->verbose.get() == nullptr)
+	{
+		return this->dependency->isVerbose();
+	}
+	return *(this->verbose);
 }
 void Config::setVerbose(bool verbose)
 {
-	this->verbose = verbose;
+	this->verbose = std::shared_ptr<bool> (new bool(verbose));
 }
 
 const std::vector<std::string>& Config::getIncludePaths() const
 {
-	return this->includePaths;
+	if (this->includePaths.get() == nullptr)
+	{
+		return this->dependency->getIncludePaths();
+	}
+	return *(this->includePaths);
 }
 void Config::addIncludePath(std::string includePath)
 {
-	this->includePaths.push_back(includePath);
+	if (this->includePaths.get() == nullptr)
+	{
+		this->includePaths = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>());
+	}
+	this->includePaths->push_back(includePath);
 }
 
 const std::vector<std::string>& Config::getLibraryPaths() const
 {
-	return this->libraryPaths;
+	if (this->libraryPaths.get() == nullptr)
+	{
+		return this->dependency->getLibraryPaths();
+	}
+	return *(this->libraryPaths);
 }
 void Config::addLibraryPath(std::string libraryPath)
 {
-	this->libraryPaths.push_back(libraryPath);
+	if (this->libraryPaths.get() == nullptr)
+	{
+		this->libraryPaths = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>());
+	}
+	this->libraryPaths->push_back(libraryPath);
 }
 
 const std::vector<std::string>& Config::getLibraries() const
 {
-	return this->libraries;
+	if (this->libraries.get() == nullptr)
+	{
+		return this->dependency->getLibraries();
+	}
+	return *(this->libraries);
 }
 void Config::addLibrary(std::string library)
 {
-	this->libraries.push_back(library);
+	if (this->libraries.get() == nullptr)
+	{
+		this->libraries = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>());
+	}
+	this->libraries->push_back(library);
 }
 

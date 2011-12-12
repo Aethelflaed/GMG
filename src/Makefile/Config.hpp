@@ -6,6 +6,7 @@
 #include <vector>
 #include <ostream>
 #include <string>
+#include <memory>
 
 namespace Makefile
 {
@@ -21,7 +22,7 @@ namespace Makefile
 	public:
 
 		Config();
-		Config(const Config& config);
+		Config(const Config& config, bool dependency = false);
 		~Config() = default;
 
 		static OperatingSystem getCurrentOS();
@@ -47,21 +48,21 @@ namespace Makefile
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{
 			stream << "Configuration:" << std::endl;
-			stream << "\tDebug:   " << (config.debug ? "Yes" : " No") << std::endl;
-			stream << "\tVerbose: " << (config.verbose  ? "Yes" : " No") << std::endl;
+			stream << "\tDebug:   " << (config.isDebug() ? "Yes" : " No") << std::endl;
+			stream << "\tVerbose: " << (config.isVerbose()  ? "Yes" : " No") << std::endl;
 
 			stream << "\tInclude paths :" << std::endl;
-			for (std::string& name : config.includePaths)
+			for (const std::string& name : config.getIncludePaths())
 			{
 				stream << "\t\t" << name << std::endl;
 			}
 			stream << "\tLibrary paths :" << std::endl;
-			for (std::string& name : config.libraryPaths)
+			for (const std::string& name : config.getLibraryPaths())
 			{
 				stream << "\t\t" << name << std::endl;
 			}
 			stream << "\tLibraries :" << std::endl;
-			for (std::string& name : config.libraries)
+			for (const std::string& name : config.getLibraries())
 			{
 				stream << "\t\t" << name << std::endl;
 			}
@@ -70,14 +71,16 @@ namespace Makefile
 		}
 
 	private:
-		OperatingSystem targetOS;
+		const Config* dependency;
 
-		bool debug;
-		bool verbose;
+		std::shared_ptr<OperatingSystem> targetOS;
 
-		std::vector<std::string> includePaths;
-		std::vector<std::string> libraryPaths;
-		std::vector<std::string> libraries;
+		std::shared_ptr<bool> debug;
+		std::shared_ptr<bool> verbose;
+
+		std::shared_ptr<std::vector<std::string>> includePaths;
+		std::shared_ptr<std::vector<std::string>> libraryPaths;
+		std::shared_ptr<std::vector<std::string>> libraries;
 	};
 }
 
