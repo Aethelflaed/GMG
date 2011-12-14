@@ -22,23 +22,16 @@ namespace Makefile
 	class Tool
 	{
 	public:
-		static std::map<int, std::string> typeNames;
-		static std::map<int, std::string> typeFlagNames;
-		static std::map<int, std::vector<std::string>> debugFlags;
-		static std::map<int, std::string> verboseFlags;
-
 		Tool(const std::string& typeName, const std::string& typeFlagName);
 		explicit Tool(ToolType type);
 		explicit Tool(int type);
 		~Tool() = default;
 
-		int getCustomTypeId() const;
-
+		int getTypeId() const;
 		ToolType getType() const;
-		void setType(ToolType type);
 
 		const std::string& getName() const;
-		void setString(const std::string& name);
+		void setName(const std::string& name);
 
 		const std::string& getPath() const;
 		void setPath(const std::string& path);
@@ -46,16 +39,33 @@ namespace Makefile
 		const std::vector<std::string>& getFlags() const;
 		void addFlag(const std::string& flag);
 		void removeFlag(const std::string& flag) throw (std::out_of_range);
-		void removeFlag(int index) throw (std::out_of_range);
 
-		void addDebugFlag();
-		void addVerboseFlag();
+		bool isDebugMode() const;
+		void setDebugMode(bool debugMode);
+
+		bool isVerboseMode() const;
+		void setVerboseMode(bool verboseMode);
+
+		std::vector<std::string>&& getAllFlags() const;
+
 	private:
+		static std::map<int, std::string> typeNames;
+		static std::map<int, std::string> typeFlagNames;
+		static std::map<int, std::vector<std::string>> debugFlags;
+		static std::map<int, std::string> verboseFlags;
+		static std::map<int, std::vector<std::string>> defaultFilePatterns;
+
 		ToolType type;
-		int customType;
+		int typeId;
+
 		std::string name;
 		std::string path;
+
+		std::vector<std::string> filePatterns;
+
 		std::vector<std::string> flags;
+		bool debugMode;
+		bool verboseMode;
 	};
 }
 

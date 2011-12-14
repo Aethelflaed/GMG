@@ -56,16 +56,27 @@ std::map<int, std::string> Tool::verboseFlags {
 	std::pair<int, std::string>((int) ToolType::TEX,  "")
 };
 
+std::map<int, std::vector<std::string>> Tool::defaultFilePatterns {
+	{(int) ToolType::C, {
+			".c"
+		}
+	}
+};
+
 Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
-	:type(ToolType::OTHER), customType(-1), name(), path(), flags()
+	:type(ToolType::OTHER), typeId(-1), name(), path(), flags(),
+	 debugMode(false), verboseMode(false)
 {
-	int typeId = typeNames.size();
-	typeNames[typeId] = typeName;
-	typeFlagNames[typeId] = typeFlagName;
+	int typeId = Tool::typeNames.size();
+	Tool::typeNames[typeId] = typeName;
+	Tool::typeFlagNames[typeId] = typeFlagName;
+
+	this->typeId = typeId;
 }
 
 Tool::Tool(ToolType type)
-	:type(type), customType(-1), name(), path(), flags()
+	:type(type), typeId((int) type), name(), path(), flags(),
+	 debugMode(false), verboseMode(false)
 {
 	if (this->type == ToolType::YACC)
 	{
@@ -74,30 +85,25 @@ Tool::Tool(ToolType type)
 }
 
 Tool::Tool(int type)
-	:type(ToolType::OTHER), customType(type), name(), path(), flags()
+	:type(ToolType::OTHER), typeId(type), name(), path(), flags(),
+	 debugMode(false), verboseMode(false)
 {
 }
 
-int Tool::getCustomTypeId() const
+int Tool::getTypeId() const
 {
-	return this->customType;
+	return this->typeId;
 }
-
-auto Tool::getType() const -> ToolType
+ToolType Tool::getType() const
 {
 	return this->type;
-}
-
-void Tool::setType(ToolType type)
-{
-	this->type = type;
 }
 
 const std::string& Tool::getName() const
 {
 	return this->name;
 }
-void Tool::setString(const std::string& name)
+void Tool::setName(const std::string& name)
 {
 	this->name = name;
 }
@@ -119,7 +125,6 @@ void Tool::addFlag(const std::string& flag)
 {
 	this->flags.push_back(flag);
 }
-
 void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
 {
 	auto iterator =  std::find(this->flags.begin(),
@@ -133,18 +138,41 @@ void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
 	this->flags.erase(iterator);
 }
 
-void Tool::removeFlag(int index) throw (std::out_of_range)
+bool Tool::isDebugMode() const
 {
-	std::string flag;
-	try
+	return this->debugMode;
+}
+void Tool::setDebugMode(bool debugMode)
+{
+	this->debugMode = debugMode;
+}
+
+bool Tool::isVerboseMode() const
+{
+	return this->verboseMode;
+}
+void Tool::setVerboseMode(bool verboseMode)
+{
+	this->verboseMode = verboseMode;
+}
+
+std::vector<std::string>&& Tool::getAllFlags() const
+{
+	std::vector<std::string> flags = this->flags;
+
+	if (this->debugMode)
 	{
-		flag = this->flags.at(index);
-	}
-	catch(const std::out_of_range& ex)
-	{
-		throw std::out_of_range("No such flag");
+		for (const std::string& flag : Tool::debugFlags[this->typeId])
+		{
+			flags.push_back(flag);
+		}
 	}
 
-	this->removeFlag(flag);
+	if (this->verboseMode)
+	{
+		flags.push_back(Tool::verboseFlags[this->typeId]);
+	}
+
+	return std::move(flags);
 }
 
