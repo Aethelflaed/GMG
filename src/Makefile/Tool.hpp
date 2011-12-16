@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <map>
 
+#include "Config.hpp"
+
 namespace Makefile
 {
 	enum class ToolType : int
@@ -54,6 +56,7 @@ namespace Makefile
 		static std::map<int, std::vector<std::string>> debugFlags;
 		static std::map<int, std::string> verboseFlags;
 		static std::map<int, std::vector<std::string>> defaultFilePatterns;
+		static std::map<int, std::map<OperatingSystem, std::string>> paths;
 
 		ToolType type;
 		int typeId;
@@ -66,6 +69,7 @@ namespace Makefile
 		std::vector<std::string> flags;
 		bool debugMode;
 		bool verboseMode;
+		bool optimizationMode = false;
 	};
 }
 

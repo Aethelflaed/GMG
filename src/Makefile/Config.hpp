@@ -12,8 +12,8 @@ namespace Makefile
 {
 	enum class OperatingSystem : unsigned int
 	{
-		MacOSX = 0,
-		Linux = 1,
+		Linux = 0,
+		MacOSX = 1,
 		Windows = 2
 	};
 
