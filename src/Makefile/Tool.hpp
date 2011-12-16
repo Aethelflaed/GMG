@@ -24,7 +24,6 @@ namespace Makefile
 	class Tool
 	{
 	public:
-		Tool(const std::string& typeName, const std::string& typeFlagName);
 		explicit Tool(ToolType type);
 		explicit Tool(int type);
 		~Tool() = default;
@@ -48,6 +47,9 @@ namespace Makefile
 		bool isVerboseMode() const;
 		void setVerboseMode(bool verboseMode);
 
+		bool isOptimizationMode() const;
+		void setOptimizationMode(bool optimizationMode);
+
 		std::vector<std::string>&& getAllFlags() const;
 
 	private:
@@ -55,6 +57,7 @@ namespace Makefile
 		static std::map<int, std::string> typeFlagNames;
 		static std::map<int, std::vector<std::string>> debugFlags;
 		static std::map<int, std::string> verboseFlags;
+		static std::map<int, std::string> optimizationFlags;
 		static std::map<int, std::vector<std::string>> defaultFilePatterns;
 		static std::map<int, std::map<OperatingSystem, std::string>> paths;
 
@@ -66,10 +69,10 @@ namespace Makefile
 
 		std::vector<std::string> filePatterns;
 
-		std::vector<std::string> flags;
-		bool debugMode;
-		bool verboseMode;
-		bool optimizationMode = false;
+		std::vector<std::string> flags {};
+		bool debugMode {false};
+		bool verboseMode {false};
+		bool optimizationMode {false};
 	};
 }
 

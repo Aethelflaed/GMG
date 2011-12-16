@@ -49,11 +49,19 @@ std::map<int, std::vector<std::string>> Tool::debugFlags {
 };
 
 std::map<int, std::string> Tool::verboseFlags {
-	{(int) ToolType::C,    "-v"},
-	{(int) ToolType::CXX,  "-v"},
-	{(int) ToolType::LEX,  "-v"},
-	{(int) ToolType::YACC, "-v"},
-	{(int) ToolType::TEX,  ""}
+	{(int) ToolType::C,		"-v"},
+	{(int) ToolType::CXX,	"-v"},
+	{(int) ToolType::LEX,	"-v"},
+	{(int) ToolType::YACC,	"-v"},
+	{(int) ToolType::TEX,	""}
+};
+
+std::map<int, std::string> Tool::optimizationFlags {
+	{(int) ToolType::C,		"-0s"},
+	{(int) ToolType::CXX,	"-0s"},
+	{(int) ToolType::LEX,	""},
+	{(int) ToolType::YACC,	""},
+	{(int) ToolType::TEX,	""}
 };
 
 std::map<int, std::vector<std::string>> Tool::defaultFilePatterns {
@@ -104,35 +112,27 @@ std::map<int, std::map<OperatingSystem, std::string>> Tool::paths {
 	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}}
 };
 
-Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
-	:type(ToolType::OTHER), typeId(0), name(), path(),
-	 filePatterns(), flags(),
-	 debugMode(false), verboseMode(false)
-{
-	int typeId = Tool::typeNames.size();
-	Tool::typeNames[typeId] = typeName;
-	Tool::typeFlagNames[typeId] = typeFlagName;
-
-	this->typeId = typeId;
-}
-
 Tool::Tool(ToolType type)
 	:type(type), typeId((int) type),
 	 name(Tool::typeNames[(int) type]),
 	 path(Tool::paths[(int) type][Config::getCurrentOS()]),
-	 filePatterns(Tool::defaultFilePatterns[(int) type]),
-	 flags(),
-	 debugMode(false), verboseMode(false)
+	 filePatterns(Tool::defaultFilePatterns[(int) type])
 {
-	if (this->type == ToolType::YACC)
+	switch (this->type)
 	{
-		this->flags.push_back("-d");
+		case ToolType::YACC:
+			this->flags.push_back("-d");
+			break;
+		default:
+			break;
 	}
 }
 
 Tool::Tool(int type)
-	:type(ToolType::OTHER), typeId(type), name(), path(), flags(),
-	 debugMode(false), verboseMode(false)
+	:type(ToolType::OTHER), typeId(type),
+	 name(Tool::typeNames[type]),
+	 path(Tool::paths[type][Config::getCurrentOS()]),
+	 filePatterns(Tool::defaultFilePatterns[(int) type])
 {
 }
 
@@ -202,6 +202,15 @@ void Tool::setVerboseMode(bool verboseMode)
 	this->verboseMode = verboseMode;
 }
 
+bool Tool::isOptimizationMode() const
+{
+	return this->optimizationMode;
+}
+void Tool::setOptimizationMode(bool optimizationMode)
+{
+	this->optimizationMode = optimizationMode;
+}
+
 std::vector<std::string>&& Tool::getAllFlags() const
 {
 	std::vector<std::string> flags = this->flags;
@@ -217,6 +226,11 @@ std::vector<std::string>&& Tool::getAllFlags() const
 	if (this->verboseMode)
 	{
 		flags.push_back(Tool::verboseFlags[this->typeId]);
+	}
+
+	if (this->optimizationMode)
+	{
+		flags.push_back(Tool::optimizationFlags[this->typeId]);
 	}
 
 	return std::move(flags);
