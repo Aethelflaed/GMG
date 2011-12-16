@@ -5,67 +5,124 @@
 using namespace Makefile;
 
 std::map<int, std::string> Tool::typeNames {
-	std::pair<int, std::string>((int) ToolType::C, "C"),
-	std::pair<int, std::string>((int) ToolType::CXX, "CXX"),
-	std::pair<int, std::string>((int) ToolType::LEX, "LEX"),
-	std::pair<int, std::string>((int) ToolType::YACC, "YACC"),
-	std::pair<int, std::string>((int) ToolType::TEX, "TEX")
+	{(int) ToolType::C, "C"},
+	{(int) ToolType::CXX, "CXX"},
+	{(int) ToolType::LEX, "LEX"},
+	{(int) ToolType::YACC, "YACC"},
+	{(int) ToolType::TEX, "TEX"}
 };
 
 std::map<int, std::string> Tool::typeFlagNames {
-	std::pair<int, std::string>((int) ToolType::C, "CFLAGS"),
-	std::pair<int, std::string>((int) ToolType::CXX, "CXXFLAGS"),
-	std::pair<int, std::string>((int) ToolType::LEX, "LEXFLAGS"),
-	std::pair<int, std::string>((int) ToolType::YACC, "YFLAGS"),
-	std::pair<int, std::string>((int) ToolType::TEX, "TEXFLAGS")
+	{(int) ToolType::C, "CFLAGS"},
+	{(int) ToolType::CXX, "CXXFLAGS"},
+	{(int) ToolType::LEX, "LEXFLAGS"},
+	{(int) ToolType::YACC, "YFLAGS"},
+	{(int) ToolType::TEX, "TEXFLAGS"}
 };
 
 std::map<int, std::vector<std::string>> Tool::debugFlags {
-	std::pair<int, std::vector<std::string>>{(int) ToolType::C,
-		std::vector<std::string> {
+	{(int) ToolType::C, {
 			"-g3",
 			"-gdwarf-2",
 			"-W",
 			"-Wall"
 		}
 	},
-	std::pair<int, std::vector<std::string>>{(int) ToolType::CXX,
-		std::vector<std::string> {
+	{(int) ToolType::CXX, {
 			"-g3",
 			"-gdwarf-2",
 			"-W",
 			"-Wall"
 		}
 	},
-	std::pair<int, std::vector<std::string>>{(int) ToolType::LEX,
-		std::vector<std::string> ()
+	{(int) ToolType::LEX, {
+		}
 	},
-	std::pair<int, std::vector<std::string>>{(int) ToolType::YACC,
-		std::vector<std::string> { "--debug" }
+	{(int) ToolType::YACC, {
+			"--debug"
+		}
 	},
-	std::pair<int, std::vector<std::string>>{(int) ToolType::TEX,
-		std::vector<std::string> { "" }
+	{(int) ToolType::TEX, {
+			""
+		}
 	}
 };
 
 std::map<int, std::string> Tool::verboseFlags {
-	std::pair<int, std::string>((int) ToolType::C,    "-v"),
-	std::pair<int, std::string>((int) ToolType::CXX,  "-v"),
-	std::pair<int, std::string>((int) ToolType::LEX,  "-v"),
-	std::pair<int, std::string>((int) ToolType::YACC, "-v"),
-	std::pair<int, std::string>((int) ToolType::TEX,  "")
+	{(int) ToolType::C,    "-v"},
+	{(int) ToolType::CXX,  "-v"},
+	{(int) ToolType::LEX,  "-v"},
+	{(int) ToolType::YACC, "-v"},
+	{(int) ToolType::TEX,  ""}
+};
+
+std::map<int, std::vector<std::string>> Tool::defaultFilePatterns {
+	{(int) ToolType::C, {
+			".c"
+		}
+	},
+	{(int) ToolType::CXX, {
+			".cpp",
+			".cxx"
+		}
+	},
+	{(int) ToolType::LEX, {
+			".l",
+			".lex"
+		}
+	},
+	{(int) ToolType::YACC, {
+			".y",
+			".ypp"
+		}
+	},
+	{(int) ToolType::TEX, {
+			".tex"
+		}
+	}
+};
+
+std::map<int, std::map<OperatingSystem, std::string>> Tool::paths {
+	{(int) ToolType::C,		{{OperatingSystem::Linux,	"/usr/bin/gcc"}}},
+	{(int) ToolType::C,		{{OperatingSystem::MacOSX,	"/usr/bin/gcc"}}},
+	{(int) ToolType::C,		{{OperatingSystem::Windows,	"C:\\"}}},
+
+	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/usr/bin/g++"}}},
+	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/usr/bin/g++"}}},
+	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}},
+
+	{(int) ToolType::LEX,	{{OperatingSystem::Linux,	"/usr/bin/flex"}}},
+	{(int) ToolType::LEX,	{{OperatingSystem::MacOSX,	"/usr/bin/flex"}}},
+	{(int) ToolType::LEX,	{{OperatingSystem::Windows,	"C:\\"}}},
+
+	{(int) ToolType::YACC,	{{OperatingSystem::Linux,	"/usr/bin/bison"}}},
+	{(int) ToolType::YACC,	{{OperatingSystem::MacOSX,	"/usr/bin/bison"}}},
+	{(int) ToolType::YACC,	{{OperatingSystem::Windows,	"C:\\"}}},
+
+	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/"}}},
+	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/"}}},
+	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}}
 };
 
 Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
-	:type(ToolType::OTHER), customType(-1), name(), path(), flags()
+	:type(ToolType::OTHER), typeId(0), name(), path(),
+	 filePatterns(), flags(),
+	 debugMode(false), verboseMode(false)
 {
-	int typeId = typeNames.size();
-	typeNames[typeId] = typeName;
-	typeFlagNames[typeId] = typeFlagName;
+	int typeId = Tool::typeNames.size();
+	Tool::typeNames[typeId] = typeName;
+	Tool::typeFlagNames[typeId] = typeFlagName;
+
+	this->typeId = typeId;
 }
 
 Tool::Tool(ToolType type)
-	:type(type), customType(-1), name(), path(), flags()
+	:type(type), typeId((int) type),
+	 name(Tool::typeNames[(int) type]),
+	 path(Tool::paths[(int) type][Config::getCurrentOS()]),
+	 filePatterns(Tool::defaultFilePatterns[(int) type]),
+	 flags(),
+	 debugMode(false), verboseMode(false)
 {
 	if (this->type == ToolType::YACC)
 	{
@@ -74,30 +131,25 @@ Tool::Tool(ToolType type)
 }
 
 Tool::Tool(int type)
-	:type(ToolType::OTHER), customType(type), name(), path(), flags()
+	:type(ToolType::OTHER), typeId(type), name(), path(), flags(),
+	 debugMode(false), verboseMode(false)
 {
 }
 
-int Tool::getCustomTypeId() const
+int Tool::getTypeId() const
 {
-	return this->customType;
+	return this->typeId;
 }
-
-auto Tool::getType() const -> ToolType
+ToolType Tool::getType() const
 {
 	return this->type;
-}
-
-void Tool::setType(ToolType type)
-{
-	this->type = type;
 }
 
 const std::string& Tool::getName() const
 {
 	return this->name;
 }
-void Tool::setString(const std::string& name)
+void Tool::setName(const std::string& name)
 {
 	this->name = name;
 }
@@ -119,7 +171,6 @@ void Tool::addFlag(const std::string& flag)
 {
 	this->flags.push_back(flag);
 }
-
 void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
 {
 	auto iterator =  std::find(this->flags.begin(),
@@ -133,18 +184,41 @@ void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
 	this->flags.erase(iterator);
 }
 
-void Tool::removeFlag(int index) throw (std::out_of_range)
+bool Tool::isDebugMode() const
 {
-	std::string flag;
-	try
+	return this->debugMode;
+}
+void Tool::setDebugMode(bool debugMode)
+{
+	this->debugMode = debugMode;
+}
+
+bool Tool::isVerboseMode() const
+{
+	return this->verboseMode;
+}
+void Tool::setVerboseMode(bool verboseMode)
+{
+	this->verboseMode = verboseMode;
+}
+
+std::vector<std::string>&& Tool::getAllFlags() const
+{
+	std::vector<std::string> flags = this->flags;
+
+	if (this->debugMode)
 	{
-		flag = this->flags.at(index);
-	}
-	catch(const std::out_of_range& ex)
-	{
-		throw std::out_of_range("No such flag");
+		for (const std::string& flag : Tool::debugFlags[this->typeId])
+		{
+			flags.push_back(flag);
+		}
 	}
 
-	this->removeFlag(flag);
+	if (this->verboseMode)
+	{
+		flags.push_back(Tool::verboseFlags[this->typeId]);
+	}
+
+	return std::move(flags);
 }
 

@@ -7,7 +7,7 @@ using namespace Makefile;
 Target::Target(Generator& generator, const std::string& name)
 	:name(name), version("1.0"),
 	 modules(), generator(generator), type(TargetType::Application),
-	 config(generator.getConfig())
+	 config(generator.getConfig(), true)
 {
 }
 
