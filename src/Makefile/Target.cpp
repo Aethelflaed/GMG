@@ -58,7 +58,6 @@ void Target::addModule(const std::string& module)
 	this->modules.push_back(module);
 }
 void Target::removeModule(const std::string& module)
-	throw (std::out_of_range)
 {
 	auto iterator = std::find(this->modules.begin(),
 		this->modules.end(),
@@ -93,11 +92,11 @@ const Target::dependencies_vector& Target::getDependencies() const
 {
 	return this->dependencies;
 }
-void Target::addDependency(const std::string& name) throw (std::out_of_range)
+void Target::addDependency(const std::string& name)
 {
 	this->dependencies.push_back(this->generator.getTargetPointer(name));
 }
-void Target::removeDependency(const std::string& name) throw (std::out_of_range)
+void Target::removeDependency(const std::string& name)
 {
 	std::vector<dependencies_vector::iterator> deprecated_iterators;
 

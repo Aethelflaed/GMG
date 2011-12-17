@@ -40,7 +40,7 @@ namespace Makefile
 
 		const std::vector<std::string>& getModules() const;
 		void addModule(const std::string& module);
-		void removeModule(const std::string& module) throw (std::out_of_range);
+		void removeModule(const std::string& module);
 
 		TargetType getType() const;
 		void setType(TargetType type);
@@ -49,8 +49,8 @@ namespace Makefile
 		void setConfig(const Config& config);
 
 		const dependencies_vector& getDependencies() const;
-		void addDependency(const std::string& name) throw (std::out_of_range);
-		void removeDependency(const std::string& name) throw (std::out_of_range);
+		void addDependency(const std::string& name);
+		void removeDependency(const std::string& name);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
