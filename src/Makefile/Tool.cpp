@@ -8,10 +8,15 @@ std::mutex Tool::classMutex{};
 std::atomic<unsigned short> Tool::index{};
 
 std::vector<Tool::Type> Tool::types {
-	Tool::Type {
+	{
 		"C",
 		"CFLAGS",
-		"-g3 -gdwarf-2 -W -Wall",
+		{
+			"-g3",
+			"-gdwarf-2",
+			"-W",
+			"-Wall"
+		},
 		"-v",
 		"-O3",
 		{
@@ -20,6 +25,78 @@ std::vector<Tool::Type> Tool::types {
 		{
 			"/usr/bin/gcc",
 			"/usr/bin/gcc",
+			"C:\\"
+		}
+	},
+	{
+		"CXX",
+		"CXXFLAGS",
+		{
+			"-g3",
+			"-gdwarf-2",
+			"-W",
+			"-Wall"
+		},
+		"-v",
+		"-O3",
+		{
+			".cpp",
+			".cxx"
+		},
+		{
+			"/usr/bin/g++",
+			"/usr/bin/g++",
+			"C:\\"
+		}
+	},
+	{
+		"LEX",
+		"LEXFLAGS",
+		{
+		},
+		"-c",
+		"",
+		{
+			".l",
+			".lex"
+		},
+		{
+			"/usr/bin/flex",
+			"/usr/bin/flex",
+			"C:\\"
+		}
+	},
+	{
+		"YACC",
+		"YFLAGS",
+		{
+			"--debug"
+		},
+		"-v",
+		"",
+		{
+			".y",
+			".ypp"
+		},
+		{
+			"/usr/bin/bison",
+			"/usr/bin/bison",
+			"C:\\"
+		}
+	},
+	{
+		"TEX",
+		"TEXFLAGS",
+		{
+		},
+		"",
+		"",
+		{
+			".tex"
+		},
+		{
+			"/",
+			"/",
 			"C:\\"
 		}
 	}
@@ -32,14 +109,14 @@ Tool::Type::Type(const std::string& name, const std::string& flagName)
 
 Tool::Type::Type(const std::string& name,
 	const std::string& flagName,
-	const std::string& debugFlag,
+	std::initializer_list<std::string> debugFlags,
 	const std::string& verboseFlag,
 	const std::string& optimizationFlag,
 	std::initializer_list<std::string> filePatterns,
 	std::initializer_list<std::string> paths)
 
 	:name{name}, flagName{flagName},
-	 debugFlag{debugFlag}, verboseFlag{verboseFlag},
+	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
 	 optimizationFlag{optimizationFlag},
 	 filePatterns{filePatterns}
 {
@@ -67,7 +144,7 @@ unsigned short Tool::addType(const std::string& typeName,
 	return typeId;
 }
 
-void Tool::setTypeDebugFlag(unsigned short typeId, const std::string& flag)
+void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -79,9 +156,28 @@ void Tool::setTypeDebugFlag(unsigned short typeId, const std::string& flag)
 	{
 		throw Tool::TypeIdException{};
 	}
-	type.debugFlag = flag;
+	type.debugFlags.insert(flag);
 }
-const std::string& Tool::getTypeDebugFlag(unsigned short typeId)
+void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::set<std::string>::iterator it = type.debugFlags.find(flag);
+	if (it == type.debugFlags.end())
+	{
+		throw Tool::NoSuchFlagException{};
+	}
+	type.debugFlags.erase(it);
+}
+const std::set<std::string>& Tool::getTypeDebugFlags(unsigned short typeId)
 {
 	if (typeId >= Tool::index)
 	{
@@ -93,7 +189,7 @@ const std::string& Tool::getTypeDebugFlag(unsigned short typeId)
 	{
 		throw Tool::TypeIdException{};
 	}
-	return type.debugFlag;
+	return type.debugFlags;
 }
 
 void Tool::setTypeVerboseFlag(unsigned short typeId, const std::string& flag)
@@ -339,23 +435,24 @@ std::set<std::string>&& Tool::getAllFlags() const
 {
 	std::set<std::string> flags = this->flags;
 
-	/*if (this->debugMode)
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& baseType = Tool::types[this->typeId];
+
+	if (this->debugMode)
 	{
-		for (const std::string& flag : Tool::debugFlags[this->typeId])
-		{
-			flags.push_back(flag);
-		}
+		flags.insert(baseType.debugFlags.begin(),
+				baseType.debugFlags.end());
 	}
 
 	if (this->verboseMode)
 	{
-		flags.push_back(Tool::verboseFlags[this->typeId]);
+		flags.insert(baseType.verboseFlag);
 	}
 
 	if (this->optimizationMode)
 	{
-		flags.push_back(Tool::optimizationFlags[this->typeId]);
-	}*/
+		flags.insert(baseType.optimizationFlag);
+	}
 
 	return std::move(flags);
 }

@@ -36,8 +36,9 @@ namespace Makefile
 		static unsigned short addType(const std::string& typeName,
 				const std::string& typeFlagName);
 
-		static void setTypeDebugFlag(unsigned short typeId, const std::string& flag);
-		static const std::string& getTypeDebugFlag(unsigned short typeId);
+		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
+		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
+		static const std::set<std::string>& getTypeDebugFlags(unsigned short typeId);
 
 		static void setTypeVerboseFlag(unsigned short typeId, const std::string& flag);
 		static const std::string& getTypeVerboseFlag(unsigned short typeId);
@@ -86,7 +87,7 @@ namespace Makefile
 			Type(const std::string& name, const std::string& flagName);
 			Type(const std::string& name,
 				 const std::string& flagName,
-				 const std::string& debugFlag,
+				 std::initializer_list<std::string> debugFlags,
 				 const std::string& verboseFlag,
 				 const std::string& optimizationFlag,
 				 std::initializer_list<std::string> filePatterns,
@@ -94,7 +95,7 @@ namespace Makefile
 
 			std::string name;
 			std::string flagName;
-			std::string debugFlag;
+			std::set<std::string> debugFlags;
 			std::string verboseFlag;
 			std::string optimizationFlag;
 			std::set<std::string> filePatterns;
@@ -126,6 +127,14 @@ namespace Makefile
 		public:
 			TypeIdException()
 				:std::invalid_argument{"No type matching this typeId."}
+			{
+			}
+		};
+		class NoSuchFlagException : public std::invalid_argument
+		{
+		public:
+			NoSuchFlagException()
+				:std::invalid_argument{"No such flag."}
 			{
 			}
 		};
