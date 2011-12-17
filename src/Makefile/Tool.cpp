@@ -4,136 +4,268 @@
 
 using namespace Makefile;
 
-std::map<int, std::string> Tool::typeNames {
-	{(int) ToolType::C, "C"},
-	{(int) ToolType::CXX, "CXX"},
-	{(int) ToolType::LEX, "LEX"},
-	{(int) ToolType::YACC, "YACC"},
-	{(int) ToolType::TEX, "TEX"}
-};
+std::mutex Tool::classMutex{};
+std::atomic<unsigned short> Tool::index{};
 
-std::map<int, std::string> Tool::typeFlagNames {
-	{(int) ToolType::C, "CFLAGS"},
-	{(int) ToolType::CXX, "CXXFLAGS"},
-	{(int) ToolType::LEX, "LEXFLAGS"},
-	{(int) ToolType::YACC, "YFLAGS"},
-	{(int) ToolType::TEX, "TEXFLAGS"}
-};
-
-std::map<int, std::vector<std::string>> Tool::debugFlags {
-	{(int) ToolType::C, {
-			"-g3",
-			"-gdwarf-2",
-			"-W",
-			"-Wall"
-		}
-	},
-	{(int) ToolType::CXX, {
-			"-g3",
-			"-gdwarf-2",
-			"-W",
-			"-Wall"
-		}
-	},
-	{(int) ToolType::LEX, {
-		}
-	},
-	{(int) ToolType::YACC, {
-			"--debug"
-		}
-	},
-	{(int) ToolType::TEX, {
-			""
-		}
-	}
-};
-
-std::map<int, std::string> Tool::verboseFlags {
-	{(int) ToolType::C,		"-v"},
-	{(int) ToolType::CXX,	"-v"},
-	{(int) ToolType::LEX,	"-v"},
-	{(int) ToolType::YACC,	"-v"},
-	{(int) ToolType::TEX,	""}
-};
-
-std::map<int, std::string> Tool::optimizationFlags {
-	{(int) ToolType::C,		"-0s"},
-	{(int) ToolType::CXX,	"-0s"},
-	{(int) ToolType::LEX,	""},
-	{(int) ToolType::YACC,	""},
-	{(int) ToolType::TEX,	""}
-};
-
-std::map<int, std::vector<std::string>> Tool::defaultFilePatterns {
-	{(int) ToolType::C, {
+std::vector<Tool::Type> Tool::types {
+	Tool::Type {
+		"C",
+		"CFLAGS",
+		"-g3 -gdwarf-2 -W -Wall",
+		"-v",
+		"-O3",
+		{
 			".c"
-		}
-	},
-	{(int) ToolType::CXX, {
-			".cpp",
-			".cxx"
-		}
-	},
-	{(int) ToolType::LEX, {
-			".l",
-			".lex"
-		}
-	},
-	{(int) ToolType::YACC, {
-			".y",
-			".ypp"
-		}
-	},
-	{(int) ToolType::TEX, {
-			".tex"
+		},
+		{
+			"/usr/bin/gcc",
+			"/usr/bin/gcc",
+			"C:\\"
 		}
 	}
 };
 
-std::map<int, std::map<OperatingSystem, std::string>> Tool::paths {
-	{(int) ToolType::C,		{{OperatingSystem::Linux,	"/usr/bin/gcc"}}},
-	{(int) ToolType::C,		{{OperatingSystem::MacOSX,	"/usr/bin/gcc"}}},
-	{(int) ToolType::C,		{{OperatingSystem::Windows,	"C:\\"}}},
+Tool::Type::Type(const std::string& name, const std::string& flagName)
+	:name{name}, flagName{flagName}
+{
+}
 
-	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/usr/bin/g++"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/usr/bin/g++"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}},
+Tool::Type::Type(const std::string& name,
+	const std::string& flagName,
+	const std::string& debugFlag,
+	const std::string& verboseFlag,
+	const std::string& optimizationFlag,
+	std::initializer_list<std::string> filePatterns,
+	std::initializer_list<std::string> paths)
 
-	{(int) ToolType::LEX,	{{OperatingSystem::Linux,	"/usr/bin/flex"}}},
-	{(int) ToolType::LEX,	{{OperatingSystem::MacOSX,	"/usr/bin/flex"}}},
-	{(int) ToolType::LEX,	{{OperatingSystem::Windows,	"C:\\"}}},
+	:name{name}, flagName{flagName},
+	 debugFlag{debugFlag}, verboseFlag{verboseFlag},
+	 optimizationFlag{optimizationFlag},
+	 filePatterns{filePatterns}
+{
+	const std::string* path = paths.begin();
+	for (std::initializer_list<int>::size_type i = 0;
+		 i < paths.size(); i++, path++)
+	{
+		this->paths[i] = *path;
+	}
+}
 
-	{(int) ToolType::YACC,	{{OperatingSystem::Linux,	"/usr/bin/bison"}}},
-	{(int) ToolType::YACC,	{{OperatingSystem::MacOSX,	"/usr/bin/bison"}}},
-	{(int) ToolType::YACC,	{{OperatingSystem::Windows,	"C:\\"}}},
+unsigned short Tool::addType(const std::string& typeName,
+		const std::string& typeFlagName)
+{
+	unsigned short typeId;
 
-	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}}
-};
+	Tool::Type type {typeName, typeFlagName};
+
+	{
+		std::lock_guard<std::mutex> lock(Tool::classMutex);
+		typeId = Tool::index++;
+		types.push_back(type);
+	}
+
+	return typeId;
+}
+
+void Tool::setTypeDebugFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.debugFlag = flag;
+}
+const std::string& Tool::getTypeDebugFlag(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.debugFlag;
+}
+
+void Tool::setTypeVerboseFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.verboseFlag = flag;
+}
+const std::string& Tool::getTypeVerboseFlag(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.verboseFlag;
+}
+
+void Tool::setTypeOptimizationFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.optimizationFlag = flag;
+}
+const std::string& Tool::getTypeOptimizationFlag(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.optimizationFlag;
+}
+
+void Tool::addTypeFilePattern(unsigned short typeId, const std::string& pattern)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.filePatterns.insert(pattern);
+}
+void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& pattern)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.filePatterns.erase(pattern);
+}
+const std::set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.filePatterns;
+}
+
+void Tool::setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.paths[(unsigned short) OS] = path;
+}
+const std::string& Tool::getTypePathForOS(unsigned short typeId, OperatingSystem OS)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.paths[(unsigned short) OS];
+}
 
 Tool::Tool(ToolType type)
-	:type(type), typeId((int) type),
-	 name(Tool::typeNames[(int) type]),
-	 path(Tool::paths[(int) type][Config::getCurrentOS()]),
-	 filePatterns(Tool::defaultFilePatterns[(int) type])
+	:type(type), typeId((unsigned short) type)
 {
+	{
+		std::lock_guard<std::mutex> lock(Tool::classMutex);
+		const Tool::Type& baseType = Tool::types[(unsigned short) type];
+		this->name = baseType.name;
+		this->filePatterns = baseType.filePatterns;
+		this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
+	}
 	switch (this->type)
 	{
 		case ToolType::YACC:
-			this->flags.push_back("-d");
+			this->flags.insert("-d");
 			break;
 		default:
 			break;
 	}
 }
 
-Tool::Tool(int type)
-	:type(ToolType::OTHER), typeId(type),
-	 name(Tool::typeNames[type]),
-	 path(Tool::paths[type][Config::getCurrentOS()]),
-	 filePatterns(Tool::defaultFilePatterns[(int) type])
+Tool::Tool(unsigned short type)
+	:type(ToolType::_trailing), typeId(type)
 {
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	if (typeId >= Tool::index)
+	{
+		std::lock_guard<std::mutex> lock(Tool::classMutex);
+		const Tool::Type& baseType = Tool::types[(unsigned short) type];
+		if (baseType.name == "")
+		{
+			throw Tool::TypeIdException{};
+		}
+
+		this->name = baseType.name;
+		this->filePatterns = baseType.filePatterns;
+		this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
+	}
 }
 
 int Tool::getTypeId() const
@@ -163,25 +295,17 @@ void Tool::setPath(const std::string& path)
 	this->path = path;
 }
 
-const std::vector<std::string>& Tool::getFlags() const
+const std::set<std::string>& Tool::getFlags() const
 {
 	return this->flags;
 }
 void Tool::addFlag(const std::string& flag)
 {
-	this->flags.push_back(flag);
+	this->flags.insert(flag);
 }
-void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
+void Tool::removeFlag(const std::string& flag)
 {
-	auto iterator =  std::find(this->flags.begin(),
-		this->flags.end(),
-		flag);
-	if (iterator == this->flags.end())
-	{
-		throw std::out_of_range("No such flag");
-	}
-
-	this->flags.erase(iterator);
+	this->flags.erase(flag);
 }
 
 bool Tool::isDebugMode() const
@@ -211,11 +335,11 @@ void Tool::setOptimizationMode(bool optimizationMode)
 	this->optimizationMode = optimizationMode;
 }
 
-std::vector<std::string>&& Tool::getAllFlags() const
+std::set<std::string>&& Tool::getAllFlags() const
 {
-	std::vector<std::string> flags = this->flags;
+	std::set<std::string> flags = this->flags;
 
-	if (this->debugMode)
+	/*if (this->debugMode)
 	{
 		for (const std::string& flag : Tool::debugFlags[this->typeId])
 		{
@@ -231,7 +355,7 @@ std::vector<std::string>&& Tool::getAllFlags() const
 	if (this->optimizationMode)
 	{
 		flags.push_back(Tool::optimizationFlags[this->typeId]);
-	}
+	}*/
 
 	return std::move(flags);
 }

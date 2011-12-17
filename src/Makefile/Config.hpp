@@ -10,11 +10,15 @@
 
 namespace Makefile
 {
-	enum class OperatingSystem : unsigned int
+	enum class OperatingSystem : unsigned short int
 	{
+		/* Don't change ordering, to enable values count */
 		Linux = 0,
-		MacOSX = 1,
-		Windows = 2
+		MacOSX,
+		Windows,
+
+		/* Keep that value in the end */
+		_trailing
 	};
 
 	class Config

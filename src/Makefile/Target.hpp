@@ -14,11 +14,15 @@
 
 namespace Makefile
 {
-	enum class TargetType : unsigned int
+	enum class TargetType : unsigned short int
 	{
+		/* Don't change ordering, to enable values count */
 		Application = 0,
-		Library = 1,
-		UnitTest = 2
+		Library,
+		UnitTest,
+
+		/* Keep that value in the end */
+		_trailing
 	};
 
 	class Target
