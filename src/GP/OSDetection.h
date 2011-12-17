@@ -19,27 +19,27 @@
 #ifndef GP_OSDETECTION_H
 #define GP_OSDETECTION_H
 
-#ifndef OS
+#ifndef OPERATING_SYSTEM
 
 #if defined linux || defined __linux
 
     #define LINUX 0
-    #define OS LINUX
+    #define OPERATING_SYSTEM LINUX
 
 #elif defined __APPLE__ && defined __MACH__
 
     #define MACOSX 1
-    #define OS MACOSX
+    #define OPERATING_SYSTEM MACOSX
 
 #elif defined _WIN32 || defined _WIN64 || defined __WIN32__ || \
     defined __TOS_WIN__ || defined __WINDOWS__
 
     #define WINDOWS 2
-    #define OS WINDOWS
+    #define OPERATING_SYSTEM WINDOWS
 
 #endif
 
-#endif /* OS */
+#endif /* OPERATING_SYSTEM */
 
 #endif /* GP_OSDETECTION_H */
 
