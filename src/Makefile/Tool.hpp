@@ -106,8 +106,6 @@ namespace Makefile
 		static std::atomic<unsigned short> index;
 		static std::vector<Type> types;
 
-		std::mutex mutex;
-
 		ToolType type;
 		unsigned short typeId;
 
@@ -117,9 +115,9 @@ namespace Makefile
 		std::set<std::string> filePatterns {};
 		std::set<std::string> flags {};
 
-		bool debugMode {false};
-		bool verboseMode {false};
-		bool optimizationMode {false};
+		std::atomic<bool> debugMode {false};
+		std::atomic<bool> verboseMode {false};
+		std::atomic<bool> optimizationMode {false};
 
 		/* Exceptions thrown by this class, just a short-hand to centralize `what' arg */
 		class TypeIdException : public std::invalid_argument
@@ -130,11 +128,11 @@ namespace Makefile
 			{
 			}
 		};
-		class NoSuchFlagException : public std::invalid_argument
+		class NoSuchItemException : public std::invalid_argument
 		{
 		public:
-			NoSuchFlagException()
-				:std::invalid_argument{"No such flag."}
+			NoSuchItemException()
+				:std::invalid_argument{"No such item."}
 			{
 			}
 		};

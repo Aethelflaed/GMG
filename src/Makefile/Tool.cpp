@@ -173,7 +173,7 @@ void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
 	std::set<std::string>::iterator it = type.debugFlags.find(flag);
 	if (it == type.debugFlags.end())
 	{
-		throw Tool::NoSuchFlagException{};
+		throw Tool::NoSuchItemException{};
 	}
 	type.debugFlags.erase(it);
 }
@@ -276,7 +276,12 @@ void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& patte
 	{
 		throw Tool::TypeIdException{};
 	}
-	type.filePatterns.erase(pattern);
+	std::set<std::string>::iterator it = type.filePatterns.find(pattern);
+	if (it == type.filePatterns.end())
+	{
+		throw Tool::NoSuchItemException{};
+	}
+	type.filePatterns.erase(it);
 }
 const std::set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
 {
@@ -349,19 +354,16 @@ Tool::Tool(unsigned short type)
 	{
 		throw Tool::TypeIdException{};
 	}
-	if (typeId >= Tool::index)
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& baseType = Tool::types[(unsigned short) type];
+	if (baseType.name == "")
 	{
-		std::lock_guard<std::mutex> lock(Tool::classMutex);
-		const Tool::Type& baseType = Tool::types[(unsigned short) type];
-		if (baseType.name == "")
-		{
-			throw Tool::TypeIdException{};
-		}
-
-		this->name = baseType.name;
-		this->filePatterns = baseType.filePatterns;
-		this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
+		throw Tool::TypeIdException{};
 	}
+
+	this->name = baseType.name;
+	this->filePatterns = baseType.filePatterns;
+	this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
 }
 
 int Tool::getTypeId() const
@@ -401,7 +403,12 @@ void Tool::addFlag(const std::string& flag)
 }
 void Tool::removeFlag(const std::string& flag)
 {
-	this->flags.erase(flag);
+	std::set<std::string>::iterator it = this->flags.find(flag);
+	if (it == this->flags.end())
+	{
+		throw Tool::NoSuchItemException{};
+	}
+	this->flags.erase(it);
 }
 
 bool Tool::isDebugMode() const
@@ -433,7 +440,8 @@ void Tool::setOptimizationMode(bool optimizationMode)
 
 std::set<std::string>&& Tool::getAllFlags() const
 {
-	std::set<std::string> flags = this->flags;
+	std::set<std::string> flags;
+	flags = this->flags;
 
 	std::lock_guard<std::mutex> lock(Tool::classMutex);
 	Tool::Type& baseType = Tool::types[this->typeId];
