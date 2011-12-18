@@ -35,6 +35,7 @@ namespace Makefile
 	public:
 		static unsigned short addType(const std::string& typeName,
 				const std::string& typeFlagName);
+		static unsigned short getTypeId(const std::string& typeName);
 
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
@@ -97,6 +98,11 @@ namespace Makefile
 				 const std::string& optimizationFlag,
 				 std::initializer_list<std::string> filePatterns,
 				 std::initializer_list<std::string> paths);
+
+			friend bool operator== (const Type& type, const std::string& typeName)
+			{
+				return type.name == typeName;
+			}
 
 			std::string name;
 			std::string flagName;

@@ -144,6 +144,28 @@ unsigned short Tool::addType(const std::string& typeName,
 	return typeId;
 }
 
+unsigned short Tool::getTypeId(const std::string& typeName)
+{
+	if (typeName == "")
+	{
+		throw NoSuchItemException();
+	}
+
+	for (unsigned short i = 0; i < index; i++)
+	{
+		std::lock_guard<std::mutex> lock(Tool::classMutex);
+		if (Tool::types[i] == typeName)
+		{
+			return i;
+		}
+	}
+
+	throw NoSuchItemException();
+
+	/* Prevent compiler warning */
+	return 0;
+}
+
 void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
 {
 	if (typeId >= Tool::index)
