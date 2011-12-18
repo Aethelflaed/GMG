@@ -3,13 +3,13 @@
 
 #include <ostream>
 #include <string>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 #include <unordered_map>
+#include <unordered_set>
+#include <array>
 #include <mutex>
 #include <atomic>
-#include <array>
-#include <set>
 
 #include "../GP/Exceptions/LockAcquisitionException.hpp"
 
@@ -38,7 +38,7 @@ namespace Makefile
 
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
-		static const std::set<std::string>& getTypeDebugFlags(unsigned short typeId);
+		static const std::unordered_set<std::string>& getTypeDebugFlags(unsigned short typeId);
 
 		static void setTypeVerboseFlag(unsigned short typeId, const std::string& flag);
 		static const std::string& getTypeVerboseFlag(unsigned short typeId);
@@ -48,7 +48,7 @@ namespace Makefile
 
 		static void addTypeFilePattern(unsigned short typeId, const std::string& pattern);
 		static void removeTypeFilePattern(unsigned short typeId, const std::string& pattern);
-		static const std::set<std::string>& getTypeFilePatterns(unsigned short type);
+		static const std::unordered_set<std::string>& getTypeFilePatterns(unsigned short type);
 
 		static void setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path);
 		static const std::string& getTypePathForOS(unsigned short typeId, OperatingSystem OS);
@@ -69,11 +69,11 @@ namespace Makefile
 
 		void addPattern(const std::string& pattern);
 		void removePattern(const std::string& pattern);
-		const std::set<std::string>& getPatterns() const;
+		const std::unordered_set<std::string>& getPatterns() const;
 
 		void addFlag(const std::string& flag);
 		void removeFlag(const std::string& flag);
-		const std::set<std::string>& getFlags() const;
+		const std::unordered_set<std::string>& getFlags() const;
 
 		bool isDebugMode() const;
 		void setDebugMode(bool debugMode);
@@ -84,7 +84,7 @@ namespace Makefile
 		bool isOptimizationMode() const;
 		void setOptimizationMode(bool optimizationMode);
 
-		std::set<std::string>&& getAllFlags() const;
+		std::unordered_set<std::string>&& getAllFlags() const;
 
 	private:
 		struct Type
@@ -100,10 +100,10 @@ namespace Makefile
 
 			std::string name;
 			std::string flagName;
-			std::set<std::string> debugFlags;
+			std::unordered_set<std::string> debugFlags;
 			std::string verboseFlag;
 			std::string optimizationFlag;
-			std::set<std::string> filePatterns;
+			std::unordered_set<std::string> filePatterns;
 			std::array<std::string, (int) ToolType::_trailing - 1> paths;
 		};
 
@@ -117,8 +117,8 @@ namespace Makefile
 		std::string name {};
 		std::string path {};
 
-		std::set<std::string> patterns {};
-		std::set<std::string> flags {};
+		std::unordered_set<std::string> patterns {};
+		std::unordered_set<std::string> flags {};
 
 		std::atomic<bool> debugMode {false};
 		std::atomic<bool> verboseMode {false};

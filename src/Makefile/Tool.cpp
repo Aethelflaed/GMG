@@ -170,14 +170,14 @@ void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
 	{
 		throw Tool::TypeIdException{};
 	}
-	std::set<std::string>::iterator it = type.debugFlags.find(flag);
+	std::unordered_set<std::string>::iterator it = type.debugFlags.find(flag);
 	if (it == type.debugFlags.end())
 	{
 		throw Tool::NoSuchItemException{};
 	}
 	type.debugFlags.erase(it);
 }
-const std::set<std::string>& Tool::getTypeDebugFlags(unsigned short typeId)
+const std::unordered_set<std::string>& Tool::getTypeDebugFlags(unsigned short typeId)
 {
 	if (typeId >= Tool::index)
 	{
@@ -276,14 +276,14 @@ void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& patte
 	{
 		throw Tool::TypeIdException{};
 	}
-	std::set<std::string>::iterator it = type.filePatterns.find(pattern);
+	std::unordered_set<std::string>::iterator it = type.filePatterns.find(pattern);
 	if (it == type.filePatterns.end())
 	{
 		throw Tool::NoSuchItemException{};
 	}
 	type.filePatterns.erase(it);
 }
-const std::set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
+const std::unordered_set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
 {
 	if (typeId >= Tool::index)
 	{
@@ -399,14 +399,14 @@ void Tool::addPattern(const std::string& pattern)
 }
 void Tool::removePattern(const std::string& pattern)
 {
-	std::set<std::string>::iterator it = this->patterns.find(pattern);
+	std::unordered_set<std::string>::iterator it = this->patterns.find(pattern);
 	if (it == this->patterns.end())
 	{
 		throw Tool::NoSuchItemException{};
 	}
 	this->patterns.erase(it);
 }
-const std::set<std::string>& Tool::getPatterns() const
+const std::unordered_set<std::string>& Tool::getPatterns() const
 {
 	return this->patterns;
 }
@@ -417,14 +417,14 @@ void Tool::addFlag(const std::string& flag)
 }
 void Tool::removeFlag(const std::string& flag)
 {
-	std::set<std::string>::iterator it = this->flags.find(flag);
+	std::unordered_set<std::string>::iterator it = this->flags.find(flag);
 	if (it == this->flags.end())
 	{
 		throw Tool::NoSuchItemException{};
 	}
 	this->flags.erase(it);
 }
-const std::set<std::string>& Tool::getFlags() const
+const std::unordered_set<std::string>& Tool::getFlags() const
 {
 	return this->flags;
 }
@@ -456,9 +456,9 @@ void Tool::setOptimizationMode(bool optimizationMode)
 	this->optimizationMode = optimizationMode;
 }
 
-std::set<std::string>&& Tool::getAllFlags() const
+std::unordered_set<std::string>&& Tool::getAllFlags() const
 {
-	std::set<std::string> flags;
+	std::unordered_set<std::string> flags;
 	flags = this->flags;
 
 	std::lock_guard<std::mutex> lock(Tool::classMutex);
