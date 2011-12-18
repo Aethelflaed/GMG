@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <unordered_set>
 #include <stdexcept>
 #include <memory>
 
@@ -36,25 +37,25 @@ namespace Makefile
 
 		void clean();
 
-		const std::string& getName() const;
 		void setName(const std::string& name);
+		const std::string& getName() const;
 
-		const std::string& getVersion() const;
 		void setVersion(const std::string& version);
+		const std::string& getVersion() const;
 
-		const std::vector<std::string>& getModules() const;
 		void addModule(const std::string& module);
 		void removeModule(const std::string& module);
+		const std::unordered_set<std::string>& getModules() const;
 
-		TargetType getType() const;
 		void setType(TargetType type);
+		TargetType getType() const;
 
-		Config& getConfig();
 		void setConfig(const Config& config);
+		Config& getConfig();
 
-		const dependencies_vector& getDependencies() const;
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);
+		const dependencies_vector& getDependencies() const;
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
@@ -80,12 +81,12 @@ namespace Makefile
 				   << "\tType: \"" << type << "\"" << std::endl
 				   << "\tModules:" << std::endl;
 			auto modules = target.getModules();
-			for (std::string& module : target.modules)
+			for (const std::string& module : target.modules)
 			{
 				stream << "\t  " << module << "\n";
 			}
 			stream << "\tDependencies:\n";
-			for (dependency_type& dep : target.dependencies)
+			for (const dependency_type& dep : target.dependencies)
 			{
 				if (dep.expired())
 				{
@@ -104,13 +105,13 @@ namespace Makefile
 	private:
 		std::string name;
 		std::string version;
-		std::vector<std::string> modules;
+		std::unordered_set<std::string> modules;
 
 		Generator& generator;
 		TargetType type;
 		Config config;
 
-		std::vector<Tool> tool;
+		std::unordered_set<Tool> tool;
 		dependencies_vector dependencies;
 	};
 }
