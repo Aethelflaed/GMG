@@ -66,9 +66,14 @@ namespace Makefile
 		const std::string& getPath() const;
 		void setPath(const std::string& path);
 
-		const std::set<std::string>& getFlags() const;
+
+		void addPattern(const std::string& pattern);
+		void removePattern(const std::string& pattern);
+		const std::set<std::string>& getPatterns() const;
+
 		void addFlag(const std::string& flag);
 		void removeFlag(const std::string& flag);
+		const std::set<std::string>& getFlags() const;
 
 		bool isDebugMode() const;
 		void setDebugMode(bool debugMode);
@@ -112,7 +117,7 @@ namespace Makefile
 		std::string name {};
 		std::string path {};
 
-		std::set<std::string> filePatterns {};
+		std::set<std::string> patterns {};
 		std::set<std::string> flags {};
 
 		std::atomic<bool> debugMode {false};

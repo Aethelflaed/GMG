@@ -334,7 +334,7 @@ Tool::Tool(ToolType type)
 		std::lock_guard<std::mutex> lock(Tool::classMutex);
 		const Tool::Type& baseType = Tool::types[(unsigned short) type];
 		this->name = baseType.name;
-		this->filePatterns = baseType.filePatterns;
+		this->patterns = baseType.filePatterns;
 		this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
 	}
 	switch (this->type)
@@ -362,7 +362,7 @@ Tool::Tool(unsigned short type)
 	}
 
 	this->name = baseType.name;
-	this->filePatterns = baseType.filePatterns;
+	this->patterns = baseType.filePatterns;
 	this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
 }
 
@@ -393,10 +393,24 @@ void Tool::setPath(const std::string& path)
 	this->path = path;
 }
 
-const std::set<std::string>& Tool::getFlags() const
+void Tool::addPattern(const std::string& pattern)
 {
-	return this->flags;
+	this->patterns.insert(pattern);
 }
+void Tool::removePattern(const std::string& pattern)
+{
+	std::set<std::string>::iterator it = this->patterns.find(pattern);
+	if (it == this->patterns.end())
+	{
+		throw Tool::NoSuchItemException{};
+	}
+	this->patterns.erase(it);
+}
+const std::set<std::string>& Tool::getPatterns() const
+{
+	return this->patterns;
+}
+
 void Tool::addFlag(const std::string& flag)
 {
 	this->flags.insert(flag);
@@ -409,6 +423,10 @@ void Tool::removeFlag(const std::string& flag)
 		throw Tool::NoSuchItemException{};
 	}
 	this->flags.erase(it);
+}
+const std::set<std::string>& Tool::getFlags() const
+{
+	return this->flags;
 }
 
 bool Tool::isDebugMode() const
