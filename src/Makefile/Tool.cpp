@@ -5,7 +5,7 @@
 using namespace Makefile;
 
 std::mutex Tool::classMutex{};
-std::atomic<unsigned short> Tool::index{};
+std::atomic<unsigned short> Tool::index{((unsigned short)ToolType::_trailing) - 1};
 
 std::vector<Tool::Type> Tool::types {
 	{
@@ -350,28 +350,34 @@ const std::string& Tool::getTypePathForOS(unsigned short typeId, OperatingSystem
 }
 
 Tool::Tool(ToolType type)
-	:type(type), typeId((unsigned short) type)
+	:Tool((unsigned short)type)
 {
-	{
-		std::lock_guard<std::mutex> lock(Tool::classMutex);
-		const Tool::Type& baseType = Tool::types[(unsigned short) type];
-		this->name = baseType.name;
-		this->patterns = baseType.filePatterns;
-		this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
-	}
-	switch (this->type)
-	{
-		case ToolType::YACC:
-			this->flags.insert("-d");
-			break;
-		default:
-			break;
-	}
 }
 
 Tool::Tool(unsigned short type)
 	:type(ToolType::_trailing), typeId(type)
 {
+	if (type < (unsigned short) ToolType::_trailing)
+	{
+		this->type = ToolType(type);
+		{
+			std::lock_guard<std::mutex> lock(Tool::classMutex);
+			const Tool::Type& baseType = Tool::types[(unsigned short) type];
+			this->name = baseType.name;
+			this->patterns = baseType.filePatterns;
+			this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
+		}
+		switch (this->type)
+		{
+			case ToolType::YACC:
+				this->flags.insert("-d");
+				break;
+			default:
+				break;
+		}
+		return;
+	}
+
 	if (typeId >= Tool::index)
 	{
 		throw Tool::TypeIdException{};
