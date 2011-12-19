@@ -14,7 +14,7 @@ config list
 config show
 
 #Configure tools
-tool edit CXX
+tool edit "CXX"
 	add file pattern ".cxx"
 	rm file pattern ".cpp"
 
