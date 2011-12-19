@@ -70,6 +70,8 @@ void Parser::help_state_chooser() const
 		case TARGET:
 			this->help_target_mode();
 			break;
+		default:
+			break;
 	}
 }
 void Parser::help_global() const
