@@ -150,25 +150,5 @@ namespace Makefile
 	};
 }
 
-namespace std
-{
-	template <>
-		struct less<Makefile::Tool>
-		{
-			bool operator() (const Makefile::Tool& x, const Makefile::Tool& y) const
-			{
-				if (x.getTypeId() < y.getTypeId())
-				{
-					return true;
-				}
-				if (x.getTypeId() > y.getTypeId())
-				{
-					return false;
-				}
-				return false;
-			}
-		};
-}
-
 #endif /* MAKEFILE_TOOL_HPP */
 
