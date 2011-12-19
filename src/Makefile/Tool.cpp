@@ -5,7 +5,7 @@
 using namespace Makefile;
 
 std::mutex Tool::classMutex{};
-std::atomic<unsigned short> Tool::index{((unsigned short)ToolType::_trailing) - 1};
+std::atomic<unsigned short> Tool::index(std::move(((unsigned short)ToolType::_trailing) - 1));
 
 std::vector<Tool::Type> Tool::types {
 	{
