@@ -5,9 +5,8 @@
 using namespace Makefile;
 
 Target::Target(Generator& generator, const std::string& name)
-	:name(name), version("1.0"),
-	 modules(), generator(generator), type(TargetType::Application),
-	 config(generator.getConfig(), true)
+	:name{name}, generator(generator),
+	 config{generator.getConfig(), true}
 {
 }
 
@@ -84,6 +83,27 @@ void Target::setConfig(const Config& config)
 Config& Target::getConfig()
 {
 	return this->config;
+}
+
+void Target::addTool(const std::string& name)
+{
+	this->tools.insert(std::move(Tool(Tool::getTypeId(name))));
+}
+void Target::removeTool(const std::string& name)
+{
+	auto it = this->tools.begin();
+	for (; it != this->tools.end(); it++)
+	{
+		if (it->getName() == name)
+		{
+			this->tools.erase(it);
+			break;
+		}
+	}
+}
+const std::set<Tool>& Target::getTools()
+{
+	return this->tools;
 }
 
 void Target::addDependency(const std::string& name)

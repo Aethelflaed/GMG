@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
+#include <set>
 #include <stdexcept>
 #include <memory>
 
@@ -52,6 +53,10 @@ namespace Makefile
 
 		void setConfig(const Config& config);
 		Config& getConfig();
+
+		void addTool(const std::string& name);
+		void removeTool(const std::string& name);
+		const std::set<Tool>& getTools();
 
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);
@@ -104,15 +109,15 @@ namespace Makefile
 
 	private:
 		std::string name;
-		std::string version;
-		std::unordered_set<std::string> modules;
+		std::string version {"1.0"};
+		std::unordered_set<std::string> modules {};
 
 		Generator& generator;
-		TargetType type;
+		TargetType type {TargetType::Application};
 		Config config;
 
-		std::unordered_set<Tool> tool;
-		dependencies_vector dependencies;
+		std::set<Tool> tools {};
+		dependencies_vector dependencies {};
 	};
 }
 
