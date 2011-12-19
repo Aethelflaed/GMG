@@ -8,9 +8,13 @@
 Parser* Parser::parser = nullptr;
 
 Parser::Parser()
-	:state(INITIAL), generator(new Makefile::Generator()),
-	 target(nullptr), interactive(true)
 {
+	this->states.push(INITIAL);
+}
+
+Parser::~Parser()
+{
+	delete this->generator;
 }
 
 Parser& Parser::getParser()
@@ -26,9 +30,13 @@ void Parser::prompt() const
 {
 	if (this->interactive == true)
 	{
-		if (this->state == TARGET)
+		switch(this->states.top())
 		{
-			std::cout << "target:" << this->target->getName();
+			case TARGET:
+				std::cout << "target:" << this->target->getName();
+				break;
+			default:
+				break;
 		}
 		std::cout << ">";
 	}
@@ -54,7 +62,7 @@ void Parser::help(int command) const
 }
 void Parser::help_state_chooser() const
 {
-	switch(this->state)
+	switch(this->states.top())
 	{
 		case INITIAL:
 			this->help_global();
@@ -100,13 +108,19 @@ void Parser::help_config() const
 	std::cout << "\t`config (show|list)'                        Show configuration" << std::endl;
 }
 
+void Parser::pushState(ParserState state)
+{
+	this->states.push(state);
+}
+ParserState Parser::popState()
+{
+	ParserState state = this->states.top();
+	this->states.pop();
+	return state;
+}
 ParserState Parser::getState() const
 {
-	return this->state;
-}
-void Parser::setState(ParserState state)
-{
-	this->state = state;
+	return this->states.top();
 }
 
 Makefile::Target& Parser::getTarget()
@@ -146,19 +160,25 @@ void Parser::setInteractive(bool interactive)
  */
 extern "C"
 {
+	void Parser_prompt()
+	{
+		Parser::getParser().prompt();
+	}
+
+	void Parser_pushState(ParserState state)
+	{
+		Parser::getParser().pushState(state);
+	}
+
+	ParserState Parser_popState()
+	{
+		return Parser::getParser().popState();
+	}
+
 	ParserState Parser_getState()
 	{
 		return Parser::getParser().getState();
 	}
 
-	void Parser_setState(ParserState state)
-	{
-		Parser::getParser().setState(state);
-	}
-
-	void Parser_prompt()
-	{
-		Parser::getParser().prompt();
-	}
 }
 
