@@ -8,7 +8,8 @@ typedef
 	enum
 	{
 		INITIAL,
-		TARGET
+		TARGET,
+		QUOTED_STRING
 	}
 	ParserState;
 

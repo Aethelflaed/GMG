@@ -185,7 +185,7 @@ target_add: T_ADD quoted_name newline
 		{
 			Parser& parser = Parser::getParser();
 			parser.setTarget(&(parser.getMakefileGenerator().addTarget($2)));
-			parser.setState(TARGET);
+			parser.pushState(TARGET);
 		}
 		catch (const std::invalid_argument& ex)
 		{
@@ -199,7 +199,7 @@ target_edit: T_EDIT quoted_name newline
 		{
 			Parser& parser = Parser::getParser();
 			parser.setTarget(&parser.getMakefileGenerator().getTarget($2));
-			parser.setState(TARGET);
+			parser.pushState(TARGET);
 		}
 		catch (const std::out_of_range& ex)
 		{
@@ -236,7 +236,7 @@ target_list: T_LIST newline
 target_mode: T_END newline
 	{
 		Parser::getParser().setTarget(nullptr);
-		Parser::getParser().setState(INITIAL);
+		Parser::getParser().popState();
 	}
 		   | T_LIST newline
 	{

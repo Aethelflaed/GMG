@@ -15,12 +15,20 @@ NUMBER			[0-9]+(\.[0-9]*)?
 FILE			[a-zA-Z0-9_./\\-]+
 
 %s TARGET
+%s QUOTED_STRING
 
 %%
 	{
-		if (Parser_getState() == TARGET)
+		switch(Parser_getState())
 		{
-			BEGIN TARGET;
+			case TARGET:
+				BEGIN TARGET;
+				break;
+			case QUOTED_STRING:
+				BEGIN QUOTED_STRING;
+				break;
+			default:
+				break;
 		}
 	}
 
@@ -81,12 +89,22 @@ FILE			[a-zA-Z0-9_./\\-]+
 		return T_NUMBER;
 	}
 
-\"								{ return '"'; }
-{WORD}							{
+<QUOTED_STRING>\"				{
+		Parser_popState(QUOTED_STRING);
+		return '"';
+	}
+
+\"								{
+		Parser_pushState(QUOTED_STRING);
+		return '"';
+	}
+
+
+<QUOTED_STRING>{WORD}			{
 		strcpy(yylval.String, yytext);
 		return T_WORD;
 	}
-{FILE}							{
+<QUOTED_STRING>{FILE}			{
 		strcpy(yylval.String, yytext);
 		return T_FILE;
 	}
