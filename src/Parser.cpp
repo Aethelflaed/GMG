@@ -5,6 +5,15 @@
 
 #define HELP_SEE(name)	"Type `help " << name << "' for more details."
 
+extern "C"
+{
+#ifndef YY_HEADER_EXPORT_START_CONDITIONS
+#define YY_HEADER_EXPORT_START_CONDITIONS
+#endif
+
+#include "lexer.c.h"
+}
+
 Parser* Parser::parser = nullptr;
 
 Parser::Parser()
@@ -110,17 +119,17 @@ void Parser::help_config() const
 	std::cout << "\t`config (show|list)'                        Show configuration" << std::endl;
 }
 
-void Parser::pushState(ParserState state)
+void Parser::pushState(int state)
 {
 	this->states.push(state);
 }
-ParserState Parser::popState()
+int Parser::popState()
 {
-	ParserState state = this->states.top();
+	int state = this->states.top();
 	this->states.pop();
 	return state;
 }
-ParserState Parser::getState() const
+int Parser::getState() const
 {
 	return this->states.top();
 }
@@ -167,17 +176,17 @@ extern "C"
 		Parser::getParser().prompt();
 	}
 
-	void Parser_pushState(ParserState state)
+	void Parser_pushState(int state)
 	{
 		Parser::getParser().pushState(state);
 	}
 
-	ParserState Parser_popState()
+	int Parser_popState()
 	{
 		return Parser::getParser().popState();
 	}
 
-	ParserState Parser_getState()
+	int Parser_getState()
 	{
 		return Parser::getParser().getState();
 	}

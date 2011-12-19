@@ -1,4 +1,4 @@
-#include "strtolower.h"
+#include "stringCase.h"
 
 void strtolower(char* string)
 {

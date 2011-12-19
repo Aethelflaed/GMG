@@ -11,15 +11,21 @@
 
 extern "C"
 {
+#ifndef YY_HEADER_EXPORT_START_CONDITIONS
+#define YY_HEADER_EXPORT_START_CONDITIONS
+#endif
+
+#include "lexer.c.h"
+}
+
+extern "C"
+{
 	int yyparse();
-    int yylex();
 
     int yywrap()
     {
         return 1;
     }
-
-	extern char* yytext;
 
 	void yyerror(const char* str)
 	{

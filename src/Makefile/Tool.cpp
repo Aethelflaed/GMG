@@ -51,7 +51,7 @@ std::vector<Tool::Type> Tool::types {
 	},
 	{
 		"LEX",
-		"LEXFLAGS",
+		"LFLAGS",
 		{
 		},
 		"-c",

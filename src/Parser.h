@@ -1,27 +1,15 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-/*
- * Define the enum for both C and C++
- */
-typedef
-	enum
-	{
-		INITIAL,
-		TARGET,
-		QUOTED_STRING
-	}
-	ParserState;
-
 #ifndef __cplusplus
 /*
  * Define C accessors for Parser object
  */
 
 extern void Parser_prompt();
-extern void Parser_pushState(ParserState state);
-extern ParserState Parser_popState();
-extern ParserState Parser_getState();
+extern void Parser_pushState(int state);
+extern int Parser_popState();
+extern int Parser_getState();
 
 #else
 /*
@@ -41,9 +29,9 @@ public:
 	void prompt() const;
 	void help(int command) const;
 
-	void pushState(ParserState state);
-	ParserState popState();
-	ParserState getState() const;
+	void pushState(int state);
+	int popState();
+	int getState() const;
 
 	Makefile::Target& getTarget();
 	void setTarget(Makefile::Target* target);
@@ -66,7 +54,7 @@ private:
 
 	static Parser* parser;
 
-	std::stack<ParserState> states {};
+	std::stack<int> states {};
 	Makefile::Generator* generator {new Makefile::Generator()};
 	Makefile::Target* target {nullptr};
 	bool interactive {true};

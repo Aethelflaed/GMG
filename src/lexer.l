@@ -2,6 +2,9 @@
 
 #include "Parser.h"
 #include "grammar.hpp"
+
+#include "GP/C/stringCase.h"
+
 #include <string.h>
 #include <ctype.h>
 
@@ -16,23 +19,12 @@ FILE			[a-zA-Z0-9_./\\-]+
 
 %s TARGET
 %s QUOTED_STRING
+%s TOOL
+%s TARGET_TOOL
 
 %%
 	{
-		switch(Parser_getState())
-		{
-			case TARGET:
-				BEGIN TARGET;
-				break;
-			case QUOTED_STRING:
-				BEGIN QUOTED_STRING;
-				break;
-			case INITIAL:
-				BEGIN INITIAL;
-				break;
-			default:
-				break;
-		}
+		BEGIN Parser_getState();
 	}
 
 #.+[\r\n]						{ Parser_prompt(); }
@@ -66,7 +58,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 
 <TARGET>(?i:end|quit)/{WS}		{
-		BEGIN INITIAL;
+		Parser_popState();
 		return T_END;
 	}
 
@@ -83,8 +75,10 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 
 {BOOL}/{WS}						{
-		char firstChar = (char) tolower((int) yytext[0]);
-		yylval.Boolean = firstChar == 't';
+		strtolower(yytext);
+		yylval.Boolean = !(strcmp(yytext, "true") &&
+			strcmp(yytext, "on") &&
+			strcmp(yytext, "yes"));
 		return T_BOOL_VALUE;
 	}
 
