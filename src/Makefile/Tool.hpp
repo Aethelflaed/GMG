@@ -35,6 +35,7 @@ namespace Makefile
 	public:
 		static unsigned short addType(const std::string& typeName,
 				const std::string& typeFlagName);
+		static void removeType(const std::string& typeName);
 		static unsigned short getTypeId(const std::string& typeName);
 
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);

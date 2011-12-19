@@ -144,6 +144,27 @@ unsigned short Tool::addType(const std::string& typeName,
 	return typeId;
 }
 
+void Tool::removeType(const std::string& typeName)
+{
+	if (typeName == "")
+	{
+		throw NoSuchItemException();
+	}
+
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	std::vector<Type>::iterator it = Tool::types.begin();
+	for (; it != Tool::types.end(); it++)
+	{
+		if (*it == typeName)
+		{
+			Tool::types.erase(it);
+			return;
+		}
+	}
+
+	throw NoSuchItemException();
+}
+
 unsigned short Tool::getTypeId(const std::string& typeName)
 {
 	if (typeName == "")
