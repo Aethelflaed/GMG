@@ -61,6 +61,7 @@ extern "C"
 
 %token T_TARGET
 %token T_CONFIG
+%token T_TOOL
 
 %token T_END
 %token T_MODULE

@@ -27,6 +27,9 @@ FILE			[a-zA-Z0-9_./\\-]+
 			case QUOTED_STRING:
 				BEGIN QUOTED_STRING;
 				break;
+			case INITIAL:
+				BEGIN INITIAL;
+				break;
 			default:
 				break;
 		}
@@ -39,6 +42,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 
 (?i:target(s)?)/{WS}			{ return T_TARGET; }
 (?i:config)/{WS}				{ return T_CONFIG; }
+(?i:tool)/{WS}					{ return T_TOOL; }
 
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
 (?i:list|show)/{WS}				{ return T_LIST; }
@@ -90,7 +94,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 
 <QUOTED_STRING>\"				{
-		Parser_popState(QUOTED_STRING);
+		Parser_popState();
 		return '"';
 	}
 
