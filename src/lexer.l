@@ -11,7 +11,7 @@
 %}
 
 WS				[ \t\r\n]
-BOOL			(?i:(t(rue)?|f(alse)?))
+BOOL			(?i:(t(rue)?|f(alse)?|on|off|y(es)?|n(o)?))
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
