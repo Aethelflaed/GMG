@@ -1,6 +1,7 @@
 #include "Target.hpp"
 
 #include <algorithm>
+#include <utility>
 
 using namespace Makefile;
 
@@ -87,23 +88,20 @@ Config& Target::getConfig()
 
 void Target::addTool(const std::string& name)
 {
-	this->tools.insert(std::move(Tool(Tool::getTypeId(name))));
+	this->tools.insert(std::make_pair<const std::string&, Tool>(name, Tool(Tool::getTypeId(name))));
 }
 void Target::removeTool(const std::string& name)
 {
-	auto it = this->tools.begin();
-	for (; it != this->tools.end(); it++)
-	{
-		if (it->getName() == name)
-		{
-			this->tools.erase(it);
-			break;
-		}
-	}
+	this->tools.erase(name);
 }
-const std::set<Tool>& Target::getTools()
+Tool& Target::getTool(const std::string& name)
 {
-	return this->tools;
+	std::unordered_map<std::string, Tool>::iterator it = this->tools.find(name);
+	if (it == this->tools.end())
+	{
+		throw std::invalid_argument("No such tool.");
+	}
+	return it->second;
 }
 
 void Target::addDependency(const std::string& name)

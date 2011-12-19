@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <set>
+#include <unordered_map>
 #include <stdexcept>
 #include <memory>
 
@@ -56,7 +56,7 @@ namespace Makefile
 
 		void addTool(const std::string& name);
 		void removeTool(const std::string& name);
-		const std::set<Tool>& getTools();
+		Tool& getTool(const std::string& name);
 
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);
@@ -116,7 +116,7 @@ namespace Makefile
 		TargetType type {TargetType::Application};
 		Config config;
 
-		std::set<Tool> tools {};
+		std::unordered_map<std::string, Tool> tools {};
 		dependencies_vector dependencies {};
 	};
 }
