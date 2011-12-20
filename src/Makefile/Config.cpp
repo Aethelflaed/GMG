@@ -49,7 +49,7 @@ std::string Config::getOSName(OperatingSystem OS)
 	return "";
 }
 
-OperatingSystem Config::getOSValue(std::string& OSName)
+OperatingSystem Config::getOSValue(std::string OSName)
 {
 	::GP::Strings::stringToLower(OSName);
 

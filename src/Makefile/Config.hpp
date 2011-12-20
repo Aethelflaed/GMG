@@ -29,7 +29,7 @@ namespace Makefile
 		~Config() = default;
 
 		static std::string getOSName(OperatingSystem OS);
-		static OperatingSystem getOSValue(std::string& OS);
+		static OperatingSystem getOSValue(std::string OS);
 		static OperatingSystem getCurrentOS();
 
 		OperatingSystem getTargetOS() const;
