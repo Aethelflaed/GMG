@@ -11,11 +11,12 @@
 %}
 
 WS				[ \t\r\n]
-BOOL			(?i:(t(rue)?|f(alse)?|on|off|y(es)?|n(o)?))
+BOOL			(?i:t(rue)?|f(alse)?|on|off|y(es)?|n(o)?)
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
-FILE			[a-zA-Z0-9_./\\-]+
+FILE			[a-zA-Z0-9_./\\=-]+
+OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 
 %s TARGET
 %s QUOTED_STRING
@@ -43,23 +44,36 @@ FILE			[a-zA-Z0-9_./\\-]+
 (?i:edit)/{WS}					{ return T_EDIT; }
 (?i:(rm|remove))/{WS}			{ return T_RM; }
 (?i:set)/{WS}					{ return T_SET; }
+(?i:reset)/{WS}					{ return T_RESET; }
 
 (?i:path)/{WS}					{ return T_PATH; }
-(?i:dep(endency)?)/{WS}			{ return T_DEPENDENCY; }
 
-(?i:library|include)/{WS}	{
-		strcpy(yylval.String, yytext);
-		return T_CONFIG_PARAM;
-	}
+(?i:debug)/{WS}					{ return T_DEBUG; }
+(?i:verbose)/{WS}				{ return T_VERBOSE; }
+(?i:opti(mization)?)/{WS}		{ return T_OPTIMIZATION; }
 
-(?i:debug|verbose)/{WS}	{
-		strcpy(yylval.String, yytext);
-		return T_BOOL_OPTION;
-	}
-
-<TARGET>(?i:end|quit)/{WS}		{
+(?i:end|quit)/{WS}				{
 		Parser_popState();
 		return T_END;
+	}
+
+<TOOL>{OSNAME}/{WS}				{
+		strcpy(yylval.String, yytext);
+		strtolower(yytext);
+		return T_OS;
+	}
+
+<TOOL>(?i:flag(s)?)/{WS}		{ return T_FLAG; }
+<TOOL>(?i:file)/{WS}			{ return T_FILE; }
+<TOOL>(?i:pattern(s)?)/{WS}		{ return T_PATTERN; }
+<TOOL>(?i:mode)/{WS}			{ return T_MODE; }
+
+<TARGET>(?i:dep(endency)?)/{WS}	{ return T_DEPENDENCY; }
+
+<TARGET>(?i:library|include)/{WS} {
+		strcpy(yylval.String, yytext);
+		strtolower(yytext);
+		return T_CONFIG_PARAM;
 	}
 
 <TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
@@ -104,7 +118,7 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 <QUOTED_STRING>{FILE}			{
 		strcpy(yylval.String, yytext);
-		return T_FILE;
+		return T_FILENAME;
 	}
 
 [\r\n]							{ return '\n'; }

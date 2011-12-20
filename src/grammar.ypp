@@ -53,11 +53,21 @@ extern "C"
 %token T_EDIT
 %token T_RM
 %token T_SET
+%token T_RESET
 
-%token <String>T_BOOL_OPTION
+%token T_DEBUG
+%token T_VERBOSE
+%token T_OPTIMIZATION
+
 %token <Boolean>T_BOOL_VALUE
 
 %token <String>T_CONFIG_PARAM
+
+%token <String>T_OS
+%token T_FLAG
+%token T_PATTERN
+%token T_FILE
+%token T_MODE
 
 %token T_PATH
 %token T_DEPENDENCY
@@ -73,9 +83,11 @@ extern "C"
 %token T_TYPE
 %token <Natural>T_TARGET_TYPE
 
-%token <String>T_FILE
+%token <String>T_FILENAME
 %token <String>T_NUMBER
 %token <String>T_WORD
+
+%type <Natural>config_bool_option
 
 %type <Natural>help_command
 
@@ -124,20 +136,80 @@ help: T_HELP help_command newline
 
 help_command: T_TARGET		{ $$ = T_TARGET;	}
 			| T_CONFIG		{ $$ = T_CONFIG;	}
+			| T_TOOL		{ $$ = T_TOOL;		}
 
 /* Tool */
 tool: T_TOOL T_ADD quoted_name quoted_name
 	{
+		unsigned short toolId = Makefile::Tool::addType($3, $4);
+		Parser::getParser().setToolId(toolId);
+		Parser::getParser().pushState(TOOL);
 	}
 	| T_TOOL T_RM quoted_name
 	{
+		Makefile::Tool::removeType($3);
 	}
 	| T_TOOL T_EDIT quoted_name
 	{
+		unsigned short toolId = Makefile::Tool::getTypeId($3);
+		Parser::getParser().setToolId(toolId);
+		Parser::getParser().pushState(TOOL);
 	}
 	| T_TOOL T_LIST
 	{
+		Makefile::Tool::outputGlobal(std::cout, false);
 	}
+	| tool_command
+
+tool_command: T_RESET T_FLAG
+			{
+				Makefile::Tool::resetTypeFlag(Parser::getParser().getToolId());
+			}
+			| T_RESET T_DEBUG T_FLAG
+			{
+				Makefile::Tool::resetTypeDebugFlag(Parser::getParser().getToolId());
+			}
+			| T_RESET T_FILE T_PATTERN
+			{
+				Makefile::Tool::resetTypeFilePatterns(Parser::getParser().getToolId());
+			}
+			| T_SET T_VERBOSE T_FLAG quoted_file
+			{
+				Makefile::Tool::setTypeVerboseFlag(Parser::getParser().getToolId(), $4);
+			}
+			| T_SET T_OPTIMIZATION T_FLAG quoted_file
+			{
+				Makefile::Tool::setTypeOptimizationFlag(Parser::getParser().getToolId(), $4);
+			}
+			| T_SET T_OS T_PATH quoted_file
+			{
+				Makefile::Tool::setTypePathForOS(Parser::getParser().getToolId(),
+					Makefile::Config::getOSValue(std::string($2)), $4);
+			}
+			| T_ADD T_FLAG quoted_file
+			{
+				Makefile::Tool::addTypeFlag(Parser::getParser().getToolId(), $3);
+			}
+			| T_ADD T_DEBUG T_FLAG quoted_file
+			{
+				Makefile::Tool::addTypeDebugFlag(Parser::getParser().getToolId(), $4);
+			}
+			| T_ADD T_FILE T_PATTERN quoted_file
+			{
+				Makefile::Tool::addTypeFilePattern(Parser::getParser().getToolId(), $4);
+			}
+			| T_RM T_FLAG quoted_file
+			{
+				Makefile::Tool::removeTypeFlag(Parser::getParser().getToolId(), $3);
+			}
+			| T_RM T_DEBUG T_FLAG quoted_file
+			{
+				Makefile::Tool::removeTypeDebugFlag(Parser::getParser().getToolId(), $4);
+			}
+			| T_RM T_FILE T_PATTERN quoted_file
+			{
+				Makefile::Tool::removeTypeFilePattern(Parser::getParser().getToolId(), $4);
+			}
 
 /* Configuration */
 config: T_CONFIG config_command
@@ -147,19 +219,22 @@ config_command: config_bool_param
 			  | config_param
 			  | config_list
 
-config_bool_param: T_SET T_BOOL_OPTION bool_value newline
+config_bool_param: T_SET config_bool_option bool_value newline
 	{
 		Makefile::Config& config = Parser::getParser().getCurrentConfig();
-		char firstChar = (char) tolower((int) $2[0]);
-		if (firstChar == 'd')
+		if ($2  == T_DEBUG)
 		{
 			config.setDebug($3 != 0);
 		}
-		else
+		else if ($2 == T_VERBOSE)
 		{
 			config.setVerbose($3 != 0);
 		}
 	}
+
+config_bool_option: T_DEBUG			{ $$ = T_DEBUG; }
+				  | T_VERBOSE		{ $$ = T_VERBOSE; }
+				  | T_OPTIMIZATION	{ $$ = T_OPTIMIZATION; }
 
 config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file newline
 	{
@@ -318,7 +393,7 @@ quoted_name: '"' T_WORD '"'
 				strcpy($$, $2);
 		   }
 
-quoted_file: '"' T_FILE '"'
+quoted_file: '"' T_FILENAME '"'
 		   {
 				strcpy($$, $2);
 		   }
