@@ -1,6 +1,7 @@
 #ifndef MAKEFILE_TOOL_HPP
 #define MAKEFILE_TOOL_HPP
 
+#include <iostream>
 #include <ostream>
 #include <string>
 #include <stdexcept>

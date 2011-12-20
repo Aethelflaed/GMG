@@ -52,9 +52,13 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 (?i:verbose)/{WS}				{ return T_VERBOSE; }
 (?i:opti(mization)?)/{WS}		{ return T_OPTIMIZATION; }
 
-(?i:end|quit)/{WS}				{
+<TOOL>(?i:end|quit)/{WS}		{
 		Parser_popState();
-		return T_END;
+		return T_TOOL_END;
+	}
+<TARGET>(?i:end|quit)/{WS}		{
+		Parser_popState();
+		return T_TARGET_END;
 	}
 
 (?i:library|include)/{WS}		{
