@@ -199,6 +199,54 @@ unsigned short Tool::getTypeId(const std::string& typeName)
 	return 0;
 }
 
+void Tool::addTypeFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.flags.insert(flag);
+}
+void Tool::removeTypeFlag(unsigned short typeId, const std::string& flag)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::unordered_set<std::string>::iterator it = type.flags.find(flag);
+	if (it == type.flags.end())
+	{
+		throw Tool::NoSuchItemException{};
+	}
+	type.flags.erase(it);
+}
+const std::unordered_set<std::string>& Tool::getTypeFlags(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock(Tool::classMutex);
+	const Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	return type.flags;
+}
+
 void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
 {
 	if (typeId >= Tool::index)

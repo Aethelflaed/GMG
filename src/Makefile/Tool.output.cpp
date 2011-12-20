@@ -107,6 +107,11 @@ std::ostream& __private::Tool_global_output::outputToolCommand(std::ostream& str
 std::ostream& __private::Tool_global_output::outputToolFlags_command(std::ostream& stream,
 		const Tool::Type& type)
 {
+	stream << "\treset flags" << std::endl;
+	for (const std::string& flag : type.flags)
+	{
+		stream << "\tadd flag \"" << flag << "\"" << std::endl;
+	}
 	stream << "\treset debug flags" << std::endl;
 	for (const std::string& flag : type.debugFlags)
 	{
@@ -121,6 +126,11 @@ std::ostream& __private::Tool_global_output::outputToolFlags_command(std::ostrea
 std::ostream& __private::Tool_global_output::outputToolFlags_list(std::ostream& stream,
 		const Tool::Type& type)
 {
+	stream << "\tFlags:" << std::endl;
+	for (const std::string& flag : type.flags)
+	{
+		stream << "\t\t" << flag << std::endl;
+	}
 	stream << "\tDebug flags:" << std::endl;
 	for (const std::string& flag : type.debugFlags)
 	{
