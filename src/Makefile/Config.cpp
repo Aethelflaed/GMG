@@ -1,4 +1,7 @@
 #include "Config.hpp"
+#include "../GP/Strings/case.h"
+
+#include <boost/algorithm/string/predicate.hpp>
 
 using namespace Makefile;
 
@@ -25,6 +28,44 @@ Config::Config(const Config& config, bool dependency)
 		this->libraryPaths = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>(config.getLibraryPaths()));
 		this->libraries = std::shared_ptr<std::vector<std::string>> (new std::vector<std::string>(config.getLibraries()));
 	}
+}
+
+std::string Config::getOSName(OperatingSystem OS)
+{
+	switch(OS)
+	{
+		case OperatingSystem::Linux:
+			return "Linux";
+			break;
+		case OperatingSystem::MacOSX:
+			return "MacOSX";
+			break;
+		case OperatingSystem::Windows:
+			return "Windows";
+			break;
+		default:
+			break;
+	}
+	return "";
+}
+
+OperatingSystem Config::getOSValue(std::string& OSName)
+{
+	::GP::Strings::stringToLower(OSName);
+
+	if (::boost::starts_with(OSName, "lin"))
+	{
+		return OperatingSystem::Linux;
+	}
+	else if (::boost::starts_with(OSName, "mac"))
+	{
+		return OperatingSystem::MacOSX;
+	}
+	else if (::boost::starts_with(OSName, "win"))
+	{
+		return OperatingSystem::Windows;
+	}
+	return OperatingSystem::_trailing;
 }
 
 OperatingSystem Config::getCurrentOS()
