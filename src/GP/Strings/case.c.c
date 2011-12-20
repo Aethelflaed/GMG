@@ -1,7 +1,8 @@
-#include "stringCase.h"
+#include "case.h"
 
-void strtolower(char* string)
+char* strtolower(char* string)
 {
+	char* stringBegin = string;
 	while (*string != 0)
 	{
 		if (*string >= 'A' && *string <= 'Z')
@@ -10,10 +11,12 @@ void strtolower(char* string)
 		}
 		string++;
 	}
+	return stringBegin;
 }
 
-void strtoupper(char* string)
+char* strtoupper(char* string)
 {
+	char* stringBegin = string;
 	while (*string != 0)
 	{
 		if (*string >= 'a' && *string <= 'z')
@@ -22,5 +25,6 @@ void strtoupper(char* string)
 		}
 		string++;
 	}
+	return stringBegin;
 }
 
