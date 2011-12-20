@@ -187,11 +187,6 @@ unsigned short Tool::getTypeId(const std::string& typeName)
 	return 0;
 }
 
-std::ostream& Tool::listTypes(std::ostream& stream)
-{
-	return stream;
-}
-
 void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
 {
 	if (typeId >= Tool::index)
