@@ -38,7 +38,9 @@ namespace Makefile
 		static void removeType(const std::string& typeName);
 		static unsigned short getTypeId(const std::string& typeName);
 
-		static std::ostream& listTypes(std::ostream& stream, bool commandStyle = false);
+		static void addTypeFlag(unsigned short typeId, const std::string& flag);
+		static void removeTypeFlag(unsigned short typeId, const std::string& flag);
+		static const std::unordered_set<std::string>& getTypeFlags(unsigned short typeId);
 
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
@@ -57,26 +59,18 @@ namespace Makefile
 		static void setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path);
 		static const std::string& getTypePathForOS(unsigned short typeId, OperatingSystem OS);
 
+		explicit Tool(const std::string& name);
 		explicit Tool(ToolType type);
 		explicit Tool(unsigned short type);
 		~Tool() = default;
+
+		static std::ostream& outputGlobal(std::ostream& stream, bool commandStyle = false);
+		std::ostream& output(std::ostream& stream, bool commandStyle = false);
 
 		int getTypeId() const;
 		ToolType getType() const;
 
 		const std::string& getName() const;
-		void setName(const std::string& name);
-
-		const std::string& getPath() const;
-		void setPath(const std::string& path);
-
-		void addPattern(const std::string& pattern);
-		void removePattern(const std::string& pattern);
-		const std::unordered_set<std::string>& getPatterns() const;
-
-		void addFlag(const std::string& flag);
-		void removeFlag(const std::string& flag);
-		const std::unordered_set<std::string>& getFlags() const;
 
 		bool isDebugMode() const;
 		void setDebugMode(bool debugMode);
@@ -94,6 +88,7 @@ namespace Makefile
 			Type(const std::string& name, const std::string& flagName);
 			Type(const std::string& name,
 				 const std::string& flagName,
+				 std::initializer_list<std::string> flags,
 				 std::initializer_list<std::string> debugFlags,
 				 const std::string& verboseFlag,
 				 const std::string& optimizationFlag,
@@ -107,26 +102,21 @@ namespace Makefile
 
 			std::string name;
 			std::string flagName;
+			std::unordered_set<std::string> flags;
 			std::unordered_set<std::string> debugFlags;
 			std::string verboseFlag;
 			std::string optimizationFlag;
 			std::unordered_set<std::string> filePatterns;
 			std::array<std::string, (unsigned short) ToolType::_trailing> paths;
 		};
-	private:
 
+	private:
 		static std::mutex classMutex;
 		static std::atomic<unsigned short> index;
 		static std::vector<Type> types;
 
 		ToolType type;
 		unsigned short typeId;
-
-		std::string name {};
-		std::string path {};
-
-		std::unordered_set<std::string> patterns {};
-		std::unordered_set<std::string> flags {};
 
 		bool debugMode {false};
 		bool verboseMode {false};

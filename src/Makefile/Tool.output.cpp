@@ -31,9 +31,21 @@ namespace __private
 		static std::ostream& outputToolPaths_list(std::ostream& stream,
 				const Tool::Type& type);
 	};
+
+	struct Tool_output
+	{
+		static std::ostream& outputTool(std::ostream& stream,
+				const Tool& tool,
+				bool commandStyle = false);
+
+		static std::ostream& outputToolMode_command(std::ostream& stream,
+				const Tool& tool);
+		static std::ostream& outputToolMode_list(std::ostream& stream,
+				const Tool& tool);
+	};
 }
 
-std::ostream& Tool::listTypes(std::ostream& stream, bool commandStyle)
+std::ostream& Tool::outputGlobal(std::ostream& stream, bool commandStyle)
 {
 	for (unsigned short typeId = 0; typeId < Tool::index; typeId++)
 	{
@@ -41,6 +53,12 @@ std::ostream& Tool::listTypes(std::ostream& stream, bool commandStyle)
 		__private::Tool_global_output::outputTool(stream, typeId, type, commandStyle);
 	}
 
+	return stream;
+}
+
+std::ostream& Tool::output(std::ostream& stream, bool commandStyle)
+{
+	__private::Tool_output::outputTool(stream, *this, commandStyle);
 	return stream;
 }
 
@@ -156,6 +174,41 @@ std::ostream& __private::Tool_global_output::outputToolPaths_list(std::ostream& 
 	{
 		stream << "\t\t" << Config::getOSName(OperatingSystem(i)) << ": " << type.paths[i] << std::endl;
 	}
+	return stream;
+}
+
+std::ostream& __private::Tool_output::outputTool(std::ostream& stream,
+		const Tool& tool,
+		bool commandStyle)
+{
+	if (commandStyle)
+	{
+		stream << "add tool \"" << tool.getName() << "\"" << std::endl;
+		__private::Tool_output::outputToolMode_command(stream, tool);
+	}
+	else
+	{
+		stream << "Tool #" << tool.getTypeId() << " \"" << tool.getName() << "\"" << std::endl;
+		__private::Tool_output::outputToolMode_list(stream, tool);
+	}
+	return stream;
+}
+
+std::ostream& __private::Tool_output::outputToolMode_command(std::ostream& stream,
+		const Tool& tool)
+{
+	stream << "\tset debug mode " << (tool.isDebugMode() ? "on" : "off") << std::endl;
+	stream << "\tset verbose mode " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
+	stream << "\tset optimization mode " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
+	return stream;
+}
+
+std::ostream& __private::Tool_output::outputToolMode_list(std::ostream& stream,
+		const Tool& tool)
+{
+	stream << "\tDebug mode: " << (tool.isDebugMode() ? "on" : "off") << std::endl;
+	stream << "\tVerbose mode: " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
+	stream << "\tOptimization mode: " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
 	return stream;
 }
 

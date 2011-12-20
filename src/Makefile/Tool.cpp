@@ -12,6 +12,8 @@ std::vector<Tool::Type> Tool::types {
 		"C",
 		"CFLAGS",
 		{
+		},
+		{
 			"-g3",
 			"-gdwarf-2",
 			"-W",
@@ -31,6 +33,8 @@ std::vector<Tool::Type> Tool::types {
 	{
 		"CXX",
 		"CXXFLAGS",
+		{
+		},
 		{
 			"-g3",
 			"-gdwarf-2",
@@ -54,6 +58,8 @@ std::vector<Tool::Type> Tool::types {
 		"LFLAGS",
 		{
 		},
+		{
+		},
 		"-c",
 		"",
 		{
@@ -69,6 +75,9 @@ std::vector<Tool::Type> Tool::types {
 	{
 		"YACC",
 		"YFLAGS",
+		{
+			"-d"
+		},
 		{
 			"--debug"
 		},
@@ -87,6 +96,8 @@ std::vector<Tool::Type> Tool::types {
 	{
 		"TEX",
 		"TEXFLAGS",
+		{
+		},
 		{
 		},
 		"",
@@ -109,13 +120,14 @@ Tool::Type::Type(const std::string& name, const std::string& flagName)
 
 Tool::Type::Type(const std::string& name,
 	const std::string& flagName,
+	std::initializer_list<std::string> flags,
 	std::initializer_list<std::string> debugFlags,
 	const std::string& verboseFlag,
 	const std::string& optimizationFlag,
 	std::initializer_list<std::string> filePatterns,
 	std::initializer_list<std::string> paths)
 
-	:name{name}, flagName{flagName},
+	:name{name}, flagName{flagName}, flags{flags},
 	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
 	 optimizationFlag{optimizationFlag},
 	 filePatterns{filePatterns}
@@ -370,6 +382,11 @@ const std::string& Tool::getTypePathForOS(unsigned short typeId, OperatingSystem
 	return type.paths[(unsigned short) OS];
 }
 
+Tool::Tool(const std::string& name)
+	:Tool(Tool::getTypeId(name))
+{
+}
+
 Tool::Tool(ToolType type)
 	:Tool((unsigned short)type)
 {
@@ -378,27 +395,6 @@ Tool::Tool(ToolType type)
 Tool::Tool(unsigned short type)
 	:type(ToolType::_trailing), typeId(type)
 {
-	if (type < (unsigned short) ToolType::_trailing)
-	{
-		this->type = ToolType(type);
-		{
-			std::lock_guard<std::mutex> lock(Tool::classMutex);
-			const Tool::Type& baseType = Tool::types[(unsigned short) type];
-			this->name = baseType.name;
-			this->patterns = baseType.filePatterns;
-			this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
-		}
-		switch (this->type)
-		{
-			case ToolType::YACC:
-				this->flags.insert("-d");
-				break;
-			default:
-				break;
-		}
-		return;
-	}
-
 	if (typeId >= Tool::index)
 	{
 		throw Tool::TypeIdException{};
@@ -409,10 +405,6 @@ Tool::Tool(unsigned short type)
 	{
 		throw Tool::TypeIdException{};
 	}
-
-	this->name = baseType.name;
-	this->patterns = baseType.filePatterns;
-	this->path = baseType.paths[(unsigned short) Config::getCurrentOS()];
 }
 
 int Tool::getTypeId() const
@@ -426,57 +418,15 @@ ToolType Tool::getType() const
 
 const std::string& Tool::getName() const
 {
-	return this->name;
-}
-void Tool::setName(const std::string& name)
-{
-	this->name = name;
-}
-
-const std::string& Tool::getPath() const
-{
-	return this->path;
-}
-void Tool::setPath(const std::string& path)
-{
-	this->path = path;
-}
-
-void Tool::addPattern(const std::string& pattern)
-{
-	this->patterns.insert(pattern);
-}
-void Tool::removePattern(const std::string& pattern)
-{
-	std::unordered_set<std::string>::iterator it = this->patterns.find(pattern);
-	if (it == this->patterns.end())
+	std::lock_guard<std::mutex> lock{Tool::classMutex};
+	const Tool::Type& baseType = Tool::types[(unsigned short) type];
+	if (baseType.name == "")
 	{
-		throw Tool::NoSuchItemException{};
+		throw Tool::TypeIdException{};
 	}
-	this->patterns.erase(it);
-}
-const std::unordered_set<std::string>& Tool::getPatterns() const
-{
-	return this->patterns;
+	return baseType.name;
 }
 
-void Tool::addFlag(const std::string& flag)
-{
-	this->flags.insert(flag);
-}
-void Tool::removeFlag(const std::string& flag)
-{
-	std::unordered_set<std::string>::iterator it = this->flags.find(flag);
-	if (it == this->flags.end())
-	{
-		throw Tool::NoSuchItemException{};
-	}
-	this->flags.erase(it);
-}
-const std::unordered_set<std::string>& Tool::getFlags() const
-{
-	return this->flags;
-}
 
 bool Tool::isDebugMode() const
 {
@@ -507,11 +457,10 @@ void Tool::setOptimizationMode(bool optimizationMode)
 
 std::unordered_set<std::string>&& Tool::getAllFlags() const
 {
-	std::unordered_set<std::string> flags;
-	flags = this->flags;
-
 	std::lock_guard<std::mutex> lock(Tool::classMutex);
 	Tool::Type& baseType = Tool::types[this->typeId];
+
+	std::unordered_set<std::string> flags = baseType.flags;
 
 	if (this->debugMode)
 	{
