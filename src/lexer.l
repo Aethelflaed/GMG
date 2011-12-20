@@ -3,7 +3,7 @@
 #include "Parser.h"
 #include "grammar.hpp"
 
-#include "GP/C/stringCase.h"
+#include "GP/Strings/case.h"
 
 #include <string.h>
 #include <ctype.h>
