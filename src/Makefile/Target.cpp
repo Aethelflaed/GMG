@@ -86,9 +86,10 @@ Config& Target::getConfig()
 	return this->config;
 }
 
-void Target::addTool(const std::string& name)
+Tool& Target::addTool(const std::string& name)
 {
 	this->tools.insert(std::make_pair<const std::string&, Tool>(name, Tool(Tool::getTypeId(name))));
+	return this->getTool(name);
 }
 void Target::removeTool(const std::string& name)
 {

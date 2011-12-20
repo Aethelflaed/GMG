@@ -54,7 +54,7 @@ namespace Makefile
 		void setConfig(const Config& config);
 		Config& getConfig();
 
-		void addTool(const std::string& name);
+		Tool& addTool(const std::string& name);
 		void removeTool(const std::string& name);
 		Tool& getTool(const std::string& name);
 
