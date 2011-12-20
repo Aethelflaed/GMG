@@ -20,6 +20,7 @@ extern int Parser_getState();
 
 #include "Makefile/Generator.hpp"
 #include "Makefile/Target.hpp"
+#include "Makefile/Tool.hpp"
 
 class Parser
 {
@@ -39,6 +40,9 @@ public:
 	Makefile::Generator& getMakefileGenerator();
 	Makefile::Config& getCurrentConfig();
 
+	void setToolId(unsigned short toolId);
+	unsigned short getToolId();
+
 	bool isInteractive() const;
 	void setInteractive(bool interactive);
 
@@ -57,6 +61,7 @@ private:
 	std::stack<int> states {};
 	Makefile::Generator* generator {new Makefile::Generator()};
 	Makefile::Target* target {nullptr};
+	unsigned short toolId {0};
 	bool interactive {true};
 };
 

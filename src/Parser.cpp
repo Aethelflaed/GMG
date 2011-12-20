@@ -157,6 +157,15 @@ Makefile::Config& Parser::getCurrentConfig()
 	return this->generator->getConfig();
 }
 
+void Parser::setToolId(unsigned short toolId)
+{
+	this->toolId = toolId;
+}
+unsigned short Parser::getToolId()
+{
+	return this->toolId;
+}
+
 bool Parser::isInteractive() const
 {
 	return this->interactive;
