@@ -15,7 +15,7 @@ BOOL			(?i:t(rue)?|f(alse)?|on|off|y(es)?|n(o)?)
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
-FILE			[a-zA-Z0-9_./\\=-]+
+FILE			[a-zA-Z0-9_./\\+=-]+
 OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 
 %s TARGET
@@ -57,6 +57,12 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 		return T_END;
 	}
 
+(?i:library|include)/{WS}		{
+		strcpy(yylval.String, yytext);
+		strtolower(yytext);
+		return T_CONFIG_PARAM;
+	}
+
 <TOOL>{OSNAME}/{WS}				{
 		strcpy(yylval.String, yytext);
 		strtolower(yytext);
@@ -69,12 +75,6 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 <TOOL>(?i:mode)/{WS}			{ return T_MODE; }
 
 <TARGET>(?i:dep(endency)?)/{WS}	{ return T_DEPENDENCY; }
-
-<TARGET>(?i:library|include)/{WS} {
-		strcpy(yylval.String, yytext);
-		strtolower(yytext);
-		return T_CONFIG_PARAM;
-	}
 
 <TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
 <TARGET>(?i:version)/{WS}		{ return T_VERSION; }
