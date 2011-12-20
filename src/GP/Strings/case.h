@@ -20,8 +20,8 @@ namespace GP
 namespace Strings
 {
 
-	std::string stringToLower(std::string& string);
-	std::string stringToUppder(std::string& string);
+	::std::string stringToLower(::std::string& string);
+	::std::string stringToUppder(::std::string& string);
 
 }
 }
