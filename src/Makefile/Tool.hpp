@@ -38,6 +38,8 @@ namespace Makefile
 		static void removeType(const std::string& typeName);
 		static unsigned short getTypeId(const std::string& typeName);
 
+		static std::ostream& listTypes(std::ostream& stream, bool commandStyle = false);
+
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static const std::unordered_set<std::string>& getTypeDebugFlags(unsigned short typeId);
@@ -68,7 +70,6 @@ namespace Makefile
 		const std::string& getPath() const;
 		void setPath(const std::string& path);
 
-
 		void addPattern(const std::string& pattern);
 		void removePattern(const std::string& pattern);
 		const std::unordered_set<std::string>& getPatterns() const;
@@ -88,7 +89,6 @@ namespace Makefile
 
 		std::unordered_set<std::string>&& getAllFlags() const;
 
-	private:
 		struct Type
 		{
 			Type(const std::string& name, const std::string& flagName);
@@ -111,8 +111,9 @@ namespace Makefile
 			std::string verboseFlag;
 			std::string optimizationFlag;
 			std::unordered_set<std::string> filePatterns;
-			std::array<std::string, (int) ToolType::_trailing - 1> paths;
+			std::array<std::string, (unsigned short) ToolType::_trailing> paths;
 		};
+	private:
 
 		static std::mutex classMutex;
 		static std::atomic<unsigned short> index;
