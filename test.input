@@ -15,6 +15,7 @@ config show
 
 #Configure tools
 tool edit "CXX"
+	reset file patterns
 	add file pattern ".cxx"
 	rm file pattern ".cpp"
 
@@ -24,6 +25,11 @@ tool edit "CXX"
 end
 
 tool add "CPP" "CPPFLAGS"
+	reset debug flags
+	add debug flag "-Wall"
+
+	set verbose flag "-v"
+
 	add file pattern ".cpp"
 
 	set optimization flag "-O3"
