@@ -232,6 +232,20 @@ void Tool::removeTypeFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.flags.erase(it);
 }
+void Tool::resetTypeFlag(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock{Tool::classMutex};
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.flags.clear();
+}
 const std::unordered_set<std::string>& Tool::getTypeFlags(unsigned short typeId)
 {
 	if (typeId >= Tool::index)
@@ -279,6 +293,20 @@ void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
 		throw Tool::NoSuchItemException{};
 	}
 	type.debugFlags.erase(it);
+}
+void Tool::resetTypeDebugFlag(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock{Tool::classMutex};
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.debugFlags.clear();
 }
 const std::unordered_set<std::string>& Tool::getTypeDebugFlags(unsigned short typeId)
 {
@@ -385,6 +413,20 @@ void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& patte
 		throw Tool::NoSuchItemException{};
 	}
 	type.filePatterns.erase(it);
+}
+void Tool::resetTypeFilePatterns(unsigned short typeId)
+{
+	if (typeId >= Tool::index)
+	{
+		throw Tool::TypeIdException{};
+	}
+	std::lock_guard<std::mutex> lock{Tool::classMutex};
+	Tool::Type& type = Tool::types[typeId];
+	if (type.name == "")
+	{
+		throw Tool::TypeIdException{};
+	}
+	type.filePatterns.clear();
 }
 const std::unordered_set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
 {

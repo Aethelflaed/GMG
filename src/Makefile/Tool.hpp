@@ -40,10 +40,12 @@ namespace Makefile
 
 		static void addTypeFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeFlag(unsigned short typeId, const std::string& flag);
+		static void resetTypeFlag(unsigned short typeId);
 		static const std::unordered_set<std::string>& getTypeFlags(unsigned short typeId);
 
 		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
 		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
+		static void resetTypeDebugFlag(unsigned short typeId);
 		static const std::unordered_set<std::string>& getTypeDebugFlags(unsigned short typeId);
 
 		static void setTypeVerboseFlag(unsigned short typeId, const std::string& flag);
@@ -54,6 +56,7 @@ namespace Makefile
 
 		static void addTypeFilePattern(unsigned short typeId, const std::string& pattern);
 		static void removeTypeFilePattern(unsigned short typeId, const std::string& pattern);
+		static void resetTypeFilePatterns(unsigned short typeId);
 		static const std::unordered_set<std::string>& getTypeFilePatterns(unsigned short type);
 
 		static void setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path);
