@@ -43,6 +43,9 @@ public:
 	void setToolId(unsigned short toolId);
 	unsigned short getToolId();
 
+	void setTool(Makefile::Tool* tool);
+	Makefile::Tool& getTool();
+
 	bool isInteractive() const;
 	void setInteractive(bool interactive);
 
@@ -61,6 +64,7 @@ private:
 	std::stack<int> states {};
 	Makefile::Generator* generator {new Makefile::Generator()};
 	Makefile::Target* target {nullptr};
+	Makefile::Tool* tool {nullptr};
 	unsigned short toolId {0};
 	bool interactive {true};
 };

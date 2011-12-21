@@ -166,6 +166,19 @@ unsigned short Parser::getToolId()
 	return this->toolId;
 }
 
+void setTool(Makefile::Tool* tool)
+{
+	this->tool = tool;
+}
+Makefile::Tool& getTool()
+{
+	if (this->tool == nullptr)
+	{
+		throw std::invalid_argument{"No current tool"};
+	}
+	return *this->tool;
+}
+
 bool Parser::isInteractive() const
 {
 	return this->interactive;
