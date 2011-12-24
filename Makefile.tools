@@ -67,7 +67,7 @@ endif
 
 LEX := /usr/bin/flex
 YACC := /usr/bin/bison -v
-CXX := /usr/bin/g++
-C := /usr/bin/gcc
+CXX := /usr/local/gcc/4.7/bin/x86_64-linux-linux-g++
+C := /usr/local/gcc/4.7/bin/x86_64-linux-linux-gcc
 LD := $(CXX)
 

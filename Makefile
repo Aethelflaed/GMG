@@ -11,18 +11,21 @@ GEN_DIR := gen
 GEN_DIR += $(addprefix gen/, $(MODULES))
 
 SRC := $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp))
+SRC += $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c))
 SRC += $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp))
 SRC += $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l))
 GEN := $(patsubst src/%.ypp, gen/%.cpp, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp)))
 GEN += $(patsubst src/%.l, gen/%.c,     $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
 OBJ := $(patsubst src/%.cpp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.cpp)))
+OBJ += $(patsubst src/%.c, build/%.o,	$(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.c)))
 
 INCLUDES += -iquote gen -iquote src
 
-GEN_OBJ := $(patsubst src/%.l, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
+GEN_OBJ := $(patsubst src/%.l, build/%.o,	$(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.l)))
 GEN_OBJ += $(patsubst src/%.ypp, build/%.o, $(foreach sdir, $(SRC_DIR), $(wildcard $(sdir)/*.ypp)))
 
 vpath %.cpp $(SRC_DIR)
+vpath %.c $(SRC_DIR)
 vpath %.l $(SRC_DIR)
 vpath %.ypp $(SRC_DIR)
 
@@ -33,15 +36,15 @@ ifeq ($(TARGET), macos)
 endif
 
 define make-build-goal
-$1/%.o: %.cpp
-	$(CXX) -c $$< -o $$@ $(CXXFLAGS) $(INCLUDES) 
 $1/%.o: %.c
 	$(C) -c $$< -o $$@ $(CFLAGS) $(INCLUDES) 
+$1/%.o: %.cpp
+	$(CXX) -c $$< -o $$@ $(CXXFLAGS) $(INCLUDES) 
 endef
 
 define make-gen-goal
 $1/%.c: %.l
-	$(LEX) $(LFLAGS) -o $$@ $$^
+	$(LEX) $(LFLAGS) --header-file=$$@.h -o $$@ $$^
 $1/%.cpp: %.ypp
 	$(YACC) $(YFLAGS) -d $$^ -o $$@
 endef

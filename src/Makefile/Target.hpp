@@ -4,6 +4,8 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
 #include <stdexcept>
 #include <memory>
 
@@ -14,11 +16,15 @@
 
 namespace Makefile
 {
-	enum class TargetType : unsigned int
+	enum class TargetType : unsigned short int
 	{
+		/* Don't change ordering, to enable values count */
 		Application = 0,
-		Library = 1,
-		UnitTest = 2
+		Library,
+		UnitTest,
+
+		/* Keep that value in the end */
+		_trailing
 	};
 
 	class Target
@@ -32,25 +38,29 @@ namespace Makefile
 
 		void clean();
 
-		const std::string& getName() const;
 		void setName(const std::string& name);
+		const std::string& getName() const;
 
-		const std::string& getVersion() const;
 		void setVersion(const std::string& version);
+		const std::string& getVersion() const;
 
-		const std::vector<std::string>& getModules() const;
 		void addModule(const std::string& module);
-		void removeModule(const std::string& module) throw (std::out_of_range);
+		void removeModule(const std::string& module);
+		const std::unordered_set<std::string>& getModules() const;
 
-		TargetType getType() const;
 		void setType(TargetType type);
+		TargetType getType() const;
 
-		Config& getConfig();
 		void setConfig(const Config& config);
+		Config& getConfig();
 
+		Tool& addTool(const std::string& name);
+		void removeTool(const std::string& name);
+		Tool& getTool(const std::string& name);
+
+		void addDependency(const std::string& name);
+		void removeDependency(const std::string& name);
 		const dependencies_vector& getDependencies() const;
-		void addDependency(const std::string& name) throw (std::out_of_range);
-		void removeDependency(const std::string& name) throw (std::out_of_range);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
@@ -76,12 +86,12 @@ namespace Makefile
 				   << "\tType: \"" << type << "\"" << std::endl
 				   << "\tModules:" << std::endl;
 			auto modules = target.getModules();
-			for (std::string& module : target.modules)
+			for (const std::string& module : target.modules)
 			{
 				stream << "\t  " << module << "\n";
 			}
 			stream << "\tDependencies:\n";
-			for (dependency_type& dep : target.dependencies)
+			for (const dependency_type& dep : target.dependencies)
 			{
 				if (dep.expired())
 				{
@@ -99,15 +109,15 @@ namespace Makefile
 
 	private:
 		std::string name;
-		std::string version;
-		std::vector<std::string> modules;
+		std::string version {"1.0"};
+		std::unordered_set<std::string> modules {};
 
 		Generator& generator;
-		TargetType type;
+		TargetType type {TargetType::Application};
 		Config config;
 
-		std::vector<Tool> tool;
-		dependencies_vector dependencies;
+		std::unordered_map<std::string, Tool> tools {};
+		dependencies_vector dependencies {};
 	};
 }
 

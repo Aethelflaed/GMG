@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "Generator.hpp"
 #include "Target.hpp"
 
@@ -14,6 +16,7 @@ void Generator::generate()
 	{
 		target_pair.second->clean();
 	}
+	this->save();
 }
 
 const Generator::targets_map& Generator::getTargets() const
@@ -21,7 +24,6 @@ const Generator::targets_map& Generator::getTargets() const
 	return this->targets;
 }
 Target& Generator::getTarget(const std::string& name)
-	throw (std::out_of_range)
 {
 	try
 	{
@@ -33,7 +35,6 @@ Target& Generator::getTarget(const std::string& name)
 	}
 }
 Generator::target_type Generator::getTargetPointer(const std::string& name)
-	throw (std::out_of_range)
 {
 	try
 	{
@@ -45,7 +46,6 @@ Generator::target_type Generator::getTargetPointer(const std::string& name)
 	}
 }
 Target& Generator::addTarget(const std::string& name)
-	throw (std::invalid_argument)
 {
 	if (name == "all" ||
 		name == "install" ||
@@ -67,7 +67,6 @@ Target& Generator::addTarget(const std::string& name)
 	return *(target.get());
 }
 void Generator::removeTarget(const std::string& name)
-	throw (std::out_of_range)
 {
 	target_type target = this->targets[name];
 	if (target.get() == nullptr)

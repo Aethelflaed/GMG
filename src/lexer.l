@@ -2,35 +2,40 @@
 
 #include "Parser.h"
 #include "grammar.hpp"
+
+#include "GP/Strings/case.h"
+
 #include <string.h>
 #include <ctype.h>
 
 %}
 
 WS				[ \t\r\n]
-BOOL			(?i:(t(rue)?|f(alse)?))
+BOOL			(?i:t(rue)?|f(alse)?|on|off|y(es)?|n(o)?)
 TARGET_TYPE		(?i:app(lication)?|lib(rary)?|(unit)?test(ing)?)
 WORD			[a-zA-Z_][a-zA-Z0-9_]*
 NUMBER			[0-9]+(\.[0-9]*)?
-FILE			[a-zA-Z0-9_./\\-]+
+FILE			[a-zA-Z0-9_./\\+=-]+
+OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 
 %s TARGET
+%s QUOTED_STRING
+%s TOOL
+%s TARGET_TOOL
 
 %%
 	{
-		if (Parser_getState() == TARGET)
-		{
-			BEGIN TARGET;
-		}
+		BEGIN Parser_getState();
 	}
 
 #.+[\r\n]						{ Parser_prompt(); }
 
 <<EOF>>							{ return T_EXIT; }
-<INITIAL>(?i:exit)/{WS}			{ return T_EXIT; }
+(?i:exit)/{WS}					{ return T_EXIT; }
 
 (?i:target(s)?)/{WS}			{ return T_TARGET; }
 (?i:config)/{WS}				{ return T_CONFIG; }
+(?i:tool)/{WS}					{ return T_TOOL; }
 
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
 (?i:list|show)/{WS}				{ return T_LIST; }
@@ -39,24 +44,46 @@ FILE			[a-zA-Z0-9_./\\-]+
 (?i:edit)/{WS}					{ return T_EDIT; }
 (?i:(rm|remove))/{WS}			{ return T_RM; }
 (?i:set)/{WS}					{ return T_SET; }
+(?i:reset)/{WS}					{ return T_RESET; }
 
 (?i:path)/{WS}					{ return T_PATH; }
-(?i:dep(endency)?)/{WS}			{ return T_DEPENDENCY; }
 
-(?i:library|include)/{WS}	{
+(?i:debug)/{WS}					{ return T_DEBUG; }
+(?i:verbose)/{WS}				{ return T_VERBOSE; }
+(?i:opti(mization)?)/{WS}		{ return T_OPTIMIZATION; }
+
+<TOOL>(?i:end|quit)/{WS}		{
+		Parser_popState();
+		return T_TOOL_END;
+	}
+<TARGET>(?i:end|quit)/{WS}		{
+		Parser_popState();
+		return T_TARGET_END;
+	}
+<TARGET_TOOL>(?i:end|quit)/{WS}	{
+		Parser_popState();
+		return T_TARGET_TOOL_END;
+	}
+
+(?i:library|include)/{WS}		{
 		strcpy(yylval.String, yytext);
+		strtolower(yytext);
 		return T_CONFIG_PARAM;
 	}
 
-(?i:debug|verbose)/{WS}	{
+<TOOL>{OSNAME}/{WS}				{
 		strcpy(yylval.String, yytext);
-		return T_BOOL_OPTION;
+		strtolower(yytext);
+		return T_OS;
 	}
 
-<TARGET>(?i:end|quit)/{WS}		{
-		BEGIN INITIAL;
-		return T_END;
-	}
+<TOOL>(?i:flag(s)?)/{WS}		{ return T_FLAG; }
+<TOOL>(?i:file)/{WS}			{ return T_FILE; }
+<TOOL>(?i:pattern(s)?)/{WS}		{ return T_PATTERN; }
+<TOOL>(?i:mode)/{WS}			{ return T_MODE; }
+<TARGET_TOOL>(?i:mode)/{WS}		{ return T_MODE; }
+
+<TARGET>(?i:dep(endency)?)/{WS}	{ return T_DEPENDENCY; }
 
 <TARGET>(?i:module(s)?)/{WS}	{ return T_MODULE; }
 <TARGET>(?i:version)/{WS}		{ return T_VERSION; }
@@ -71,8 +98,10 @@ FILE			[a-zA-Z0-9_./\\-]+
 	}
 
 {BOOL}/{WS}						{
-		char firstChar = (char) tolower((int) yytext[0]);
-		yylval.Boolean = firstChar == 't';
+		strtolower(yytext);
+		yylval.Boolean = !(strcmp(yytext, "true") &&
+			strcmp(yytext, "on") &&
+			strcmp(yytext, "yes"));
 		return T_BOOL_VALUE;
 	}
 
@@ -81,14 +110,24 @@ FILE			[a-zA-Z0-9_./\\-]+
 		return T_NUMBER;
 	}
 
-\"								{ return '"'; }
-{WORD}							{
+<QUOTED_STRING>\"				{
+		Parser_popState();
+		return '"';
+	}
+
+\"								{
+		Parser_pushState(QUOTED_STRING);
+		return '"';
+	}
+
+
+<QUOTED_STRING>{WORD}			{
 		strcpy(yylval.String, yytext);
 		return T_WORD;
 	}
-{FILE}							{
+<QUOTED_STRING>{FILE}			{
 		strcpy(yylval.String, yytext);
-		return T_FILE;
+		return T_FILENAME;
 	}
 
 [\r\n]							{ return '\n'; }

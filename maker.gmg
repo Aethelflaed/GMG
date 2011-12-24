@@ -1,0 +1,12 @@
+# Global configuration
+config set debug false
+config set verbose  false
+
+# Include paths
+
+# Library paths
+
+# Libraries
+
+
+# Targets

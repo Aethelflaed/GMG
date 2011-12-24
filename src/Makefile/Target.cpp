@@ -1,13 +1,13 @@
 #include "Target.hpp"
 
 #include <algorithm>
+#include <utility>
 
 using namespace Makefile;
 
 Target::Target(Generator& generator, const std::string& name)
-	:name(name), version("1.0"),
-	 modules(), generator(generator), type(TargetType::Application),
-	 config(generator.getConfig())
+	:name{name}, generator(generator),
+	 config{generator.getConfig(), true}
 {
 }
 
@@ -25,50 +25,47 @@ void Target::clean()
 		}
 	}
 
-	for (dependencies_vector::iterator& iterator : deprecated_iterators)
+	for (const dependencies_vector::iterator& iterator : deprecated_iterators)
 	{
 		this->dependencies.erase(iterator);
 	}
 }
 
-const std::string& Target::getName() const
-{
-	return this->name;
-}
 void Target::setName(const std::string& name)
 {
 	this->name = name;
 }
-
-const std::string& Target::getVersion() const
+const std::string& Target::getName() const
 {
-	return this->version;
+	return this->name;
 }
+
 void Target::setVersion(const std::string& version)
 {
 	this->version = version;
 }
-
-const std::vector<std::string>& Target::getModules() const
+const std::string& Target::getVersion() const
 {
-	return this->modules;
+	return this->version;
 }
+
 void Target::addModule(const std::string& module)
 {
-	this->modules.push_back(module);
+	this->modules.insert(module);
 }
 void Target::removeModule(const std::string& module)
-	throw (std::out_of_range)
 {
-	auto iterator = std::find(this->modules.begin(),
-		this->modules.end(),
-		module);
+	auto iterator = this->modules.find(module);
 	if (iterator == this->modules.end())
 	{
 		throw std::out_of_range("No such module");
 	}
 
 	this->modules.erase(iterator);
+}
+const std::unordered_set<std::string>& Target::getModules() const
+{
+	return this->modules;
 }
 
 TargetType Target::getType() const
@@ -80,24 +77,39 @@ void Target::setType(TargetType type)
 	this->type = type;
 }
 
-Config& Target::getConfig()
-{
-	return this->config;
-}
 void Target::setConfig(const Config& config)
 {
 	this->config = Config(config);
 }
-
-const Target::dependencies_vector& Target::getDependencies() const
+Config& Target::getConfig()
 {
-	return this->dependencies;
+	return this->config;
 }
-void Target::addDependency(const std::string& name) throw (std::out_of_range)
+
+Tool& Target::addTool(const std::string& name)
+{
+	this->tools.insert(std::make_pair<const std::string&, Tool>(name, Tool(Tool::getTypeId(name))));
+	return this->getTool(name);
+}
+void Target::removeTool(const std::string& name)
+{
+	this->tools.erase(name);
+}
+Tool& Target::getTool(const std::string& name)
+{
+	std::unordered_map<std::string, Tool>::iterator it = this->tools.find(name);
+	if (it == this->tools.end())
+	{
+		throw std::invalid_argument("No such tool.");
+	}
+	return it->second;
+}
+
+void Target::addDependency(const std::string& name)
 {
 	this->dependencies.push_back(this->generator.getTargetPointer(name));
 }
-void Target::removeDependency(const std::string& name) throw (std::out_of_range)
+void Target::removeDependency(const std::string& name)
 {
 	std::vector<dependencies_vector::iterator> deprecated_iterators;
 
@@ -116,11 +128,13 @@ void Target::removeDependency(const std::string& name) throw (std::out_of_range)
 		}
 	}
 
-	for (dependencies_vector::iterator& iterator : deprecated_iterators)
+	for (const dependencies_vector::iterator& iterator : deprecated_iterators)
 	{
 		this->dependencies.erase(iterator);
 	}
-
-	throw std::out_of_range("No such dependencies");
+}
+const Target::dependencies_vector& Target::getDependencies() const
+{
+	return this->dependencies;
 }
 
