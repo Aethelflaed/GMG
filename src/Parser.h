@@ -60,12 +60,6 @@ private:
 	Parser();
 	~Parser();
 
-	void help_state_chooser() const;
-	void help_global() const;
-	void help_target() const;
-	void help_target_mode() const;
-	void help_config() const;
-
 	static Parser* parser;
 
 	std::deque<int> states {};

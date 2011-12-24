@@ -150,8 +150,9 @@ help: T_HELP help_command newline
 		Parser::getParser().help(0);
 	}
 
-help_command: T_TARGET		{ $$ = T_TARGET;	}
-			| T_CONFIG		{ $$ = T_CONFIG;	}
+help_command: T_CONFIG		{ $$ = T_CONFIG;	}
+			| T_EXIT		{ $$ = T_EXIT;		}
+			| T_TARGET		{ $$ = T_TARGET;	}
 			| T_TOOL		{ $$ = T_TOOL;		}
 
 /* Tool */
