@@ -5,9 +5,12 @@
 #include <ctype.h>
 
 #include <iostream>
+#include <deque>
 
 #include "Parser.h"
 #include "Makefile/Generator.hpp"
+
+#include "config.h"
 
 extern "C"
 {
@@ -26,9 +29,19 @@ extern "C"
 
 	void yyerror(const char* str)
 	{
+		std::cerr << std::endl;
 		std::cerr << "Error:        \"" << str << "\"" << std::endl;
 		std::cerr << "Scanning:     \"" << yytext << "\"" << std::endl;
-		std::cerr << "Parser state: \"" << Parser::getParser().getState() << "\"" << std::endl;
+		std::cerr << "Parser states stack:" << std::endl;
+		const std::deque<int>& states = Parser::getParser().getStates();
+		for (auto it = states.rbegin(); it != states.rend(); it++)
+		{
+#if defined DEBUG || defined DEBUG_STACK
+			std::cerr << "\t" << *it << " : " << Parser::getStateName(*it) << std::endl;
+#else
+			std::cerr << "\t" << *it << std::endl;
+#endif
+		}
 	}
 }
 
@@ -78,6 +91,7 @@ extern "C"
 
 %token T_TOOL_END
 %token T_TARGET_END
+%token T_TARGET_TOOL_END
 %token T_MODULE
 %token T_VERSION
 
@@ -107,6 +121,7 @@ configurations: /* empty */
 	}
 
 configuration: target
+			 | target_tool
 			 | config
 			 | tool
 			 | help
@@ -142,18 +157,32 @@ help_command: T_TARGET		{ $$ = T_TARGET;	}
 /* Tool */
 tool: T_TOOL T_ADD quoted_name quoted_name newline
 	{
-		std::cerr << "Add" << std::endl;
 		unsigned short toolId = Makefile::Tool::addType($3, $4);
 		Parser::getParser().setToolId(toolId);
 		Parser::getParser().pushState(TOOL);
 	}
 	| T_TOOL T_RM quoted_name newline
 	{
-		Makefile::Tool::removeType($3);
+		try
+		{
+			Makefile::Tool::removeType($3);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
 	}
 	| T_TOOL T_EDIT quoted_name newline
 	{
-		unsigned short toolId = Makefile::Tool::getTypeId($3);
+		unsigned short toolId;
+		try
+		{
+			toolId = Makefile::Tool::getTypeId($3);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
 		Parser::getParser().setToolId(toolId);
 		Parser::getParser().pushState(TOOL);
 	}
@@ -208,7 +237,7 @@ tool_command: T_RESET T_FLAG newline
 		}
 		catch (const std::invalid_argument& ex)
 		{
-			std::cerr << "" << std::endl;
+			yyerror("No such flag");
 		}
 	}
 			| T_RM T_DEBUG T_FLAG quoted_file newline
@@ -219,7 +248,7 @@ tool_command: T_RESET T_FLAG newline
 		}
 		catch (const std::invalid_argument& ex)
 		{
-			std::cerr << "" << std::endl;
+			yyerror("No such flag");
 		}
 	}
 			| T_RM T_FILE T_PATTERN quoted_file newline
@@ -230,10 +259,24 @@ tool_command: T_RESET T_FLAG newline
 		}
 		catch (const std::invalid_argument& ex)
 		{
-			std::cerr << "" << std::endl;
+			yyerror("No such file pattern");
 		}
 	}
 			| T_TOOL_END newline
+
+target_tool: T_SET T_OPTIMIZATION T_MODE bool_value newline
+	{
+		Parser::getParser().getTool().setOptimizationMode($4);
+	}
+		   | T_SET T_VERBOSE T_MODE bool_value newline
+	{
+		Parser::getParser().getTool().setVerboseMode($4);
+	}
+		   | T_SET T_DEBUG T_MODE bool_value newline
+	{
+		Parser::getParser().getTool().setDebugMode($4);
+	}
+			| T_TARGET_TOOL_END newline
 
 /* Configuration */
 config: T_CONFIG config_command
@@ -309,7 +352,7 @@ target_add: T_ADD quoted_name newline
 		}
 		catch (const std::invalid_argument& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -323,7 +366,7 @@ target_edit: T_EDIT quoted_name newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -335,7 +378,7 @@ target_rm: T_RM quoted_name newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -382,6 +425,18 @@ target_mode_add_values: T_ADD T_MODULE quoted_file newline
 	{
 		Parser::getParser().getTarget().addDependency($3);
 	}
+					  | T_ADD T_TOOL quoted_name newline
+	{
+		try
+		{
+			Parser::getParser().setTool(&Parser::getParser().getTarget().addTool($3));
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
+		Parser::getParser().pushState(TARGET_TOOL);
+	}
 
 target_mode_rm_values: T_RM T_MODULE quoted_file newline
 	{
@@ -391,7 +446,7 @@ target_mode_rm_values: T_RM T_MODULE quoted_file newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 					 | T_RM T_DEPENDENCY quoted_name newline
@@ -402,8 +457,13 @@ target_mode_rm_values: T_RM T_MODULE quoted_file newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
+	}
+					 | T_RM T_TOOL quoted_name newline
+	{
+		Parser::getParser().getTarget().removeTool($3);
+		Parser::getParser().popState();
 	}
 
 /* Values */

@@ -60,6 +60,10 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 		Parser_popState();
 		return T_TARGET_END;
 	}
+<TARGET_TOOL>(?i:end|quit)/{WS}	{
+		Parser_popState();
+		return T_TARGET_TOOL_END;
+	}
 
 (?i:library|include)/{WS}		{
 		strcpy(yylval.String, yytext);
@@ -77,6 +81,7 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 <TOOL>(?i:file)/{WS}			{ return T_FILE; }
 <TOOL>(?i:pattern(s)?)/{WS}		{ return T_PATTERN; }
 <TOOL>(?i:mode)/{WS}			{ return T_MODE; }
+<TARGET_TOOL>(?i:mode)/{WS}		{ return T_MODE; }
 
 <TARGET>(?i:dep(endency)?)/{WS}	{ return T_DEPENDENCY; }
 

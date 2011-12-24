@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "config.h"
+
 #ifndef __cplusplus
 /*
  * Define C accessors for Parser object
@@ -16,7 +18,7 @@ extern int Parser_getState();
  * Define the Parser class, only in C++ files
  */
 
-#include <stack>
+#include <deque>
 
 #include "Makefile/Generator.hpp"
 #include "Makefile/Target.hpp"
@@ -30,9 +32,14 @@ public:
 	void prompt() const;
 	void help(int command) const;
 
+#if defined DEBUG || defined DEBUG_STACK
+	static std::string getStateName(int state);
+#endif
+
 	void pushState(int state);
 	int popState();
 	int getState() const;
+	const std::deque<int>& getStates() const;
 
 	Makefile::Target& getTarget();
 	void setTarget(Makefile::Target* target);
@@ -61,7 +68,7 @@ private:
 
 	static Parser* parser;
 
-	std::stack<int> states {};
+	std::deque<int> states {};
 	Makefile::Generator* generator {new Makefile::Generator()};
 	Makefile::Target* target {nullptr};
 	Makefile::Tool* tool {nullptr};

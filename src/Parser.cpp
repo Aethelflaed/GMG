@@ -18,7 +18,7 @@ Parser* Parser::parser = nullptr;
 
 Parser::Parser()
 {
-	this->states.push(INITIAL);
+	this->states.push_back(INITIAL);
 }
 
 Parser::~Parser()
@@ -39,11 +39,19 @@ void Parser::prompt() const
 {
 	if (this->interactive == true)
 	{
-		switch(this->states.top())
+		switch(this->states.back())
 		{
 			case TARGET:
 				std::cout << "target:" << this->target->getName();
 				break;
+			case TOOL:
+				std::cout << "tool";
+				break;
+			case TARGET_TOOL:
+				std::cout << "target_tool";
+				break;
+			case QUOTED_STRING:
+				std::cout << "dbquote";
 			default:
 				break;
 		}
@@ -71,7 +79,7 @@ void Parser::help(int command) const
 }
 void Parser::help_state_chooser() const
 {
-	switch(this->states.top())
+	switch(this->states.back())
 	{
 		case INITIAL:
 			this->help_global();
@@ -119,19 +127,43 @@ void Parser::help_config() const
 	std::cout << "\t`config (show|list)'                        Show configuration" << std::endl;
 }
 
+#if defined DEBUG || defined DEBUG_STACK
+std::string Parser::getStateName(int state)
+{
+	switch (state)
+	{
+		case INITIAL:
+			return "INITIAL";
+		case TARGET:
+			return "TARGET";
+		case TOOL:
+			return "TOOL";
+		case QUOTED_STRING:
+			return "QUOTED_STRING";
+		case TARGET_TOOL:
+			return "TARGET_TOOL";
+	}
+	return "";
+}
+#endif
+
 void Parser::pushState(int state)
 {
-	this->states.push(state);
+	this->states.push_back(state);
 }
 int Parser::popState()
 {
-	int state = this->states.top();
-	this->states.pop();
+	int state = this->states.back();
+	this->states.pop_back();
 	return state;
 }
 int Parser::getState() const
 {
-	return this->states.top();
+	return this->states.back();
+}
+const std::deque<int>& Parser::getStates() const
+{
+	return this->states;
 }
 
 Makefile::Target& Parser::getTarget()
@@ -166,11 +198,11 @@ unsigned short Parser::getToolId()
 	return this->toolId;
 }
 
-void setTool(Makefile::Tool* tool)
+void Parser::setTool(Makefile::Tool* tool)
 {
 	this->tool = tool;
 }
-Makefile::Tool& getTool()
+Makefile::Tool& Parser::getTool()
 {
 	if (this->tool == nullptr)
 	{
@@ -212,6 +244,5 @@ extern "C"
 	{
 		return Parser::getParser().getState();
 	}
-
 }
 
