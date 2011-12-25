@@ -61,6 +61,7 @@ extern "C"
 %token T_HELP
 
 %token T_LIST
+%token T_CONFIG_LIST
 
 %token T_ADD
 %token T_EDIT
@@ -89,9 +90,11 @@ extern "C"
 %token T_CONFIG
 %token T_TOOL
 
-%token T_TOOL_END
+%token T_CONFIG_END
 %token T_TARGET_END
 %token T_TARGET_TOOL_END
+%token T_TOOL_END
+
 %token T_MODULE
 %token T_VERSION
 
@@ -280,7 +283,12 @@ target_tool: T_SET T_OPTIMIZATION T_MODE bool_value newline
 			| T_TARGET_TOOL_END newline
 
 /* Configuration */
-config: T_CONFIG config_command
+config: T_CONFIG newline
+	{
+		Parser::getParser().pushState(CONFIG);
+	}
+	  | T_CONFIG_END newline
+	  | config_command
 
 config_command: config_bool_param
 			  | config_path_param
@@ -323,7 +331,7 @@ config_param: T_ADD T_CONFIG_PARAM quoted_file newline
 		Parser::getParser().getCurrentConfig().addLibrary($3);
 	}
 
-config_list: T_LIST newline
+config_list: T_CONFIG_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
 		{

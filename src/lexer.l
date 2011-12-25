@@ -18,10 +18,11 @@ NUMBER			[0-9]+(\.[0-9]*)?
 FILE			[a-zA-Z0-9_./\\+=-]+
 OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 
-%s TARGET
+%s CONFIG
 %s QUOTED_STRING
-%s TOOL
+%s TARGET
 %s TARGET_TOOL
+%s TOOL
 
 %%
 	{
@@ -38,6 +39,7 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 (?i:tool)/{WS}					{ return T_TOOL; }
 
 (?i:h(elp)?)/{WS}				{ return T_HELP; }
+<CONFIG>(?i:list|show)/{WS}		{ return T_CONFIG_LIST; }
 (?i:list|show)/{WS}				{ return T_LIST; }
 
 (?i:add)/{WS}					{ return T_ADD; }
@@ -52,9 +54,9 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 (?i:verbose)/{WS}				{ return T_VERBOSE; }
 (?i:opti(mization)?)/{WS}		{ return T_OPTIMIZATION; }
 
-<TOOL>(?i:end|quit)/{WS}		{
+<CONFIG>(?i:end|quit)/{WS}		{
 		Parser_popState();
-		return T_TOOL_END;
+		return T_CONFIG_END;
 	}
 <TARGET>(?i:end|quit)/{WS}		{
 		Parser_popState();
@@ -63,6 +65,10 @@ OSNAME			(?i:lin(ux)?|mac(osx)?|win(dows)?)
 <TARGET_TOOL>(?i:end|quit)/{WS}	{
 		Parser_popState();
 		return T_TARGET_TOOL_END;
+	}
+<TOOL>(?i:end|quit)/{WS}		{
+		Parser_popState();
+		return T_TOOL_END;
 	}
 
 (?i:library|include)/{WS}		{
