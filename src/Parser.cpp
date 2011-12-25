@@ -39,17 +39,21 @@ void Parser::prompt() const
 	{
 		switch(this->states.back())
 		{
+			case CONFIG:
+				std::cout << "config";
+				break;
+			case QUOTED_STRING:
+				std::cout << "dbquote";
+				break;
 			case TARGET:
 				std::cout << "target:" << this->target->getName();
-				break;
-			case TOOL:
-				std::cout << "tool";
 				break;
 			case TARGET_TOOL:
 				std::cout << "target_tool";
 				break;
-			case QUOTED_STRING:
-				std::cout << "dbquote";
+			case TOOL:
+				std::cout << "tool";
+				break;
 			default:
 				break;
 		}
