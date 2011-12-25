@@ -150,10 +150,14 @@ help: T_HELP help_command newline
 		Parser::getParser().help(0);
 	}
 
-help_command: T_CONFIG		{ $$ = T_CONFIG;	}
-			| T_EXIT		{ $$ = T_EXIT;		}
-			| T_TARGET		{ $$ = T_TARGET;	}
-			| T_TOOL		{ $$ = T_TOOL;		}
+help_command: T_CONFIG		{ $$ = T_CONFIG;		}
+			| T_DEPENDENCY	{ $$ = T_DEPENDENCY;	}
+			| T_EXIT		{ $$ = T_EXIT;			}
+			| T_MODULE		{ $$ = T_MODULE;		}
+			| T_TARGET		{ $$ = T_TARGET;		}
+			| T_TOOL		{ $$ = T_TOOL;			}
+			| T_TYPE		{ $$ = T_TYPE;			}
+			| T_VERSION		{ $$ = T_VERSION;		}
 
 /* Tool */
 tool: T_TOOL T_ADD quoted_name quoted_name newline

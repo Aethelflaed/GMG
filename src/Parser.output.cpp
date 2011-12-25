@@ -215,13 +215,13 @@ ostream& __private::Parser_output::help_global_target(ostream& stream)
 {
 	stream << "Manage targets" << endl << endl;
 
-	stream << " - `target add \"NAME\"'    add a new target." << endl;
+	stream << " - `target add \"NAME\"'    Add a new target." << endl;
 
-	stream << " - `target edit \"NAME\"'   update an existing target." << endl;
+	stream << " - `target edit \"NAME\"'   Update an existing target." << endl;
 
-	stream << " - `target rm \"NAME\"'     remove a target." << endl;
+	stream << " - `target rm \"NAME\"'     Remove a target." << endl;
 
-	stream << " - `target list'          list all targets." << endl;
+	stream << " - `target list'          List all targets." << endl;
 
 	return stream;
 }
@@ -229,13 +229,13 @@ ostream& __private::Parser_output::help_global_tool(ostream& stream)
 {
 	stream << "Manage tools" << endl << endl;
 
-	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   add a new tool." << endl;
+	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   Add a new tool." << endl;
 
-	stream << " - `tool edit \"NAME\"'              edit a tool." << endl;
+	stream << " - `tool edit \"NAME\"'              Edit a tool." << endl;
 
-	stream << " - `tool rm \"NAME\"'                remove a tool." << endl;
+	stream << " - `tool rm \"NAME\"'                Remove a tool." << endl;
 
-	stream << " - `tools list'                    list all tools." << endl;
+	stream << " - `tools list'                    List all tools." << endl;
 
 	return stream;
 }
@@ -247,43 +247,68 @@ ostream& __private::Parser_output::help_config(ostream& stream)
 
 ostream& __private::Parser_output::help_target(ostream& stream)
 {
-	stream << "Configure a specific target" << endl;
+	stream << "Configure a specific target" << endl << endl;
 
-	stream << "	`set version X.Y'				Set the version X.Y of the target."
+	stream << " - `set version X.Y'				Set the version X.Y of the target."
 		<< HELP_SEE("version") << endl;
 
-	stream << "	`set type (app|lib|test)'		Set the type  of the target."
+	stream << " - `set type (app|lib|test)'		Set the type  of the target."
 		<< HELP_SEE("type") << endl;
 
-	stream << "	`config'						Set target specific configuration. "
+	stream << " - `config'						Set target specific configuration. "
 		<< HELP_SEE("config") << endl;
 
-	stream << "	`(add|rm) module \"NAME\"'		Add / remove a module, i.e. a source folder."
+	stream << " - `(add|rm) module \"NAME\"'		Add / remove a module, i.e. a source folder."
 		<< HELP_SEE("module") << endl;
 
-	stream << "	`(add|rm) dependency \"NAME\"'	Add / remove a dependency target, specified by its name."
+	stream << " - `(add|rm) dependency \"NAME\"'	Add / remove a dependency target, specified by its name."
 		<< HELP_SEE("dependency") << endl;
 
 	return stream;
 }
 ostream& __private::Parser_output::help_target_config(ostream& stream)
 {
+	stream << "Target specific configuration" << endl << endl;
+
 	return stream;
 }
 ostream& __private::Parser_output::help_target_dependency(ostream& stream)
 {
+	stream << "Manage target dependencies, i.e. other targets that are required." << endl << endl;
+
+	stream << " - `add dependency \"NAME\"'   Add a the target named \"NAME\" as dependency." << endl;
+
+	stream << " - `rm dependency \"NAME\"'    Remove a dependency." << endl;
+
 	return stream;
 }
 ostream& __private::Parser_output::help_target_module(ostream& stream)
 {
+	stream << "Manage target modules, i.e. where to search for sources from src/{target_name} directory" << endl << endl;
+
+	stream << " - `add module \"NAME\"'   Add the module NAME." << endl;
+
+	stream << " - `rm module \"NAME\"'    Remove a module." << endl;
+
 	return stream;
 }
 ostream& __private::Parser_output::help_target_type(ostream& stream)
 {
+	stream << "Manage target type. Currently supported values (case-insensitive) are:" << endl << endl;
+
+	stream << " - `Application' OR `app'" << endl;
+
+	stream << " - `Library' OR `lib'" << endl;
+
+	stream << " - `UnitTesting' OR `test' OR `unittest' OR `testing'" << endl;
+
 	return stream;
 }
 ostream& __private::Parser_output::help_target_version(ostream& stream)
 {
+	stream << "Set the target version." << endl << endl;
+
+	stream << "The target version must be a positive decimal number and will later be retrievable in the target sources." << endl;
 	return stream;
 }
 
