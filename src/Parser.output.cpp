@@ -168,14 +168,17 @@ ostream& __private::Parser_output::help_global(ostream& stream)
 {
 	stream << "Global help" << endl << endl;
 
-	stream << " - `target'   Configure targets."
-		<< HELP_SEE("target") << endl;
-
 	stream << " - `config'   Specify global configuration options."
 		<< HELP_SEE("config") << endl;
 
 	stream << " - `exit'     Exit configuration and build makefile."
 		<< HELP_SEE("exit") << endl;
+
+	stream << " - `target'   Configure targets."
+		<< HELP_SEE("target") << endl;
+
+	stream << " - `tool'     Configure tools."
+		<< HELP_SEE("tool") << endl;
 
 	return stream;
 }
@@ -210,7 +213,7 @@ ostream& __private::Parser_output::help_global_exit(ostream& stream)
 }
 ostream& __private::Parser_output::help_global_target(ostream& stream)
 {
-	stream << "Manage targets" << endl;
+	stream << "Manage targets" << endl << endl;
 
 	stream << " - `target add \"NAME\"'    add a new target." << endl;
 
@@ -224,6 +227,16 @@ ostream& __private::Parser_output::help_global_target(ostream& stream)
 }
 ostream& __private::Parser_output::help_global_tool(ostream& stream)
 {
+	stream << "Manage tools" << endl << endl;
+
+	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   add a new tool." << endl;
+
+	stream << " - `tool edit \"NAME\"'              edit a tool." << endl;
+
+	stream << " - `tool rm \"NAME\"'                remove a tool." << endl;
+
+	stream << " - `tools list'                    list all tools." << endl;
+
 	return stream;
 }
 
