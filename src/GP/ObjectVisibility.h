@@ -16,31 +16,39 @@
  * along with "GP's Library".  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GP_OSDETECTION_H
-#define GP_OSDETECTION_H
+#ifndef GP_OBJECTVISIBILITY_H
+#define GP_OBJECTVISIBILITY_H
 
-#ifndef OPERATING_SYSTEM
+#include "OSDetection.h"
 
-#if defined linux || defined __linux
+#if defined WINDOWS
 
-#	define LINUX 0
-#	define OPERATING_SYSTEM LINUX
+#	if defined EXPORT_SYMBOLS
 
-#elif defined __APPLE__ && defined __MACH__
+#		define VISIBILITY_PUBLIC __declspec(dllexport)
+#		define VISIBILITY_LOCAL
 
-#	define MACOSX 1
-#	define OPERATING_SYSTEM MACOSX
+#	else
 
-#elif defined _WIN32 || defined _WIN64 || defined __WIN32__ || \
-    defined __TOS_WIN__ || defined __WINDOWS__ \
-	defined __CYGWIN__
+#		define VISIBILITY_PUBLIC __declspec(dllimport)
+#		define VISIBILITY_LOCAL
 
-#	define WINDOWS 2
-#	define OPERATING_SYSTEM WINDOWS
+#	endif
 
-#endif
+#else /* WINDOWS */
+#	if defined __GNUC__ && __GNUC__ >= 4
 
-#endif /* OPERATING_SYSTEM */
+#		define VISIBILITY_PUBLIC	__attribute__ ((visibility ("default")))
+#		define VISIBILITY_LOCAL		__attribute__ ((visibility ("hidden")))
 
-#endif /* GP_OSDETECTION_H */
+#	else
+
+#		define VISIBILITY_PUBLIC
+#		define VISIBILITY_LOCAL
+#		warning Visibility attributes unknow for current compiler.
+
+#	endif /* __GNUC__ */
+#endif /* WINDOWS */
+
+#endif /* GP_OBJECTVISIBILITY_H */
 
