@@ -15,12 +15,12 @@ The project is currently under active development, and not all features are impl
 Functional features includes:
 
 * Working lex/yacc parser
-* Current configuration is saved in a file
+* Customization of tools and default settings to enable fast-use
 
 Features under development:
 
-* Customization of tools and default settings to enable fast-use
 * Help command, which is updated all the time
+* Current configuration is saved in a file
 
 Next features to be developed:
 
