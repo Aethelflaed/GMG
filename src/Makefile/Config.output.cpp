@@ -78,6 +78,7 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 			stream << "\tadd library \"" << name << "\"\n";
 		}
 	}
+	stream << "end\n";
 }
 
 void __private::Config_output::list(std::ostream& stream, const Config& config)

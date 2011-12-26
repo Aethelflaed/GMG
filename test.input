@@ -1,17 +1,18 @@
 # Test file for GMG projects
 
 # Global configuration
-config set debug false
-config set debug true
-config set verbose 1
-config set verbose 0
+config
+	set debug false
+	set debug true
+	set verbose 1
+	set verbose 0
 
-config add include path "/usr/local/include/"
-config add library path "/usr/local/lib/"
-config add library "boost-regex"
+	add include path "/usr/local/include/"
+	add library path "/usr/local/lib/"
+	add library "boost-regex"
 
-config list
-config show
+	list
+end
 
 #Configure tools
 tool add "CXX11" "CXX11FLAGS"
@@ -75,7 +76,9 @@ target add "Program"
 	set type Application
 	set version 3.0
 
-	config set verbose true
+	config
+		set verbose true
+	end
 
 	add module "GUI"
 	add module "helpers/web"
@@ -96,9 +99,11 @@ target add "Tester"
 	set type unitTest
 	set version 0.1
 
-	config add include path "/path/to/unit/test/library/include"
-	config add library path "/path/to/unit/test/library/lib"
-	config add library "unitTester"
+	config
+		add include path "/path/to/unit/test/library/include"
+		add library path "/path/to/unit/test/library/lib"
+		add library "unitTester"
+	end
 
 	add module "helpers"
 end
