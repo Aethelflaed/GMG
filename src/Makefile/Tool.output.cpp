@@ -3,46 +3,48 @@
 
 #include "Util/Output.hpp"
 
+#include "GP/ObjectVisibility.h"
+
 using namespace Makefile;
 
 namespace __private
 {
 	struct Tool_global_output
 	{
-		static void outputTool(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputTool(std::ostream& stream,
 				unsigned short typeId,
 				const Tool::Type& type,
 				Util::OutputType outputType);
 
-		static void outputToolCommand(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolCommand(std::ostream& stream,
 				unsigned short typeId,
 				const Tool::Type& type);
 
-		static void outputToolFlags_command(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolFlags_command(std::ostream& stream,
 				const Tool::Type& type);
-		static void outputToolFlags_list(std::ostream& stream,
-				const Tool::Type& type);
-
-		static void outputToolFilePattern_command(std::ostream& stream,
-				const Tool::Type& type);
-		static void outputToolFilePattern_list(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolFlags_list(std::ostream& stream,
 				const Tool::Type& type);
 
-		static void outputToolPaths_command(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolFilePattern_command(std::ostream& stream,
 				const Tool::Type& type);
-		static void outputToolPaths_list(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolFilePattern_list(std::ostream& stream,
+				const Tool::Type& type);
+
+		VISIBILITY_LOCAL static void outputToolPaths_command(std::ostream& stream,
+				const Tool::Type& type);
+		VISIBILITY_LOCAL static void outputToolPaths_list(std::ostream& stream,
 				const Tool::Type& type);
 	};
 
 	struct Tool_output
 	{
-		static void outputTool(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputTool(std::ostream& stream,
 				const Tool& tool,
 				Util::OutputType outputType);
 
-		static void outputToolMode_command(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolMode_command(std::ostream& stream,
 				const Tool& tool);
-		static void outputToolMode_list(std::ostream& stream,
+		VISIBILITY_LOCAL static void outputToolMode_list(std::ostream& stream,
 				const Tool& tool);
 	};
 }

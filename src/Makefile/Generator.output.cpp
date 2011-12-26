@@ -58,7 +58,7 @@ void Generator::save()
 			file << std::endl;
 		}
 
-		if (config.isIncludePathsModified())
+		if (config.areIncludePathsModified())
 		{
 			shouldSkipLine = true;
 			for (const std::string& name : config.getIncludePaths())
@@ -66,7 +66,7 @@ void Generator::save()
 				file << "\tconfig add include path \"" << name << "\"\n";
 			}
 		}
-		if (config.isLibraryPathsModified())
+		if (config.areLibraryPathsModified())
 		{
 			shouldSkipLine = true;
 			for (const std::string& name : config.getLibraryPaths())
@@ -74,7 +74,7 @@ void Generator::save()
 				file << "\tconfig add library path \"" << name << "\"\n";
 			}
 		}
-		if (config.isLibrariesModified())
+		if (config.areLibrariesModified())
 		{
 			shouldSkipLine = true;
 			for (const std::string& name : config.getLibraries())

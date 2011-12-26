@@ -47,41 +47,22 @@ namespace Makefile
 		void setVerbose(bool verbose);
 
 		const std::vector<std::string>& getIncludePaths() const;
-		bool isIncludePathsModified() const;
+		bool areIncludePathsModified() const;
 		void addIncludePath(std::string includePath);
 
 		const std::vector<std::string>& getLibraryPaths() const;
-		bool isLibraryPathsModified() const;
+		bool areLibraryPathsModified() const;
 		void addLibraryPath(std::string libraryPath);
 
 		const std::vector<std::string>& getLibraries() const;
-		bool isLibrariesModified() const;
+		bool areLibrariesModified() const;
 		void addLibrary(std::string library);
 
-		void output(std::ostream& stream, Util::OutputType outputType);
+		void output(std::ostream& stream, Util::OutputType outputType) override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{
-			stream << "Configuration: (Field marked * are inherited)" << std::endl;
-			stream << "\tDebug" << (config.isDebugModified() ? "" : "*") << ": " << (config.isDebug() ? "Yes" : "No") << std::endl;
-			stream << "\tVerbose" << (config.isVerboseModified() ? "" : "*") << ": " << (config.isVerbose()  ? "Yes" : "No") << std::endl;
-
-			stream << "\tInclude paths" << (config.isIncludePathsModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getIncludePaths())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-			stream << "\tLibrary paths" << (config.isLibraryPathsModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getLibraryPaths())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-			stream << "\tLibraries" << (config.isLibrariesModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getLibraries())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-
+			config.list(stream);
 			return stream;
 		}
 

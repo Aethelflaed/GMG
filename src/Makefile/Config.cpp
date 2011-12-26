@@ -138,7 +138,7 @@ const std::vector<std::string>& Config::getIncludePaths() const
 	}
 	return *(this->includePaths);
 }
-bool Config::isIncludePathsModified() const
+bool Config::areIncludePathsModified() const
 {
 	return this->includePaths.get() != nullptr;
 }
@@ -159,7 +159,7 @@ const std::vector<std::string>& Config::getLibraryPaths() const
 	}
 	return *(this->libraryPaths);
 }
-bool Config::isLibraryPathsModified() const
+bool Config::areLibraryPathsModified() const
 {
 	return this->libraryPaths.get() != nullptr;
 }
@@ -180,7 +180,7 @@ const std::vector<std::string>& Config::getLibraries() const
 	}
 	return *(this->libraries);
 }
-bool Config::isLibrariesModified() const
+bool Config::areLibrariesModified() const
 {
 	return this->libraries.get() != nullptr;
 }

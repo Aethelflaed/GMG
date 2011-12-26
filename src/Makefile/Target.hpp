@@ -64,7 +64,7 @@ namespace Makefile
 		void removeDependency(const std::string& name);
 		const dependencies_vector& getDependencies() const;
 
-		void output(std::ostream& stream, Util::OutputType outputType);
+		void output(std::ostream& stream, Util::OutputType outputType) override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
