@@ -1,73 +1,72 @@
 #include "Tool.hpp"
 #include "Config.hpp"
 
+#include "Util/Output.hpp"
+
 using namespace Makefile;
 
 namespace __private
 {
 	struct Tool_global_output
 	{
-		static std::ostream& outputTool(std::ostream& stream,
+		static void outputTool(std::ostream& stream,
 				unsigned short typeId,
 				const Tool::Type& type,
-				bool commandStyle = false);
+				Util::OutputType outputType);
 
-		static std::ostream& outputToolCommand(std::ostream& stream,
+		static void outputToolCommand(std::ostream& stream,
 				unsigned short typeId,
 				const Tool::Type& type);
 
-		static std::ostream& outputToolFlags_command(std::ostream& stream,
+		static void outputToolFlags_command(std::ostream& stream,
 				const Tool::Type& type);
-		static std::ostream& outputToolFlags_list(std::ostream& stream,
-				const Tool::Type& type);
-
-		static std::ostream& outputToolFilePattern_command(std::ostream& stream,
-				const Tool::Type& type);
-		static std::ostream& outputToolFilePattern_list(std::ostream& stream,
+		static void outputToolFlags_list(std::ostream& stream,
 				const Tool::Type& type);
 
-		static std::ostream& outputToolPaths_command(std::ostream& stream,
+		static void outputToolFilePattern_command(std::ostream& stream,
 				const Tool::Type& type);
-		static std::ostream& outputToolPaths_list(std::ostream& stream,
+		static void outputToolFilePattern_list(std::ostream& stream,
+				const Tool::Type& type);
+
+		static void outputToolPaths_command(std::ostream& stream,
+				const Tool::Type& type);
+		static void outputToolPaths_list(std::ostream& stream,
 				const Tool::Type& type);
 	};
 
 	struct Tool_output
 	{
-		static std::ostream& outputTool(std::ostream& stream,
+		static void outputTool(std::ostream& stream,
 				const Tool& tool,
-				bool commandStyle = false);
+				Util::OutputType outputType);
 
-		static std::ostream& outputToolMode_command(std::ostream& stream,
+		static void outputToolMode_command(std::ostream& stream,
 				const Tool& tool);
-		static std::ostream& outputToolMode_list(std::ostream& stream,
+		static void outputToolMode_list(std::ostream& stream,
 				const Tool& tool);
 	};
 }
 
-std::ostream& Tool::outputGlobal(std::ostream& stream, bool commandStyle)
+void Tool::outputGlobal(std::ostream& stream, Util::OutputType outputType)
 {
 	for (unsigned short typeId = 0; typeId < Tool::index; typeId++)
 	{
 		Tool::Type& type = Tool::types[typeId];
-		__private::Tool_global_output::outputTool(stream, typeId, type, commandStyle);
+		__private::Tool_global_output::outputTool(stream, typeId, type, outputType);
 	}
-
-	return stream;
 }
 
-std::ostream& Tool::output(std::ostream& stream, bool commandStyle)
+void Tool::output(std::ostream& stream, Util::OutputType outputType)
 {
-	__private::Tool_output::outputTool(stream, *this, commandStyle);
-	return stream;
+	__private::Tool_output::outputTool(stream, *this, outputType);
 }
 
-std::ostream& __private::Tool_global_output::outputTool(std::ostream& stream,
+void __private::Tool_global_output::outputTool(std::ostream& stream,
 		unsigned short typeId,
 		const Tool::Type& type,
-		bool commandStyle)
+		Util::OutputType outputType)
 {
-	if (commandStyle)
+	if (outputType == Util::OutputType::Command)
 	{
 		__private::Tool_global_output::outputToolCommand(stream, typeId, type);
 	}
@@ -80,10 +79,9 @@ std::ostream& __private::Tool_global_output::outputTool(std::ostream& stream,
 		__private::Tool_global_output::outputToolPaths_list(stream, type);
 	}
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolCommand(std::ostream& stream,
+void __private::Tool_global_output::outputToolCommand(std::ostream& stream,
 		unsigned short typeId,
 		const Tool::Type& type)
 {
@@ -101,10 +99,9 @@ std::ostream& __private::Tool_global_output::outputToolCommand(std::ostream& str
 	__private::Tool_global_output::outputToolFilePattern_list(stream, type);
 	__private::Tool_global_output::outputToolPaths_command(stream, type);
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolFlags_command(std::ostream& stream,
+void __private::Tool_global_output::outputToolFlags_command(std::ostream& stream,
 		const Tool::Type& type)
 {
 	stream << "\treset flags" << std::endl;
@@ -120,10 +117,9 @@ std::ostream& __private::Tool_global_output::outputToolFlags_command(std::ostrea
 	stream << "\tset verbose flag \"" << type.verboseFlag << "\"" << std::endl;
 	stream << "\tset optimization  flag \"" << type.optimizationFlag << "\"" << std::endl;
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolFlags_list(std::ostream& stream,
+void __private::Tool_global_output::outputToolFlags_list(std::ostream& stream,
 		const Tool::Type& type)
 {
 	stream << "\tFlags:" << std::endl;
@@ -139,10 +135,9 @@ std::ostream& __private::Tool_global_output::outputToolFlags_list(std::ostream& 
 	stream << "\tVerbose flag:" << type.verboseFlag << std::endl;
 	stream << "\tOptimization flag:" << type.optimizationFlag << std::endl;
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolFilePattern_command(std::ostream& stream,
+void __private::Tool_global_output::outputToolFilePattern_command(std::ostream& stream,
 		const Tool::Type& type)
 {
 	stream << "\treset file patterns" << std::endl;
@@ -151,10 +146,9 @@ std::ostream& __private::Tool_global_output::outputToolFilePattern_command(std::
 		stream << "\tadd file pattern \"" << pattern << "\"" << std::endl;
 	}
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolFilePattern_list(std::ostream& stream,
+void __private::Tool_global_output::outputToolFilePattern_list(std::ostream& stream,
 		const Tool::Type& type)
 {
 	stream << "\tMatching file patterns:" << std::endl;
@@ -163,20 +157,18 @@ std::ostream& __private::Tool_global_output::outputToolFilePattern_list(std::ost
 		stream << "\t\t\"" << pattern << "\"" << std::endl;
 	}
 
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolPaths_command(std::ostream& stream,
+void __private::Tool_global_output::outputToolPaths_command(std::ostream& stream,
 		const Tool::Type& type)
 {
 	for (unsigned short i = 0; i < (unsigned short) ToolType::_trailing; i++)
 	{
 		stream << "\tset " << Config::getOSName(OperatingSystem(i)) << " path \"" << type.paths[i] << "\"" << std::endl;
 	}
-	return stream;
 }
 
-std::ostream& __private::Tool_global_output::outputToolPaths_list(std::ostream& stream,
+void __private::Tool_global_output::outputToolPaths_list(std::ostream& stream,
 		const Tool::Type& type)
 {
 	stream << "\tTools paths:" << std::endl;
@@ -184,14 +176,13 @@ std::ostream& __private::Tool_global_output::outputToolPaths_list(std::ostream& 
 	{
 		stream << "\t\t" << Config::getOSName(OperatingSystem(i)) << ": " << type.paths[i] << std::endl;
 	}
-	return stream;
 }
 
-std::ostream& __private::Tool_output::outputTool(std::ostream& stream,
+void __private::Tool_output::outputTool(std::ostream& stream,
 		const Tool& tool,
-		bool commandStyle)
+		Util::OutputType outputType)
 {
-	if (commandStyle)
+	if (outputType == Util::OutputType::Command)
 	{
 		stream << "add tool \"" << tool.getName() << "\"" << std::endl;
 		__private::Tool_output::outputToolMode_command(stream, tool);
@@ -201,24 +192,21 @@ std::ostream& __private::Tool_output::outputTool(std::ostream& stream,
 		stream << "Tool #" << tool.getTypeId() << " \"" << tool.getName() << "\"" << std::endl;
 		__private::Tool_output::outputToolMode_list(stream, tool);
 	}
-	return stream;
 }
 
-std::ostream& __private::Tool_output::outputToolMode_command(std::ostream& stream,
+void __private::Tool_output::outputToolMode_command(std::ostream& stream,
 		const Tool& tool)
 {
 	stream << "\tset debug mode " << (tool.isDebugMode() ? "on" : "off") << std::endl;
 	stream << "\tset verbose mode " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
 	stream << "\tset optimization mode " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
-	return stream;
 }
 
-std::ostream& __private::Tool_output::outputToolMode_list(std::ostream& stream,
+void __private::Tool_output::outputToolMode_list(std::ostream& stream,
 		const Tool& tool)
 {
 	stream << "\tDebug mode: " << (tool.isDebugMode() ? "on" : "off") << std::endl;
 	stream << "\tVerbose mode: " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
 	stream << "\tOptimization mode: " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
-	return stream;
 }
 

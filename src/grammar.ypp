@@ -9,6 +9,7 @@
 
 #include "Parser.h"
 #include "Makefile/Generator.hpp"
+#include "Makefile/Util/Output.hpp"
 
 #include "config.h"
 
@@ -196,7 +197,7 @@ tool: T_TOOL T_ADD quoted_name quoted_name newline
 	}
 	| T_TOOL T_LIST newline
 	{
-		Makefile::Tool::outputGlobal(std::cout, false);
+		Makefile::Tool::outputGlobal(std::cout, Makefile::Util::OutputType::List);
 	}
 	| tool_command
 

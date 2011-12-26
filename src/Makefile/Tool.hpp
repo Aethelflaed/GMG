@@ -12,7 +12,7 @@
 #include <mutex>
 #include <atomic>
 
-#include "../GP/Exceptions/LockAcquisitionException.hpp"
+#include "Util/Output.hpp"
 
 #include "Config.hpp"
 
@@ -31,7 +31,7 @@ namespace Makefile
 		_trailing
 	};
 
-	class Tool
+	class Tool : Util::Output
 	{
 	public:
 		static unsigned short addType(const std::string& typeName,
@@ -68,8 +68,8 @@ namespace Makefile
 		explicit Tool(unsigned short type);
 		~Tool() = default;
 
-		static std::ostream& outputGlobal(std::ostream& stream, bool commandStyle = false);
-		std::ostream& output(std::ostream& stream, bool commandStyle = false);
+		static void outputGlobal(std::ostream& stream, Util::OutputType outputType);
+		void output(std::ostream& stream, Util::OutputType outputType) override;
 
 		int getTypeId() const;
 		ToolType getType() const;

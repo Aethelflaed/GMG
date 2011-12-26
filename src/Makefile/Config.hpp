@@ -1,7 +1,9 @@
 #ifndef MAKEFILE_CONFIG_HPP
 #define MAKEFILE_CONFIG_HPP
 
-#include "../GP/OSDetection.h"
+#include "GP/OSDetection.h"
+
+#include "Util/Output.hpp"
 
 #include <vector>
 #include <ostream>
@@ -21,7 +23,7 @@ namespace Makefile
 		_trailing
 	};
 
-	class Config
+	class Config : public Util::Output
 	{
 	public:
 		Config();
@@ -55,6 +57,8 @@ namespace Makefile
 		const std::vector<std::string>& getLibraries() const;
 		bool isLibrariesModified() const;
 		void addLibrary(std::string library);
+
+		void output(std::ostream& stream, Util::OutputType outputType);
 
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{

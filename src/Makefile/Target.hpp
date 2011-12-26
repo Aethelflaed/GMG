@@ -9,6 +9,8 @@
 #include <stdexcept>
 #include <memory>
 
+#include "Util/Output.hpp"
+
 #include "define.hpp"
 #include "Config.hpp"
 #include "Generator.hpp"
@@ -27,7 +29,7 @@ namespace Makefile
 		_trailing
 	};
 
-	class Target
+	class Target : public Util::Output
 	{
 	public:
 		typedef std::weak_ptr<Target> dependency_type;
@@ -61,6 +63,8 @@ namespace Makefile
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);
 		const dependencies_vector& getDependencies() const;
+
+		void output(std::ostream& stream, Util::OutputType outputType);
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
