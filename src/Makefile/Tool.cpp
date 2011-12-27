@@ -7,7 +7,7 @@ using namespace Makefile;
 std::mutex Tool::classMutex{};
 std::atomic<unsigned short> Tool::index(std::move(((unsigned short)ToolType::_trailing) - 1));
 
-std::vector<Tool::Type> Tool::types {
+std::vector<Tool> Tool::tools {
 	{
 		"C",
 		"CFLAGS",
@@ -113,12 +113,12 @@ std::vector<Tool::Type> Tool::types {
 	}
 };
 
-Tool::Type::Type(const std::string& name, const std::string& flagName)
+Tool::Tool(const std::string& name, const std::string& flagName)
 	:name{name}, flagName{flagName}
 {
 }
 
-Tool::Type::Type(const std::string& name,
+Tool::Tool(const std::string& name,
 	const std::string& flagName,
 	std::initializer_list<std::string> flags,
 	std::initializer_list<std::string> debugFlags,
@@ -127,7 +127,8 @@ Tool::Type::Type(const std::string& name,
 	std::initializer_list<std::string> filePatterns,
 	std::initializer_list<std::string> paths)
 
-	:name{name}, flagName{flagName}, flags{flags},
+	:Tool{name, flagName}
+	 flags{flags},
 	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
 	 optimizationFlag{optimizationFlag},
 	 filePatterns{filePatterns}
@@ -138,22 +139,6 @@ Tool::Type::Type(const std::string& name,
 	{
 		this->paths[i] = *path;
 	}
-}
-
-unsigned short Tool::addType(const std::string& typeName,
-		const std::string& typeFlagName)
-{
-	unsigned short typeId;
-
-	Tool::Type type {typeName, typeFlagName};
-
-	{
-		std::lock_guard<std::mutex> lock(Tool::classMutex);
-		typeId = Tool::index++;
-		types.push_back(type);
-	}
-
-	return typeId;
 }
 
 void Tool::removeType(const std::string& typeName)
@@ -199,7 +184,7 @@ unsigned short Tool::getTypeId(const std::string& typeName)
 	return 0;
 }
 
-void Tool::addTypeFlag(unsigned short typeId, const std::string& flag)
+void Tool::addFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -213,7 +198,7 @@ void Tool::addTypeFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.flags.insert(flag);
 }
-void Tool::removeTypeFlag(unsigned short typeId, const std::string& flag)
+void Tool::removeFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -232,7 +217,7 @@ void Tool::removeTypeFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.flags.erase(it);
 }
-void Tool::resetTypeFlag(unsigned short typeId)
+void Tool::resetFlags()
 {
 	if (typeId >= Tool::index)
 	{
@@ -246,7 +231,7 @@ void Tool::resetTypeFlag(unsigned short typeId)
 	}
 	type.flags.clear();
 }
-const std::unordered_set<std::string>& Tool::getTypeFlags(unsigned short typeId)
+const std::unordered_set<std::string>& Tool::getFlags()
 {
 	if (typeId >= Tool::index)
 	{
@@ -261,7 +246,7 @@ const std::unordered_set<std::string>& Tool::getTypeFlags(unsigned short typeId)
 	return type.flags;
 }
 
-void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
+void Tool::addDebugFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -275,7 +260,7 @@ void Tool::addTypeDebugFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.debugFlags.insert(flag);
 }
-void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
+void Tool::removeDebugFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -294,7 +279,7 @@ void Tool::removeTypeDebugFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.debugFlags.erase(it);
 }
-void Tool::resetTypeDebugFlag(unsigned short typeId)
+void Tool::resetDebugFlags()
 {
 	if (typeId >= Tool::index)
 	{
@@ -308,7 +293,7 @@ void Tool::resetTypeDebugFlag(unsigned short typeId)
 	}
 	type.debugFlags.clear();
 }
-const std::unordered_set<std::string>& Tool::getTypeDebugFlags(unsigned short typeId)
+const std::unordered_set<std::string>& Tool::getDebugFlags()
 {
 	if (typeId >= Tool::index)
 	{
@@ -323,7 +308,7 @@ const std::unordered_set<std::string>& Tool::getTypeDebugFlags(unsigned short ty
 	return type.debugFlags;
 }
 
-void Tool::setTypeVerboseFlag(unsigned short typeId, const std::string& flag)
+void Tool::setVerboseFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -337,7 +322,7 @@ void Tool::setTypeVerboseFlag(unsigned short typeId, const std::string& flag)
 	}
 	type.verboseFlag = flag;
 }
-const std::string& Tool::getTypeVerboseFlag(unsigned short typeId)
+const std::string& Tool::getVerboseFlag()
 {
 	if (typeId >= Tool::index)
 	{
@@ -352,7 +337,7 @@ const std::string& Tool::getTypeVerboseFlag(unsigned short typeId)
 	return type.verboseFlag;
 }
 
-void Tool::setTypeOptimizationFlag(unsigned short typeId, const std::string& flag)
+void Tool::setOptimizationFlag(const std::string& flag)
 {
 	if (typeId >= Tool::index)
 	{
@@ -366,7 +351,7 @@ void Tool::setTypeOptimizationFlag(unsigned short typeId, const std::string& fla
 	}
 	type.optimizationFlag = flag;
 }
-const std::string& Tool::getTypeOptimizationFlag(unsigned short typeId)
+const std::string& Tool::getOptimizationFlag()
 {
 	if (typeId >= Tool::index)
 	{
@@ -381,7 +366,7 @@ const std::string& Tool::getTypeOptimizationFlag(unsigned short typeId)
 	return type.optimizationFlag;
 }
 
-void Tool::addTypeFilePattern(unsigned short typeId, const std::string& pattern)
+void Tool::addFilePattern(const std::string& pattern)
 {
 	if (typeId >= Tool::index)
 	{
@@ -395,7 +380,7 @@ void Tool::addTypeFilePattern(unsigned short typeId, const std::string& pattern)
 	}
 	type.filePatterns.insert(pattern);
 }
-void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& pattern)
+void Tool::removeFilePattern(const std::string& pattern)
 {
 	if (typeId >= Tool::index)
 	{
@@ -414,7 +399,7 @@ void Tool::removeTypeFilePattern(unsigned short typeId, const std::string& patte
 	}
 	type.filePatterns.erase(it);
 }
-void Tool::resetTypeFilePatterns(unsigned short typeId)
+void Tool::resetFilePatterns()
 {
 	if (typeId >= Tool::index)
 	{
@@ -428,7 +413,7 @@ void Tool::resetTypeFilePatterns(unsigned short typeId)
 	}
 	type.filePatterns.clear();
 }
-const std::unordered_set<std::string>& Tool::getTypeFilePatterns(unsigned short typeId)
+const std::unordered_set<std::string>& Tool::getFilePatterns()
 {
 	if (typeId >= Tool::index)
 	{
@@ -443,7 +428,7 @@ const std::unordered_set<std::string>& Tool::getTypeFilePatterns(unsigned short 
 	return type.filePatterns;
 }
 
-void Tool::setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path)
+void Tool::setPathForOS(OperatingSystem OS, const std::string& path)
 {
 	if (typeId >= Tool::index)
 	{
@@ -457,7 +442,7 @@ void Tool::setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std
 	}
 	type.paths[(unsigned short) OS] = path;
 }
-const std::string& Tool::getTypePathForOS(unsigned short typeId, OperatingSystem OS)
+const std::string& Tool::getPathForOS(OperatingSystem OS)
 {
 	if (typeId >= Tool::index)
 	{
@@ -470,104 +455,5 @@ const std::string& Tool::getTypePathForOS(unsigned short typeId, OperatingSystem
 		throw Tool::TypeIdException{};
 	}
 	return type.paths[(unsigned short) OS];
-}
-
-Tool::Tool(const std::string& name)
-	:Tool(Tool::getTypeId(name))
-{
-}
-
-Tool::Tool(ToolType type)
-	:Tool((unsigned short)type)
-{
-}
-
-Tool::Tool(unsigned short type)
-	:type(ToolType::_trailing), typeId(type)
-{
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& baseType = Tool::types[(unsigned short) type];
-	if (baseType.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-}
-
-int Tool::getTypeId() const
-{
-	return this->typeId;
-}
-ToolType Tool::getType() const
-{
-	return this->type;
-}
-
-const std::string& Tool::getName() const
-{
-	std::lock_guard<std::mutex> lock{Tool::classMutex};
-	const Tool::Type& baseType = Tool::types[(unsigned short) type];
-	if (baseType.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return baseType.name;
-}
-
-
-bool Tool::isDebugMode() const
-{
-	return this->debugMode;
-}
-void Tool::setDebugMode(bool debugMode)
-{
-	this->debugMode = debugMode;
-}
-
-bool Tool::isVerboseMode() const
-{
-	return this->verboseMode;
-}
-void Tool::setVerboseMode(bool verboseMode)
-{
-	this->verboseMode = verboseMode;
-}
-
-bool Tool::isOptimizationMode() const
-{
-	return this->optimizationMode;
-}
-void Tool::setOptimizationMode(bool optimizationMode)
-{
-	this->optimizationMode = optimizationMode;
-}
-
-std::unordered_set<std::string>&& Tool::getAllFlags() const
-{
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& baseType = Tool::types[this->typeId];
-
-	std::unordered_set<std::string> flags = baseType.flags;
-
-	if (this->debugMode)
-	{
-		flags.insert(baseType.debugFlags.begin(),
-				baseType.debugFlags.end());
-	}
-
-	if (this->verboseMode)
-	{
-		flags.insert(baseType.verboseFlag);
-	}
-
-	if (this->optimizationMode)
-	{
-		flags.insert(baseType.optimizationFlag);
-	}
-
-	return std::move(flags);
 }
 

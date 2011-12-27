@@ -31,100 +31,68 @@ namespace Makefile
 		_trailing
 	};
 
-	class Tool : Util::Output
+	class Tool : public Util::Output
 	{
 	public:
-		static unsigned short addType(const std::string& typeName,
-				const std::string& typeFlagName);
-		static void removeType(const std::string& typeName);
-		static unsigned short getTypeId(const std::string& typeName);
+		Tool(const std::string& name, const std::string& flagName);
+		Tool(const std::string& name,
+				const std::string& flagName,
+				std::initializer_list<std::string> flags,
+				std::initializer_list<std::string> debugFlags,
+				const std::string& verboseFlag,
+				const std::string& optimizationFlag,
+				std::initializer_list<std::string> filePatterns,
+				std::initializer_list<std::string> paths);
 
-		static void addTypeFlag(unsigned short typeId, const std::string& flag);
-		static void removeTypeFlag(unsigned short typeId, const std::string& flag);
-		static void resetTypeFlag(unsigned short typeId);
-		static const std::unordered_set<std::string>& getTypeFlags(unsigned short typeId);
-
-		static void addTypeDebugFlag(unsigned short typeId, const std::string& flag);
-		static void removeTypeDebugFlag(unsigned short typeId, const std::string& flag);
-		static void resetTypeDebugFlag(unsigned short typeId);
-		static const std::unordered_set<std::string>& getTypeDebugFlags(unsigned short typeId);
-
-		static void setTypeVerboseFlag(unsigned short typeId, const std::string& flag);
-		static const std::string& getTypeVerboseFlag(unsigned short typeId);
-
-		static void setTypeOptimizationFlag(unsigned short typeId, const std::string& flag);
-		static const std::string& getTypeOptimizationFlag(unsigned short type);
-
-		static void addTypeFilePattern(unsigned short typeId, const std::string& pattern);
-		static void removeTypeFilePattern(unsigned short typeId, const std::string& pattern);
-		static void resetTypeFilePatterns(unsigned short typeId);
-		static const std::unordered_set<std::string>& getTypeFilePatterns(unsigned short type);
-
-		static void setTypePathForOS(unsigned short typeId, OperatingSystem OS, const std::string& path);
-		static const std::string& getTypePathForOS(unsigned short typeId, OperatingSystem OS);
-
-		explicit Tool(const std::string& name);
-		explicit Tool(ToolType type);
-		explicit Tool(unsigned short type);
-		~Tool() = default;
-
-		static void outputGlobal(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0);
-		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
-
-		int getTypeId() const;
-		ToolType getType() const;
+		static void removeTool(const std::string& name);
+		static Tool& getTool(const std::string& name);
 
 		const std::string& getName() const;
+		const std::string& getFlagName() const;
 
-		bool isDebugMode() const;
-		void setDebugMode(bool debugMode);
+		void addFlag(const std::string& flag);
+		void removeFlag(const std::string& flag);
+		void resetFlags();
+		const std::unordered_set<std::string>& getFlags() const;
 
-		bool isVerboseMode() const;
-		void setVerboseMode(bool verboseMode);
+		void addDebugFlag(const std::string& flag);
+		void removeDebugFlag(const std::string& flag);
+		void resetDebugFlags();
+		const std::unordered_set<std::string>& getDebugFlags() const;
 
-		bool isOptimizationMode() const;
-		void setOptimizationMode(bool optimizationMode);
+		void setVerboseFlag(const std::string& flag);
+		const std::string& getVerboseFlag() const;
 
-		std::unordered_set<std::string>&& getAllFlags() const;
+		void setOptimizationFlag(const std::string& flag);
+		const std::string& getOptimizationFlag() const;
 
-		struct Type
-		{
-			Type(const std::string& name, const std::string& flagName);
-			Type(const std::string& name,
-				 const std::string& flagName,
-				 std::initializer_list<std::string> flags,
-				 std::initializer_list<std::string> debugFlags,
-				 const std::string& verboseFlag,
-				 const std::string& optimizationFlag,
-				 std::initializer_list<std::string> filePatterns,
-				 std::initializer_list<std::string> paths);
+		void addFilePattern(const std::string& pattern);
+		void removeFilePattern(const std::string& pattern);
+		void resetFilePatterns();
+		const std::unordered_set<std::string>& getFilePatterns() const;
 
-			friend bool operator== (const Type& type, const std::string& typeName)
-			{
-				return type.name == typeName;
-			}
+		void setPathForOS(OperatingSystem OS, const std::string& path);
+		const std::string& getPathForOS(OperatingSystem OS) const;
 
-			std::string name;
-			std::string flagName;
-			std::unordered_set<std::string> flags;
-			std::unordered_set<std::string> debugFlags;
-			std::string verboseFlag;
-			std::string optimizationFlag;
-			std::unordered_set<std::string> filePatterns;
-			std::array<std::string, (unsigned short) ToolType::_trailing> paths;
-		};
+		const std::unordered_set<std::string>& getAllFlags(bool debugMode,
+				bool verboseMode, bool optimizationMode) const;
+
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 	private:
 		static std::mutex classMutex;
 		static std::atomic<unsigned short> index;
-		static std::vector<Type> types;
+		static std::vector<Tool> tools;
 
-		ToolType type;
-		unsigned short typeId;
-
-		bool debugMode {false};
-		bool verboseMode {false};
-		bool optimizationMode {false};
+		unsigned short toolId;
+		std::string name;
+		std::string flagName;
+		std::unordered_set<std::string> flags;
+		std::unordered_set<std::string> debugFlags;
+		std::string verboseFlag;
+		std::string optimizationFlag;
+		std::unordered_set<std::string> filePatterns;
+		std::array<std::string, (unsigned short) OperatingSystem::_trailing> paths;
 
 		/* Exceptions thrown by this class, just a short-hand to centralize `what' arg */
 		class TypeIdException : public std::invalid_argument
