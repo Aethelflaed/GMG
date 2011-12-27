@@ -10,7 +10,7 @@ namespace Makefile
 	{
 	public:
 		explicit TargetTool(const std::string& name);
-		~TargetTool = default;
+		~TargetTool() = default;
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
@@ -33,10 +33,18 @@ namespace Makefile
 	private:
 		Tool& tool;
 
+		std::string name;
+
 		bool debugMode {false};
 		bool verboseMode {false};
 		bool optimizationMode {false};
 	};
+
+	inline bool operator==(const std::shared_ptr<TargetTool> tool, const std::string& name)
+	{
+		return tool->getName() == name;
+	}
+
 }
 
 #endif /* MAKEFILE_TARGETOOL_HPP */

@@ -32,6 +32,7 @@ namespace __private
 void Config::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
 	__private::Config_output::indent = indentLevel;
+
 	switch(outputType)
 	{
 		case Util::OutputType::Command:

@@ -16,7 +16,7 @@ Tool& TargetTool::getTool()
 
 const std::string& TargetTool::getName() const
 {
-	return this->tool.getName();
+	return this->name;
 }
 
 bool TargetTool::isDebugMode() const
@@ -48,7 +48,7 @@ void TargetTool::setOptimizationMode(bool optimizationMode)
 
 std::unordered_set<std::string>&& TargetTool::getAllFlags() const
 {
-	return std::move(Tool::getAllFlags(this->debugMode,
+	return std::move(this->tool.getAllFlags(this->debugMode,
 		this->verboseMode,
 		this->optimizationMode));
 }

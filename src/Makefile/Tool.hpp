@@ -5,12 +5,9 @@
 #include <ostream>
 #include <string>
 #include <stdexcept>
-#include <vector>
-#include <unordered_map>
 #include <unordered_set>
 #include <array>
-#include <mutex>
-#include <atomic>
+#include <memory>
 
 #include "Util/Output.hpp"
 
@@ -33,7 +30,7 @@ namespace Makefile
 
 	class Tool : public Util::Output
 	{
-	public:
+	private:
 		Tool(const std::string& name, const std::string& flagName);
 		Tool(const std::string& name,
 				const std::string& flagName,
@@ -44,6 +41,8 @@ namespace Makefile
 				std::initializer_list<std::string> filePatterns,
 				std::initializer_list<std::string> paths);
 
+	public:
+		static Tool& addTool(const std::string& name, const std::string& flagName);
 		static void removeTool(const std::string& name);
 		static Tool& getTool(const std::string& name);
 
@@ -74,15 +73,24 @@ namespace Makefile
 		void setPathForOS(OperatingSystem OS, const std::string& path);
 		const std::string& getPathForOS(OperatingSystem OS) const;
 
-		const std::unordered_set<std::string>& getAllFlags(bool debugMode,
+		std::unordered_set<std::string>&& getAllFlags(bool debugMode,
 				bool verboseMode, bool optimizationMode) const;
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 	private:
-		static std::mutex classMutex;
-		static std::atomic<unsigned short> index;
-		static std::vector<Tool> tools;
+		static std::shared_ptr<Tool> addInitializedTool(
+				const std::string& name,
+				const std::string& flagName,
+				std::initializer_list<std::string> flags,
+				std::initializer_list<std::string> debugFlags,
+				const std::string& verboseFlag,
+				const std::string& optimizationFlag,
+				std::initializer_list<std::string> filePatterns,
+				std::initializer_list<std::string> paths
+			);
+
+		static std::unordered_set<std::shared_ptr<Tool>> tools;
 
 		unsigned short toolId;
 		std::string name;
@@ -93,25 +101,20 @@ namespace Makefile
 		std::string optimizationFlag;
 		std::unordered_set<std::string> filePatterns;
 		std::array<std::string, (unsigned short) OperatingSystem::_trailing> paths;
-
-		/* Exceptions thrown by this class, just a short-hand to centralize `what' arg */
-		class TypeIdException : public std::invalid_argument
-		{
-		public:
-			TypeIdException()
-				:std::invalid_argument{"No type matching this typeId."}
-			{
-			}
-		};
-		class NoSuchItemException : public std::invalid_argument
-		{
-		public:
-			NoSuchItemException()
-				:std::invalid_argument{"No such item."}
-			{
-			}
-		};
 	};
+
+	inline bool operator==(const std::shared_ptr<Tool> tool, const std::string& name)
+	{
+		return tool->getName() == name;
+	}
+	inline bool operator<(const std::shared_ptr<Tool> tool, const std::string& name)
+	{
+		return tool->getName() < name;
+	}
+	inline bool operator>(const std::shared_ptr<Tool> tool, const std::string& name)
+	{
+		return tool->getName() > name;
+	}
 }
 
 #endif /* MAKEFILE_TOOL_HPP */

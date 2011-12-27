@@ -52,7 +52,7 @@ void Parser::prompt() const
 				std::cout << "target_tool";
 				break;
 			case TOOL:
-				std::cout << "tool";
+				std::cout << "tool:" << this->tool->getName();
 				break;
 			default:
 				break;
@@ -123,15 +123,6 @@ Makefile::Config& Parser::getCurrentConfig()
 	return this->generator->getConfig();
 }
 
-void Parser::setToolId(unsigned short toolId)
-{
-	this->toolId = toolId;
-}
-unsigned short Parser::getToolId()
-{
-	return this->toolId;
-}
-
 void Parser::setTool(Makefile::Tool* tool)
 {
 	this->tool = tool;
@@ -143,6 +134,19 @@ Makefile::Tool& Parser::getTool()
 		throw std::invalid_argument{"No current tool"};
 	}
 	return *this->tool;
+}
+
+void Parser::setTargetTool(Makefile::TargetTool* targetTool)
+{
+	this->targetTool = targetTool;
+}
+Makefile::TargetTool& Parser::getTargetTool()
+{
+	if (this->targetTool == nullptr)
+	{
+		throw std::invalid_argument{"No current target's tool"};
+	}
+	return *this->targetTool;
 }
 
 bool Parser::isInteractive() const

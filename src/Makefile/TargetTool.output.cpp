@@ -20,28 +20,16 @@ namespace __private
 	};
 }
 
-inline const std::string& bool_value(bool value) VISIBILITY_LOCAL
+inline std::string bool_value(bool value) VISIBILITY_LOCAL;
+inline std::string bool_value(bool value)
 {
-	if (value)
-	{
-		return "on";
-	}
-	else
-	{
-		return "off";
-	}
+	return (value) ? "on" : "off";
 }
 
-inline const std::string& bool_name(bool value) VISIBILITY_LOCAL
+inline std::string bool_name(bool value) VISIBILITY_LOCAL;
+inline std::string bool_name(bool value)
 {
-	if (value)
-	{
-		return "Yes";
-	}
-	else
-	{
-		return "No";
-	}
+	return (value) ? "Yes" : "No";
 }
 
 ::Makefile::Util::Indent __private::TargetTool_output::indent{0};
@@ -49,6 +37,7 @@ inline const std::string& bool_name(bool value) VISIBILITY_LOCAL
 void TargetTool::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
 	__private::TargetTool_output::indent = indentLevel;
+
 	switch(outputType)
 	{
 		case Util::OutputType::Command:
@@ -77,7 +66,7 @@ void __private::TargetTool_output::save(std::ostream& stream, const TargetTool& 
 
 void __private::TargetTool_output::list(std::ostream& stream, const TargetTool& targetTool)
 {
-	stream << indent << "TargetTool #" << targetTool.getTypeId() << " \"" << targetTool.getName() << "\"\n";
+	stream << indent << "Tool \"" << targetTool.getName() << "\"\n";
 	++ indent;
 	stream << indent << "Debug mode: " << bool_name(targetTool.isDebugMode()) << "\n";
 	stream << indent << "Verbose mode: " << bool_name(targetTool.isVerboseMode()) << "\n";

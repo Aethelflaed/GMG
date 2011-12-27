@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <unordered_set>
-#include <unordered_map>
 #include <stdexcept>
 #include <memory>
 
@@ -14,7 +13,7 @@
 #include "define.hpp"
 #include "Config.hpp"
 #include "Generator.hpp"
-#include "Tool.hpp"
+#include "TargetTool.hpp"
 
 namespace Makefile
 {
@@ -57,9 +56,9 @@ namespace Makefile
 		Config& getConfig();
 		const Config& getConfig() const;
 
-		Tool& addTool(const std::string& name);
+		TargetTool& addTool(const std::string& name);
 		void removeTool(const std::string& name);
-		Tool& getTool(const std::string& name);
+		TargetTool& getTool(const std::string& name);
 
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);
@@ -82,7 +81,7 @@ namespace Makefile
 		TargetType type {TargetType::Application};
 		Config config;
 
-		std::unordered_map<std::string, Tool> tools {};
+		std::unordered_set<std::shared_ptr<TargetTool>> tools {};
 		dependencies_vector dependencies {};
 	};
 }

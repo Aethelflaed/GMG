@@ -90,23 +90,31 @@ const Config& Target::getConfig() const
 	return this->config;
 }
 
-Tool& Target::addTool(const std::string& name)
+TargetTool& Target::addTool(const std::string& name)
 {
-	this->tools.insert(std::make_pair<const std::string&, Tool>(name, Tool(Tool::getTypeId(name))));
-	return this->getTool(name);
+	return **(this->tools.insert(std::shared_ptr<TargetTool>(new TargetTool(name))).first);
 }
 void Target::removeTool(const std::string& name)
 {
-	this->tools.erase(name);
-}
-Tool& Target::getTool(const std::string& name)
-{
-	std::unordered_map<std::string, Tool>::iterator it = this->tools.find(name);
+	auto it = std::find(this->tools.begin(), this->tools.end(), name);
+
 	if (it == this->tools.end())
 	{
 		throw std::invalid_argument("No such tool.");
 	}
-	return it->second;
+
+	this->tools.erase(*it);
+}
+TargetTool& Target::getTool(const std::string& name)
+{
+	auto it = std::find(this->tools.begin(), this->tools.end(), name);
+
+	if (it == this->tools.end())
+	{
+		throw std::invalid_argument("No such tool.");
+	}
+
+	return **it;
 }
 
 void Target::addDependency(const std::string& name)

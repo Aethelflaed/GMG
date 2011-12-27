@@ -4,11 +4,8 @@
 
 using namespace Makefile;
 
-std::mutex Tool::classMutex{};
-std::atomic<unsigned short> Tool::index(std::move(((unsigned short)ToolType::_trailing) - 1));
-
-std::vector<Tool> Tool::tools {
-	{
+std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
+	Tool::addInitializedTool(
 		"C",
 		"CFLAGS",
 		{
@@ -29,8 +26,8 @@ std::vector<Tool> Tool::tools {
 			"/usr/bin/gcc",
 			"C:\\"
 		}
-	},
-	{
+	),
+	Tool::addInitializedTool(
 		"CXX",
 		"CXXFLAGS",
 		{
@@ -52,8 +49,8 @@ std::vector<Tool> Tool::tools {
 			"/usr/bin/g++",
 			"C:\\"
 		}
-	},
-	{
+	),
+	Tool::addInitializedTool(
 		"LEX",
 		"LFLAGS",
 		{
@@ -71,8 +68,8 @@ std::vector<Tool> Tool::tools {
 			"/usr/bin/flex",
 			"C:\\"
 		}
-	},
-	{
+	),
+	Tool::addInitializedTool(
 		"YACC",
 		"YFLAGS",
 		{
@@ -92,8 +89,8 @@ std::vector<Tool> Tool::tools {
 			"/usr/bin/bison",
 			"C:\\"
 		}
-	},
-	{
+	),
+	Tool::addInitializedTool(
 		"TEX",
 		"TEXFLAGS",
 		{
@@ -110,7 +107,7 @@ std::vector<Tool> Tool::tools {
 			"/",
 			"C:\\"
 		}
-	}
+	)
 };
 
 Tool::Tool(const std::string& name, const std::string& flagName)
@@ -127,7 +124,7 @@ Tool::Tool(const std::string& name,
 	std::initializer_list<std::string> filePatterns,
 	std::initializer_list<std::string> paths)
 
-	:Tool{name, flagName}
+	:name{name}, flagName{flagName},
 	 flags{flags},
 	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
 	 optimizationFlag{optimizationFlag},
@@ -141,319 +138,161 @@ Tool::Tool(const std::string& name,
 	}
 }
 
-void Tool::removeType(const std::string& typeName)
+std::shared_ptr<Tool> Tool::addInitializedTool(
+		const std::string& name,
+		const std::string& flagName,
+		std::initializer_list<std::string> flags,
+		std::initializer_list<std::string> debugFlags,
+		const std::string& verboseFlag,
+		const std::string& optimizationFlag,
+		std::initializer_list<std::string> filePatterns,
+		std::initializer_list<std::string> paths
+	)
 {
-	if (typeName == "")
-	{
-		throw NoSuchItemException();
-	}
-
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	std::vector<Type>::iterator it = Tool::types.begin();
-	for (; it != Tool::types.end(); it++)
-	{
-		if (*it == typeName)
-		{
-			Tool::types.erase(it);
-			return;
-		}
-	}
-
-	throw NoSuchItemException();
+	std::shared_ptr<Tool> tool{new Tool{name, flagName, flags, debugFlags, verboseFlag,
+		optimizationFlag, filePatterns, paths}};
+	return *(Tool::tools.insert(tool).first);
 }
 
-unsigned short Tool::getTypeId(const std::string& typeName)
+Tool& Tool::addTool(const std::string& name, const std::string& flagName)
 {
-	if (typeName == "")
+	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name, flagName))).first);
+}
+
+void Tool::removeTool(const std::string& name)
+{
+	auto it = std::find(Tool::tools.begin(), Tool::tools.end(), name);
+
+	if (it == Tool::tools.end())
 	{
-		throw NoSuchItemException();
+		throw std::invalid_argument("No such tool.");
 	}
 
-	for (unsigned short i = 0; i < index; i++)
+	Tool::tools.erase(*it);
+}
+
+Tool& Tool::getTool(const std::string& name)
+{
+	if (name == "")
 	{
-		std::lock_guard<std::mutex> lock(Tool::classMutex);
-		if (Tool::types[i] == typeName)
-		{
-			return i;
-		}
+		throw std::invalid_argument{"No such tool"};
 	}
 
-	throw NoSuchItemException();
+	auto it = std::find(Tool::tools.begin(), Tool::tools.end(), name);
+	if (it == Tool::tools.end())
+	{
+		throw std::invalid_argument{"No such tool"};
+	}
 
-	/* Prevent compiler warning */
-	return 0;
+	return **it;
+}
+
+const std::string& Tool::getName() const
+{
+	return this->name;
+}
+
+const std::string& Tool::getFlagName() const
+{
+	return this->flagName;
 }
 
 void Tool::addFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.flags.insert(flag);
+	this->flags.insert(flag);
 }
 void Tool::removeFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::unordered_set<std::string>::iterator it = type.flags.find(flag);
-	if (it == type.flags.end())
-	{
-		throw Tool::NoSuchItemException{};
-	}
-	type.flags.erase(it);
+	this->flags.erase(flag);
 }
 void Tool::resetFlags()
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock{Tool::classMutex};
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.flags.clear();
+	this->flags.clear();
 }
-const std::unordered_set<std::string>& Tool::getFlags()
+const std::unordered_set<std::string>& Tool::getFlags() const
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return type.flags;
+	return this->flags;
 }
 
 void Tool::addDebugFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.debugFlags.insert(flag);
+	this->debugFlags.insert(flag);
 }
 void Tool::removeDebugFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::unordered_set<std::string>::iterator it = type.debugFlags.find(flag);
-	if (it == type.debugFlags.end())
-	{
-		throw Tool::NoSuchItemException{};
-	}
-	type.debugFlags.erase(it);
+	this->debugFlags.erase(flag);
 }
 void Tool::resetDebugFlags()
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock{Tool::classMutex};
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.debugFlags.clear();
+	this->debugFlags.clear();
 }
-const std::unordered_set<std::string>& Tool::getDebugFlags()
+const std::unordered_set<std::string>& Tool::getDebugFlags() const
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return type.debugFlags;
+	return this->debugFlags;
 }
 
 void Tool::setVerboseFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.verboseFlag = flag;
+	this->verboseFlag = flag;
 }
-const std::string& Tool::getVerboseFlag()
+const std::string& Tool::getVerboseFlag() const
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return type.verboseFlag;
+	return this->verboseFlag;
 }
 
 void Tool::setOptimizationFlag(const std::string& flag)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.optimizationFlag = flag;
+	this->optimizationFlag = flag;
 }
-const std::string& Tool::getOptimizationFlag()
+const std::string& Tool::getOptimizationFlag() const
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return type.optimizationFlag;
+	return this->optimizationFlag;
 }
 
 void Tool::addFilePattern(const std::string& pattern)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.filePatterns.insert(pattern);
+	this->filePatterns.insert(pattern);
 }
 void Tool::removeFilePattern(const std::string& pattern)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::unordered_set<std::string>::iterator it = type.filePatterns.find(pattern);
-	if (it == type.filePatterns.end())
-	{
-		throw Tool::NoSuchItemException{};
-	}
-	type.filePatterns.erase(it);
+	this->filePatterns.erase(pattern);
 }
 void Tool::resetFilePatterns()
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock{Tool::classMutex};
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.filePatterns.clear();
+	this->filePatterns.clear();
 }
-const std::unordered_set<std::string>& Tool::getFilePatterns()
+const std::unordered_set<std::string>& Tool::getFilePatterns() const
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	return type.filePatterns;
+	return this->filePatterns;
 }
 
 void Tool::setPathForOS(OperatingSystem OS, const std::string& path)
 {
-	if (typeId >= Tool::index)
-	{
-		throw Tool::TypeIdException{};
-	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
-	{
-		throw Tool::TypeIdException{};
-	}
-	type.paths[(unsigned short) OS] = path;
+	this->paths[(unsigned short) OS] = path;
 }
-const std::string& Tool::getPathForOS(OperatingSystem OS)
+const std::string& Tool::getPathForOS(OperatingSystem OS) const
 {
-	if (typeId >= Tool::index)
+	return this->paths[(unsigned short) OS];
+}
+
+std::unordered_set<std::string>&& Tool::getAllFlags(bool debugMode,
+		bool verboseMode, bool optimizationMode) const
+{
+	std::unordered_set<std::string> flags = this->flags;
+
+	if (debugMode)
 	{
-		throw Tool::TypeIdException{};
+		flags.insert(this->debugFlags.begin(), this->debugFlags.end());
 	}
-	std::lock_guard<std::mutex> lock(Tool::classMutex);
-	const Tool::Type& type = Tool::types[typeId];
-	if (type.name == "")
+	if (verboseMode)
 	{
-		throw Tool::TypeIdException{};
+		flags.insert(this->verboseFlag);
 	}
-	return type.paths[(unsigned short) OS];
+	if (optimizationMode)
+	{
+		flags.insert(this->optimizationFlag);
+	}
+
+	return std::move(flags);
 }
 

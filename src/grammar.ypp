@@ -166,15 +166,14 @@ help_command: T_CONFIG		{ $$ = T_CONFIG;		}
 /* Tool */
 tool: T_TOOL T_ADD quoted_name quoted_name newline
 	{
-		unsigned short toolId = Makefile::Tool::addType($3, $4);
-		Parser::getParser().setToolId(toolId);
+		Parser::getParser().setTool(&Makefile::Tool::addTool($3, $4));
 		Parser::getParser().pushState(TOOL);
 	}
 	| T_TOOL T_RM quoted_name newline
 	{
 		try
 		{
-			Makefile::Tool::removeType($3);
+			Makefile::Tool::removeTool($3);
 		}
 		catch (const std::invalid_argument& ex)
 		{
@@ -183,66 +182,63 @@ tool: T_TOOL T_ADD quoted_name quoted_name newline
 	}
 	| T_TOOL T_EDIT quoted_name newline
 	{
-		unsigned short toolId;
 		try
 		{
-			toolId = Makefile::Tool::getTypeId($3);
+			Parser::getParser().setTool(&Makefile::Tool::getTool($3));
 		}
 		catch (const std::invalid_argument& ex)
 		{
 			yyerror(ex.what());
 		}
-		Parser::getParser().setToolId(toolId);
 		Parser::getParser().pushState(TOOL);
 	}
 	| T_TOOL T_LIST newline
 	{
-		Makefile::Tool::outputGlobal(std::cout, Makefile::Util::OutputType::List);
+		Parser::getParser().getTool().list(std::cout);
 	}
 	| tool_command
 
 tool_command: T_RESET T_FLAG newline
 	{
-		Makefile::Tool::resetTypeFlag(Parser::getParser().getToolId());
+		Parser::getParser().getTool().resetFlags();
 	}
 			| T_RESET T_DEBUG T_FLAG newline
 	{
-		Makefile::Tool::resetTypeDebugFlag(Parser::getParser().getToolId());
+		Parser::getParser().getTool().resetDebugFlags();
 	}
 			| T_RESET T_FILE T_PATTERN newline
 	{
-		Makefile::Tool::resetTypeFilePatterns(Parser::getParser().getToolId());
+		Parser::getParser().getTool().resetFilePatterns();
 	}
 			| T_SET T_VERBOSE T_FLAG quoted_file newline
 	{
-		Makefile::Tool::setTypeVerboseFlag(Parser::getParser().getToolId(), $4);
+		Parser::getParser().getTool().setVerboseFlag($4);
 	}
 			| T_SET T_OPTIMIZATION T_FLAG quoted_file newline
 	{
-		Makefile::Tool::setTypeOptimizationFlag(Parser::getParser().getToolId(), $4);
+		Parser::getParser().getTool().setOptimizationFlag($4);
 	}
 			| T_SET T_OS T_PATH quoted_file newline
 	{
-		Makefile::Tool::setTypePathForOS(Parser::getParser().getToolId(),
-			Makefile::Config::getOSValue(std::string($2)), $4);
+		Parser::getParser().getTool().setPathForOS(Makefile::Config::getOSValue($2), $4);
 	}
 			| T_ADD T_FLAG quoted_file newline
 	{
-		Makefile::Tool::addTypeFlag(Parser::getParser().getToolId(), $3);
+		Parser::getParser().getTool().addFlag($3);
 	}
 			| T_ADD T_DEBUG T_FLAG quoted_file newline
 	{
-		Makefile::Tool::addTypeDebugFlag(Parser::getParser().getToolId(), $4);
+		Parser::getParser().getTool().addDebugFlag($4);
 	}
 			| T_ADD T_FILE T_PATTERN quoted_file newline
 	{
-		Makefile::Tool::addTypeFilePattern(Parser::getParser().getToolId(), $4);
+		Parser::getParser().getTool().addFilePattern($4);
 	}
 			| T_RM T_FLAG quoted_file newline
 	{
 		try
 		{
-			Makefile::Tool::removeTypeFlag(Parser::getParser().getToolId(), $3);
+			Parser::getParser().getTool().removeFlag($3);
 		}
 		catch (const std::invalid_argument& ex)
 		{
@@ -253,7 +249,7 @@ tool_command: T_RESET T_FLAG newline
 	{
 		try
 		{
-			Makefile::Tool::removeTypeDebugFlag(Parser::getParser().getToolId(), $4);
+			Parser::getParser().getTool().removeDebugFlag($4);
 		}
 		catch (const std::invalid_argument& ex)
 		{
@@ -264,7 +260,7 @@ tool_command: T_RESET T_FLAG newline
 	{
 		try
 		{
-			Makefile::Tool::removeTypeFilePattern(Parser::getParser().getToolId(), $4);
+			Parser::getParser().getTool().removeFilePattern($4);
 		}
 		catch (const std::invalid_argument& ex)
 		{
@@ -275,15 +271,15 @@ tool_command: T_RESET T_FLAG newline
 
 target_tool: T_SET T_OPTIMIZATION T_MODE bool_value newline
 	{
-		Parser::getParser().getTool().setOptimizationMode($4);
+		Parser::getParser().getTargetTool().setOptimizationMode($4);
 	}
 		   | T_SET T_VERBOSE T_MODE bool_value newline
 	{
-		Parser::getParser().getTool().setVerboseMode($4);
+		Parser::getParser().getTargetTool().setVerboseMode($4);
 	}
 		   | T_SET T_DEBUG T_MODE bool_value newline
 	{
-		Parser::getParser().getTool().setDebugMode($4);
+		Parser::getParser().getTargetTool().setDebugMode($4);
 	}
 			| T_TARGET_TOOL_END newline
 
@@ -443,7 +439,7 @@ target_mode_add_values: T_ADD T_MODULE quoted_file newline
 	{
 		try
 		{
-			Parser::getParser().setTool(&Parser::getParser().getTarget().addTool($3));
+			Parser::getParser().setTargetTool(&Parser::getParser().getTarget().addTool($3));
 		}
 		catch (const std::invalid_argument& ex)
 		{

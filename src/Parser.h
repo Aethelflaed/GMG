@@ -22,6 +22,7 @@ extern int Parser_getState();
 
 #include "Makefile/Generator.hpp"
 #include "Makefile/Target.hpp"
+#include "Makefile/TargetTool.hpp"
 #include "Makefile/Tool.hpp"
 
 class Parser
@@ -47,8 +48,8 @@ public:
 	Makefile::Generator& getMakefileGenerator();
 	Makefile::Config& getCurrentConfig();
 
-	void setToolId(unsigned short toolId);
-	unsigned short getToolId();
+	void setTargetTool(Makefile::TargetTool* tool);
+	Makefile::TargetTool& getTargetTool();
 
 	void setTool(Makefile::Tool* tool);
 	Makefile::Tool& getTool();
@@ -65,8 +66,8 @@ private:
 	std::deque<int> states {};
 	Makefile::Generator* generator {new Makefile::Generator()};
 	Makefile::Target* target {nullptr};
+	Makefile::TargetTool* targetTool {nullptr};
 	Makefile::Tool* tool {nullptr};
-	unsigned short toolId {0};
 	bool interactive {true};
 };
 

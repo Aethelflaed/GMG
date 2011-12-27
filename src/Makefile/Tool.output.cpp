@@ -10,162 +10,117 @@ using namespace Makefile;
 
 namespace __private
 {
-	struct Tool_global_output
+	struct Tool_output
 	{
-		static void outputTool(std::ostream& stream,
-				unsigned short typeId,
-				const Tool::Type& type,
-				Util::OutputType outputType) VISIBILITY_LOCAL;
-
-		static void outputToolCommand(std::ostream& stream,
-				unsigned short typeId,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-
-		static void outputToolFlags_command(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-		static void outputToolFlags_list(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-
-		static void outputToolFilePattern_command(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-		static void outputToolFilePattern_list(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-
-		static void outputToolPaths_command(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
-		static void outputToolPaths_list(std::ostream& stream,
-				const Tool::Type& type) VISIBILITY_LOCAL;
+		static void save(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
+		static void list(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
 
 		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-::Makefile::Util::Indent __private::Tool_global_output::indent{0};
+::Makefile::Util::Indent __private::Tool_output::indent{0};
 
-void Tool::outputGlobal(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel)
+void Tool::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
-	__private::Tool_global_output::indent = indentLevel;
+	__private::Tool_output::indent = indentLevel;
 
-	for (unsigned short typeId = 0; typeId < Tool::index; typeId++)
+	switch(outputType)
 	{
-		Tool::Type& type = Tool::types[typeId];
-		__private::Tool_global_output::outputTool(stream, typeId, type, outputType);
+		case Util::OutputType::Command:
+			__private::Tool_output::save(stream, *this);
+			break;
+		case Util::OutputType::List:
+			__private::Tool_output::list(stream, *this);
+			break;
+		case Util::OutputType::Makefile:
+			break;
+		default:
+			break;
 	}
 }
 
-void __private::Tool_global_output::outputTool(std::ostream& stream,
-		unsigned short typeId,
-		const Tool::Type& type,
-		Util::OutputType outputType)
+void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
 {
-	if (outputType == Util::OutputType::Command)
+	stream << indent << "add tool \"" << tool.getName()
+		<< "\" \"" << tool.getFlagName() << "\"\n";
+
+	++ indent;
+
+	stream << "\n" << indent << "reset flags\n";
+	for (auto flag : tool.getFlags())
 	{
-		__private::Tool_global_output::outputToolCommand(stream, typeId, type);
-	}
-	else
-	{
-		stream << "Tool #" << typeId << " \"" << type.name << "\"" << std::endl;
-		stream << "\tFlag name: \"" << type.flagName << "\"" << std::endl;
-		__private::Tool_global_output::outputToolFlags_list(stream, type);
-		__private::Tool_global_output::outputToolFilePattern_list(stream, type);
-		__private::Tool_global_output::outputToolPaths_list(stream, type);
+		stream << indent << "add flag \"" << flag << "\"\n";
 	}
 
+	stream << "\n" << indent << "reset debug flags\n";
+	for (auto flag : tool.getDebugFlags())
+	{
+		stream << indent << "add debug flag \"" << flag << "\"\n";
+	}
+
+	stream << "\n" << indent << "set verbose flag \"" << tool.getVerboseFlag() << "\"\n";
+	stream << indent << "set optimization  flag \"" << tool.getOptimizationFlag() << "\"\n";
+
+	stream << "\n" << indent << "reset file patterns\n";
+	for (auto pattern : tool.getFilePatterns())
+	{
+		stream << indent << "add file pattern \"" << pattern << "\"\n";
+	}
+
+	stream << "\n";
+	for (unsigned short i = 0; i < (unsigned short) OperatingSystem::_trailing; i++)
+	{
+		OperatingSystem OS = OperatingSystem(i);
+		stream << indent << "set " << Config::getOSName(OS) << " path \"" << tool.getPathForOS(OS) << "\"\n";
+	}
+
+	-- indent;
 }
 
-void __private::Tool_global_output::outputToolCommand(std::ostream& stream,
-		unsigned short typeId,
-		const Tool::Type& type)
+void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
 {
-	if (typeId < (unsigned short) ToolType::_trailing)
+	stream << indent << "Tool \"" << tool.getName() << "\"\n";
+
+	++ indent;
+	stream << indent << "Flag name : \"" << tool.getFlagName() << "\"\n";
+
+	stream << "\n" << indent << "Flags:\n";
+	++ indent;
+	for (auto flag : tool.getFlags())
 	{
-		stream << "tool edit \"" << type.name << "\"" << std::endl;
-		stream << "\tset flag name \"" << type.flagName << "\"" << std::endl;
+		stream << indent << " - \"" << flag << "\"\n";
 	}
-	else
+	-- indent;
+
+	stream << "\n" << indent << "Debug flags:\n";
+	++ indent;
+	for (auto flag : tool.getDebugFlags())
 	{
-		stream << "tool add \"" << type.name << "\" \"" << type.flagName << "\"" << std::endl;
+		stream << indent << " - \"" << flag << "\"\n";
 	}
+	-- indent;
 
-	__private::Tool_global_output::outputToolFlags_command(stream, type);
-	__private::Tool_global_output::outputToolFilePattern_command(stream, type);
-	__private::Tool_global_output::outputToolPaths_command(stream, type);
-}
+	stream << "\n" << indent << "Verbose flag:\"" << tool.getVerboseFlag() << "\"\n";
+	stream << indent << "Optimization flag:\"" << tool.getOptimizationFlag() << "\"\n";
 
-void __private::Tool_global_output::outputToolFlags_command(std::ostream& stream,
-		const Tool::Type& type)
-{
-	stream << "\treset flags" << std::endl;
-	for (const std::string& flag : type.flags)
+	stream << "\n" << indent << "File patterns:\n";
+	++ indent;
+	for (auto pattern : tool.getFilePatterns())
 	{
-		stream << "\tadd flag \"" << flag << "\"" << std::endl;
+		stream << indent << " - \"" << pattern << "\"\n";
 	}
-	stream << "\treset debug flags" << std::endl;
-	for (const std::string& flag : type.debugFlags)
+	-- indent;
+
+	stream << "\n" << indent << "Tool's path:\n";
+	++ indent;
+	for (unsigned short i = 0; i < (unsigned short) OperatingSystem::_trailing; i++)
 	{
-		stream << "\tadd debug flag \"" << flag << "\"" << std::endl;
+		OperatingSystem OS = OperatingSystem(i);
+		stream << indent << Config::getOSName(OS) << " -> \"" << tool.getPathForOS(OS) << "\"\n";
 	}
-	stream << "\tset verbose flag \"" << type.verboseFlag << "\"" << std::endl;
-	stream << "\tset optimization  flag \"" << type.optimizationFlag << "\"" << std::endl;
+	-- indent;
 
-}
-
-void __private::Tool_global_output::outputToolFlags_list(std::ostream& stream,
-		const Tool::Type& type)
-{
-	stream << "\tFlags:" << std::endl;
-	for (const std::string& flag : type.flags)
-	{
-		stream << "\t\t" << flag << std::endl;
-	}
-	stream << "\tDebug flags:" << std::endl;
-	for (const std::string& flag : type.debugFlags)
-	{
-		stream << "\t\t" << flag << std::endl;
-	}
-	stream << "\tVerbose flag:" << type.verboseFlag << std::endl;
-	stream << "\tOptimization flag:" << type.optimizationFlag << std::endl;
-
-}
-
-void __private::Tool_global_output::outputToolFilePattern_command(std::ostream& stream,
-		const Tool::Type& type)
-{
-	stream << "\treset file patterns" << std::endl;
-	for (const std::string& pattern : type.filePatterns)
-	{
-		stream << "\tadd file pattern \"" << pattern << "\"" << std::endl;
-	}
-
-}
-
-void __private::Tool_global_output::outputToolFilePattern_list(std::ostream& stream,
-		const Tool::Type& type)
-{
-	stream << "\tMatching file patterns:" << std::endl;
-	for (const std::string& pattern : type.filePatterns)
-	{
-		stream << "\t\t\"" << pattern << "\"" << std::endl;
-	}
-
-}
-
-void __private::Tool_global_output::outputToolPaths_command(std::ostream& stream,
-		const Tool::Type& type)
-{
-	for (unsigned short i = 0; i < (unsigned short) ToolType::_trailing; i++)
-	{
-		stream << "\tset " << Config::getOSName(OperatingSystem(i)) << " path \"" << type.paths[i] << "\"" << std::endl;
-	}
-}
-
-void __private::Tool_global_output::outputToolPaths_list(std::ostream& stream,
-		const Tool::Type& type)
-{
-	stream << "\tTools paths:" << std::endl;
-	for (unsigned short i = 0; i < (unsigned short) ToolType::_trailing; i++)
-	{
-		stream << "\t\t" << Config::getOSName(OperatingSystem(i)) << ": " << type.paths[i] << std::endl;
-	}
+	-- indent;
 }
 
