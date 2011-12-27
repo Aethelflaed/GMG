@@ -1,5 +1,6 @@
 #include "Config.hpp"
 #include "Util/Output.hpp"
+#include "Util/Indent.hpp"
 
 #include "GP/ObjectVisibility.h"
 
@@ -8,9 +9,9 @@
 #define IS_MODIFIED(x) \
 	((char*) (x) ? "" : "*")
 #define BOOL_VALUE(x) \
-	((char*) (x) ? "on" : "off")
+	((char*) ((x) ? "on" : "off"))
 #define BOOL_NAME(x) \
-	((char*) (x) ? "Yes" : "No")
+	((char*) ((x) ? "Yes" : "No"))
 
 using namespace Makefile;
 
@@ -21,11 +22,16 @@ namespace __private
 		static void save(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
 		static void list(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
 		static void generate(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
+
+		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-void Config::output(std::ostream& stream, Util::OutputType outputType)
+::Makefile::Util::Indent __private::Config_output::indent{0};
+
+void Config::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
+	__private::Config_output::indent = indentLevel;
 	switch(outputType)
 	{
 		case Util::OutputType::Command:
@@ -44,22 +50,31 @@ void Config::output(std::ostream& stream, Util::OutputType outputType)
 
 void __private::Config_output::save(std::ostream& stream, const Config& config)
 {
-	stream << "config\n";
+	stream << indent << "config\n";
+	++ indent;
+
+	bool firstOutput = true;
 	if (config.isDebugModified())
 	{
-		stream << "\tset debug " << BOOL_VALUE(config.isDebug()) << "\n";
+		firstOutput = false;
+		stream << indent << "set debug " << BOOL_VALUE(config.isDebug()) << "\n";
 	}
 
 	if (config.isVerboseModified())
 	{
-		stream << "\tset verbose " << BOOL_VALUE(config.isDebug()) << "\n";
+		firstOutput = false;
+		stream << indent << "set verbose " << BOOL_VALUE(config.isVerbose()) << "\n";
 	}
 
+	if (firstOutput == false)
+	{
+		stream << "\n";
+	}
 	if (config.areIncludePathsModified())
 	{
 		for (const std::string& name : config.getIncludePaths())
 		{
-			stream << "\tadd include path \"" << name << "\"\n";
+			stream << indent << "add include path \"" << name << "\"\n";
 		}
 	}
 
@@ -67,7 +82,7 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 	{
 		for (const std::string& name : config.getLibraryPaths())
 		{
-			stream << "\tadd library path \"" << name << "\"\n";
+			stream << indent << "add library path \"" << name << "\"\n";
 		}
 	}
 
@@ -75,10 +90,12 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 	{
 		for (const std::string& name : config.getLibraries())
 		{
-			stream << "\tadd library \"" << name << "\"\n";
+			stream << indent << "add library \"" << name << "\"\n";
 		}
 	}
-	stream << "end\n";
+
+	--indent;
+	stream << indent << "end\n";
 }
 
 void __private::Config_output::list(std::ostream& stream, const Config& config)

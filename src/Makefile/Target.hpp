@@ -55,6 +55,7 @@ namespace Makefile
 
 		void setConfig(const Config& config);
 		Config& getConfig();
+		const Config& getConfig() const;
 
 		Tool& addTool(const std::string& name);
 		void removeTool(const std::string& name);
@@ -64,50 +65,11 @@ namespace Makefile
 		void removeDependency(const std::string& name);
 		const dependencies_vector& getDependencies() const;
 
-		void output(std::ostream& stream, Util::OutputType outputType) override;
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Target& target)
 		{
-			std::string type;
-			switch(target.getType())
-			{
-				case TargetType::Application:
-					type = "Application";
-					break;
-				case TargetType::Library:
-					type = "Library";
-					break;
-				case TargetType::UnitTest:
-					type = "UnitTest";
-					break;
-				default:
-					type = "Unknow";
-					break;
-			}
-
-			stream << "Target: \"" << target.name << "\"" << std::endl
-				   << "\tVersion: \"" << target.version << "\"" << std::endl
-				   << "\tType: \"" << type << "\"" << std::endl
-				   << "\tModules:" << std::endl;
-			auto modules = target.getModules();
-			for (const std::string& module : target.modules)
-			{
-				stream << "\t  " << module << "\n";
-			}
-			stream << "\tDependencies:\n";
-			for (const dependency_type& dep : target.dependencies)
-			{
-				if (dep.expired())
-				{
-					stream << "\t  <<expired target>>\n";
-				}
-				else
-				{
-					stream << "\t  " << dep.lock()->getName() << "\n";
-				}
-			}
-
-			stream << "Target's " << target.config;
+			target.list(stream);
 			return stream;
 		}
 

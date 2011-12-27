@@ -68,8 +68,8 @@ namespace Makefile
 		explicit Tool(unsigned short type);
 		~Tool() = default;
 
-		static void outputGlobal(std::ostream& stream, Util::OutputType outputType);
-		void output(std::ostream& stream, Util::OutputType outputType) override;
+		static void outputGlobal(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0);
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 		int getTypeId() const;
 		ToolType getType() const;

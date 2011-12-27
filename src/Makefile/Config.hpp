@@ -58,7 +58,7 @@ namespace Makefile
 		bool areLibrariesModified() const;
 		void addLibrary(std::string library);
 
-		void output(std::ostream& stream, Util::OutputType outputType) override;
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{

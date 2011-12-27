@@ -9,28 +9,8 @@ void Generator::save()
 {
 	std::ofstream file("maker.gmg");
 
-	file << "# Global configuration\n"
-		 << "config set debug " << (this->config.isDebug() ? "true" : "false" ) << std::endl
-		 << "config set verbose  " << (this->config.isVerbose() ? "true" : "false" )
-		 << std::endl;
-
-	file << "\n# Include paths" << std::endl;
-	for (const std::string& includePath : this->config.getIncludePaths())
-	{
-		file << "config add include path \"" << includePath << "\"\n";
-	}
-
-	file << "\n# Library paths" << std::endl;
-	for (const std::string& libraryPath : this->config.getLibraryPaths())
-	{
-		file << "config add library path \"" << libraryPath << "\"\n";
-	}
-
-	file << "\n# Libraries" << std::endl;
-	for (const std::string& library : this->config.getLibraries())
-	{
-		file << "config add library \"" << library << "\"\n";
-	}
+	file << "# Global configuration\n";
+	this->config.save(file);
 
 	file << "\n\n# Targets" << std::endl;
 	for (auto& target_pair : this->targets)

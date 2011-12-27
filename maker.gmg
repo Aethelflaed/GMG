@@ -1,12 +1,34 @@
 # Global configuration
-config set debug false
-config set verbose  false
+config
+	set debug on
+	set verbose off
 
-# Include paths
-
-# Library paths
-
-# Libraries
+	add include path "/usr/local/include/"
+	add library path "/usr/local/lib/"
+	add library "boost-regex"
+end
 
 
 # Targets
+target add "Library"
+	add module "web"
+
+
+
+target add "Program"
+	config set verbose true
+
+	add module "helpers/web"
+
+	add dependency "Library"
+
+
+target add "Tester"
+	config add include path "/path/to/unit/test/library/include"
+	config add library path "/path/to/unit/test/library/lib"
+	config add library "unitTester"
+
+	add module "helpers"
+
+
+

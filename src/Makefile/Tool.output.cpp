@@ -2,6 +2,7 @@
 #include "Config.hpp"
 
 #include "Util/Output.hpp"
+#include "Util/Indent.hpp"
 
 #include "GP/ObjectVisibility.h"
 
@@ -11,56 +12,45 @@ namespace __private
 {
 	struct Tool_global_output
 	{
-		VISIBILITY_LOCAL static void outputTool(std::ostream& stream,
+		static void outputTool(std::ostream& stream,
 				unsigned short typeId,
 				const Tool::Type& type,
-				Util::OutputType outputType);
+				Util::OutputType outputType) VISIBILITY_LOCAL;
 
-		VISIBILITY_LOCAL static void outputToolCommand(std::ostream& stream,
+		static void outputToolCommand(std::ostream& stream,
 				unsigned short typeId,
-				const Tool::Type& type);
+				const Tool::Type& type) VISIBILITY_LOCAL;
 
-		VISIBILITY_LOCAL static void outputToolFlags_command(std::ostream& stream,
-				const Tool::Type& type);
-		VISIBILITY_LOCAL static void outputToolFlags_list(std::ostream& stream,
-				const Tool::Type& type);
+		static void outputToolFlags_command(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
+		static void outputToolFlags_list(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
 
-		VISIBILITY_LOCAL static void outputToolFilePattern_command(std::ostream& stream,
-				const Tool::Type& type);
-		VISIBILITY_LOCAL static void outputToolFilePattern_list(std::ostream& stream,
-				const Tool::Type& type);
+		static void outputToolFilePattern_command(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
+		static void outputToolFilePattern_list(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
 
-		VISIBILITY_LOCAL static void outputToolPaths_command(std::ostream& stream,
-				const Tool::Type& type);
-		VISIBILITY_LOCAL static void outputToolPaths_list(std::ostream& stream,
-				const Tool::Type& type);
-	};
+		static void outputToolPaths_command(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
+		static void outputToolPaths_list(std::ostream& stream,
+				const Tool::Type& type) VISIBILITY_LOCAL;
 
-	struct Tool_output
-	{
-		VISIBILITY_LOCAL static void outputTool(std::ostream& stream,
-				const Tool& tool,
-				Util::OutputType outputType);
-
-		VISIBILITY_LOCAL static void outputToolMode_command(std::ostream& stream,
-				const Tool& tool);
-		VISIBILITY_LOCAL static void outputToolMode_list(std::ostream& stream,
-				const Tool& tool);
+		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-void Tool::outputGlobal(std::ostream& stream, Util::OutputType outputType)
+::Makefile::Util::Indent __private::Tool_global_output::indent{0};
+
+void Tool::outputGlobal(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel)
 {
+	__private::Tool_global_output::indent = indentLevel;
+
 	for (unsigned short typeId = 0; typeId < Tool::index; typeId++)
 	{
 		Tool::Type& type = Tool::types[typeId];
 		__private::Tool_global_output::outputTool(stream, typeId, type, outputType);
 	}
-}
-
-void Tool::output(std::ostream& stream, Util::OutputType outputType)
-{
-	__private::Tool_output::outputTool(stream, *this, outputType);
 }
 
 void __private::Tool_global_output::outputTool(std::ostream& stream,
@@ -98,9 +88,8 @@ void __private::Tool_global_output::outputToolCommand(std::ostream& stream,
 	}
 
 	__private::Tool_global_output::outputToolFlags_command(stream, type);
-	__private::Tool_global_output::outputToolFilePattern_list(stream, type);
+	__private::Tool_global_output::outputToolFilePattern_command(stream, type);
 	__private::Tool_global_output::outputToolPaths_command(stream, type);
-
 }
 
 void __private::Tool_global_output::outputToolFlags_command(std::ostream& stream,
@@ -180,35 +169,54 @@ void __private::Tool_global_output::outputToolPaths_list(std::ostream& stream,
 	}
 }
 
-void __private::Tool_output::outputTool(std::ostream& stream,
-		const Tool& tool,
-		Util::OutputType outputType)
+namespace __private
 {
-	if (outputType == Util::OutputType::Command)
+	struct Tool_output
 	{
-		stream << "add tool \"" << tool.getName() << "\"" << std::endl;
-		__private::Tool_output::outputToolMode_command(stream, tool);
-	}
-	else
+		static void save(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
+		static void list(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
+
+		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
+	};
+}
+
+::Makefile::Util::Indent __private::Tool_output::indent{0};
+
+void Tool::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
+{
+	__private::Tool_output::indent = indentLevel;
+	switch(outputType)
 	{
-		stream << "Tool #" << tool.getTypeId() << " \"" << tool.getName() << "\"" << std::endl;
-		__private::Tool_output::outputToolMode_list(stream, tool);
+		case Util::OutputType::Command:
+			__private::Tool_output::save(stream, *this);
+			break;
+		case Util::OutputType::List:
+			__private::Tool_output::list(stream, *this);
+			break;
+		case Util::OutputType::Makefile:
+			break;
+		default:
+			break;
 	}
 }
 
-void __private::Tool_output::outputToolMode_command(std::ostream& stream,
-		const Tool& tool)
+void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
 {
-	stream << "\tset debug mode " << (tool.isDebugMode() ? "on" : "off") << std::endl;
-	stream << "\tset verbose mode " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
-	stream << "\tset optimization mode " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
+	stream << indent << "add tool \"" << tool.getName() << "\"\n";
+	++ indent;
+	stream << indent << "set debug mode " << (tool.isDebugMode() ? "on" : "off") << "\n";
+	stream << indent << "set verbose mode " << (tool.isVerboseMode() ? "on" : "off") << "\n";
+	stream << indent << "set optimization mode " << (tool.isOptimizationMode() ? "on" : "off") << "\n";
+	-- indent;
 }
 
-void __private::Tool_output::outputToolMode_list(std::ostream& stream,
-		const Tool& tool)
+void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
 {
-	stream << "\tDebug mode: " << (tool.isDebugMode() ? "on" : "off") << std::endl;
-	stream << "\tVerbose mode: " << (tool.isVerboseMode() ? "on" : "off") << std::endl;
-	stream << "\tOptimization mode: " << (tool.isOptimizationMode() ? "on" : "off") << std::endl;
+	stream << indent << "Tool #" << tool.getTypeId() << " \"" << tool.getName() << "\"\n";
+	++ indent;
+	stream << indent << "Debug mode: " << (tool.isDebugMode() ? "on" : "off") << "\n";
+	stream << indent << "Verbose mode: " << (tool.isVerboseMode() ? "on" : "off") << "\n";
+	stream << indent << "Optimization mode: " << (tool.isOptimizationMode() ? "on" : "off") << "\n";
+	-- indent;
 }
 

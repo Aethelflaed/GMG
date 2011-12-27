@@ -85,6 +85,10 @@ Config& Target::getConfig()
 {
 	return this->config;
 }
+const Config& Target::getConfig() const
+{
+	return this->config;
+}
 
 Tool& Target::addTool(const std::string& name)
 {

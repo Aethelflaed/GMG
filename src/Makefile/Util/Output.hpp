@@ -17,17 +17,17 @@ namespace Util
 	class Output
 	{
 	public:
-		virtual void output(std::ostream& stream, OutputType type) = 0;
+		virtual void output(std::ostream& stream, OutputType type, unsigned short indentLevel = 0) const = 0;
 
-		void generate(std::ostream& stream)
+		void generate(std::ostream& stream) const
 		{
 			this->output(stream, OutputType::Makefile);
 		}
-		void list(std::ostream& stream)
+		void list(std::ostream& stream) const
 		{
 			this->output(stream, OutputType::List);
 		}
-		void save(std::ostream& stream)
+		void save(std::ostream& stream) const
 		{
 			this->output(stream, OutputType::Command);
 		}
