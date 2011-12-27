@@ -5,7 +5,7 @@
 using namespace Makefile;
 
 std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
-	Tool::addInitializedTool(
+	std::shared_ptr<Tool>{ new Tool{
 		"C",
 		"CFLAGS",
 		{
@@ -26,8 +26,8 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 			"/usr/bin/gcc",
 			"C:\\"
 		}
-	),
-	Tool::addInitializedTool(
+	}},
+	std::shared_ptr<Tool>{ new Tool{
 		"CXX",
 		"CXXFLAGS",
 		{
@@ -49,8 +49,8 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 			"/usr/bin/g++",
 			"C:\\"
 		}
-	),
-	Tool::addInitializedTool(
+	}},
+	std::shared_ptr<Tool>{ new Tool{
 		"LEX",
 		"LFLAGS",
 		{
@@ -68,8 +68,8 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 			"/usr/bin/flex",
 			"C:\\"
 		}
-	),
-	Tool::addInitializedTool(
+	}},
+	std::shared_ptr<Tool>{ new Tool{
 		"YACC",
 		"YFLAGS",
 		{
@@ -89,8 +89,8 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 			"/usr/bin/bison",
 			"C:\\"
 		}
-	),
-	Tool::addInitializedTool(
+	}},
+	std::shared_ptr<Tool>{ new Tool{
 		"TEX",
 		"TEXFLAGS",
 		{
@@ -107,7 +107,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 			"/",
 			"C:\\"
 		}
-	)
+	}}
 };
 
 Tool::Tool(const std::string& name, const std::string& flagName)
@@ -138,22 +138,6 @@ Tool::Tool(const std::string& name,
 	}
 }
 
-std::shared_ptr<Tool> Tool::addInitializedTool(
-		const std::string& name,
-		const std::string& flagName,
-		std::initializer_list<std::string> flags,
-		std::initializer_list<std::string> debugFlags,
-		const std::string& verboseFlag,
-		const std::string& optimizationFlag,
-		std::initializer_list<std::string> filePatterns,
-		std::initializer_list<std::string> paths
-	)
-{
-	std::shared_ptr<Tool> tool{new Tool{name, flagName, flags, debugFlags, verboseFlag,
-		optimizationFlag, filePatterns, paths}};
-	return *(Tool::tools.insert(tool).first);
-}
-
 Tool& Tool::addTool(const std::string& name, const std::string& flagName)
 {
 	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name, flagName))).first);
@@ -161,14 +145,16 @@ Tool& Tool::addTool(const std::string& name, const std::string& flagName)
 
 void Tool::removeTool(const std::string& name)
 {
-	auto it = std::find(Tool::tools.begin(), Tool::tools.end(), name);
-
-	if (it == Tool::tools.end())
+	for (auto tool : Tool::tools)
 	{
-		throw std::invalid_argument("No such tool.");
+		if (tool->getName() == name)
+		{
+			Tool::tools.erase(tool);
+			break;
+		}
 	}
 
-	Tool::tools.erase(*it);
+	throw std::invalid_argument("No such tool.");
 }
 
 Tool& Tool::getTool(const std::string& name)
@@ -178,13 +164,27 @@ Tool& Tool::getTool(const std::string& name)
 		throw std::invalid_argument{"No such tool"};
 	}
 
-	auto it = std::find(Tool::tools.begin(), Tool::tools.end(), name);
-	if (it == Tool::tools.end())
+	Tool* theTool {nullptr};
+	for (auto tool : Tool::tools)
+	{
+		if (tool->getName() == name)
+		{
+			theTool = tool.get();
+			break;
+		}
+	}
+
+	if (theTool == nullptr)
 	{
 		throw std::invalid_argument{"No such tool"};
 	}
 
-	return **it;
+	return *theTool;
+}
+
+const std::unordered_set<std::shared_ptr<Tool>>& Tool::getTools()
+{
+	return Tool::tools;
 }
 
 const std::string& Tool::getName() const

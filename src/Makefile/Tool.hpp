@@ -45,6 +45,7 @@ namespace Makefile
 		static Tool& addTool(const std::string& name, const std::string& flagName);
 		static void removeTool(const std::string& name);
 		static Tool& getTool(const std::string& name);
+		static const std::unordered_set<std::shared_ptr<Tool>>& getTools();
 
 		const std::string& getName() const;
 		const std::string& getFlagName() const;
@@ -79,17 +80,6 @@ namespace Makefile
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 	private:
-		static std::shared_ptr<Tool> addInitializedTool(
-				const std::string& name,
-				const std::string& flagName,
-				std::initializer_list<std::string> flags,
-				std::initializer_list<std::string> debugFlags,
-				const std::string& verboseFlag,
-				const std::string& optimizationFlag,
-				std::initializer_list<std::string> filePatterns,
-				std::initializer_list<std::string> paths
-			);
-
 		static std::unordered_set<std::shared_ptr<Tool>> tools;
 
 		unsigned short toolId;
@@ -102,19 +92,6 @@ namespace Makefile
 		std::unordered_set<std::string> filePatterns;
 		std::array<std::string, (unsigned short) OperatingSystem::_trailing> paths;
 	};
-
-	inline bool operator==(const std::shared_ptr<Tool> tool, const std::string& name)
-	{
-		return tool->getName() == name;
-	}
-	inline bool operator<(const std::shared_ptr<Tool> tool, const std::string& name)
-	{
-		return tool->getName() < name;
-	}
-	inline bool operator>(const std::shared_ptr<Tool> tool, const std::string& name)
-	{
-		return tool->getName() > name;
-	}
 }
 
 #endif /* MAKEFILE_TOOL_HPP */

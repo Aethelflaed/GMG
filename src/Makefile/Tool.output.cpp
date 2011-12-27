@@ -6,6 +6,8 @@
 
 #include "GP/ObjectVisibility.h"
 
+#include <ios>
+
 using namespace Makefile;
 
 namespace __private
@@ -101,8 +103,8 @@ void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
 	}
 	-- indent;
 
-	stream << "\n" << indent << "Verbose flag:\"" << tool.getVerboseFlag() << "\"\n";
-	stream << indent << "Optimization flag:\"" << tool.getOptimizationFlag() << "\"\n";
+	stream << "\n" << indent << "Verbose flag:      \"" << tool.getVerboseFlag() << "\"\n";
+	stream << indent <<			"Optimization flag: \"" << tool.getOptimizationFlag() << "\"\n";
 
 	stream << "\n" << indent << "File patterns:\n";
 	++ indent;
@@ -117,7 +119,14 @@ void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
 	for (unsigned short i = 0; i < (unsigned short) OperatingSystem::_trailing; i++)
 	{
 		OperatingSystem OS = OperatingSystem(i);
-		stream << indent << Config::getOSName(OS) << " -> \"" << tool.getPathForOS(OS) << "\"\n";
+		stream << indent;
+
+		size_t size = stream.width();
+		stream.width(10);
+		stream << std::left << Config::getOSName(OS);
+
+		stream.width(size);
+		stream << " -> \"" << tool.getPathForOS(OS) << "\"\n";
 	}
 	-- indent;
 
