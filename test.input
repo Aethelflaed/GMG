@@ -58,7 +58,7 @@ end
 
 # Configure targets
 target add "Library"
-	set type lib
+	set type library
 	set version 1.134
 
 	add module "web"

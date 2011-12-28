@@ -5,7 +5,7 @@
 using namespace Makefile;
 
 TargetTool::TargetTool(const std::string& name)
-	:tool(Tool::getTool(name))
+	:tool(Tool::getTool(name)), name{name}
 {
 }
 

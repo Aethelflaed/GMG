@@ -67,14 +67,16 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 		stream << indent << "set verbose " << BOOL_VALUE(config.isVerbose()) << "\n";
 	}
 
-	if (firstOutput == false)
-	{
-		stream << "\n";
-	}
+	bool newLineInserted = false;
 	if (config.areIncludePathsModified())
 	{
 		for (const std::string& name : config.getIncludePaths())
 		{
+			if (firstOutput == false && newLineInserted == false)
+			{
+				newLineInserted = true;
+				stream << "\n";
+			}
 			stream << indent << "add include path \"" << name << "\"\n";
 		}
 	}
@@ -83,6 +85,11 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 	{
 		for (const std::string& name : config.getLibraryPaths())
 		{
+			if (firstOutput == false && newLineInserted == false)
+			{
+				newLineInserted = true;
+				stream << "\n";
+			}
 			stream << indent << "add library path \"" << name << "\"\n";
 		}
 	}
@@ -91,6 +98,11 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 	{
 		for (const std::string& name : config.getLibraries())
 		{
+			if (firstOutput == false && newLineInserted == false)
+			{
+				newLineInserted = true;
+				stream << "\n";
+			}
 			stream << indent << "add library \"" << name << "\"\n";
 		}
 	}

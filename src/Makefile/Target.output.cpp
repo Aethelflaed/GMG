@@ -61,20 +61,17 @@ void __private::Target_output::save(std::ostream& stream, const Target& target)
 	}
 
 	stream << indent << "target add \"" << target.getName() << "\"\n";
-	++indent;
+	++ indent;
 	stream << indent << "set version " << target.getVersion() << "\n";
 	stream << indent << "set type " << type << "\n";
 
 	stream << "\n" << indent << "# Modules\n";
-	++indent;
 	for (auto module : target.getModules())
 	{
 		stream << indent << "add module \"" << module << "\"\n";
 	}
-	--indent;
 
 	stream << "\n" << indent << "# Dependencies\n";
-	++indent;
 	for (auto dep : target.getDependencies())
 	{
 		if (dep.expired() == false)
@@ -82,9 +79,12 @@ void __private::Target_output::save(std::ostream& stream, const Target& target)
 			stream << indent << "add dependency \"" << dep.lock()->getName() << "\"\n";
 		}
 	}
-	--indent;
 
+	stream << "\n" << indent << "# Specific Configuration\n";
 	target.getConfig().output(stream, Util::OutputType::Command, indent);
+
+	-- indent;
+	stream << indent << "end\n";
 }
 
 void __private::Target_output::list(std::ostream& stream, const Target& target)

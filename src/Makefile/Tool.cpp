@@ -24,7 +24,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 		{
 			"/usr/bin/gcc",
 			"/usr/bin/gcc",
-			"C:\\"
+			"C:\\\\"
 		}
 	}},
 	std::shared_ptr<Tool>{ new Tool{
@@ -47,7 +47,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 		{
 			"/usr/bin/g++",
 			"/usr/bin/g++",
-			"C:\\"
+			"C:\\\\"
 		}
 	}},
 	std::shared_ptr<Tool>{ new Tool{
@@ -66,7 +66,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 		{
 			"/usr/bin/flex",
 			"/usr/bin/flex",
-			"C:\\"
+			"C:\\\\"
 		}
 	}},
 	std::shared_ptr<Tool>{ new Tool{
@@ -87,7 +87,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 		{
 			"/usr/bin/bison",
 			"/usr/bin/bison",
-			"C:\\"
+			"C:\\\\"
 		}
 	}},
 	std::shared_ptr<Tool>{ new Tool{
@@ -105,7 +105,7 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 		{
 			"/",
 			"/",
-			"C:\\"
+			"C:\\\\"
 		}
 	}}
 };

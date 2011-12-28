@@ -44,12 +44,12 @@ void Tool::output(std::ostream& stream, Util::OutputType outputType, unsigned sh
 
 void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
 {
-	stream << indent << "add tool \"" << tool.getName()
+	stream << indent << "tool add \"" << tool.getName()
 		<< "\" \"" << tool.getFlagName() << "\"\n";
 
 	++ indent;
 
-	stream << "\n" << indent << "reset flags\n";
+	stream << indent << "reset flags\n";
 	for (auto flag : tool.getFlags())
 	{
 		stream << indent << "add flag \"" << flag << "\"\n";
@@ -78,6 +78,7 @@ void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
 	}
 
 	-- indent;
+	stream << indent << "end\n";
 }
 
 void __private::Tool_output::list(std::ostream& stream, const Tool& tool)

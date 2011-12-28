@@ -482,27 +482,35 @@ target_mode_rm_values: T_RM T_MODULE quoted_file newline
 /* Values */
 
 quoted_name: '"' T_WORD '"'
-		   {
-				strcpy($$, $2);
-		   }
+	{
+		strcpy($$, $2);
+	}
+		   | '"' '"'
+	{
+		strcpy($$, "");
+	}
 
 quoted_file: '"' T_FILENAME '"'
-		   {
-				strcpy($$, $2);
-		   }
+	{
+		strcpy($$, $2);
+	}
 		   | '"' T_WORD '"'
-		   {
-				strcpy($$, $2);
-		   }
+	{
+		strcpy($$, $2);
+	}
+		   | '"' '"'
+	{
+		strcpy($$, "");
+	}
 
 bool_value: T_BOOL_VALUE
-		  {
-				$$ = $1;
-		  }
+	{
+		$$ = $1;
+	}
 		  | T_NUMBER
-		  {
-				$$ = strtol($1, nullptr, 10) != 0;
-		  }
+	{
+		$$ = strtol($1, nullptr, 10) != 0;
+	}
 
 newline: '\n'
 
