@@ -16,31 +16,32 @@
  * along with "GP's Library".  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GP_OSDETECTION_H
-#define GP_OSDETECTION_H
+#ifndef GP_STRINGS_CASE_H
+#define GP_STRINGS_CASE_H
 
-#ifndef OPERATING_SYSTEM
-
-#if defined linux || defined __linux
-
-#	define LINUX 0
-#	define OPERATING_SYSTEM LINUX
-
-#elif defined __APPLE__ && defined __MACH__
-
-#	define MACOSX 1
-#	define OPERATING_SYSTEM MACOSX
-
-#elif defined _WIN32 || defined _WIN64 || defined __WIN32__ || \
-    defined __TOS_WIN__ || defined __WINDOWS__ || \
-	defined __CYGWIN__
-
-#	define WINDOWS 2
-#	define OPERATING_SYSTEM WINDOWS
-
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
-#endif /* OPERATING_SYSTEM */
+char* strtolower(char* string);
 
-#endif /* GP_OSDETECTION_H */
+char* strtoupper(char* string);
+
+#ifdef __cplusplus
+} /* extern "C" */
+
+#include <string>
+
+namespace GP
+{
+namespace Strings
+{
+	::std::string stringToLower(::std::string& string);
+	::std::string stringToUppder(::std::string& string);
+}
+}
+#endif /* __cplusplus */
+
+#endif /* GP_STRINGS_CASE_H */
 

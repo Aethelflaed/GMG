@@ -1,7 +1,9 @@
 #ifndef MAKEFILE_CONFIG_HPP
 #define MAKEFILE_CONFIG_HPP
 
-#include "../GP/OSDetection.h"
+#include "GP/OSDetection.h"
+
+#include "Util/Output.hpp"
 
 #include <vector>
 #include <ostream>
@@ -10,20 +12,26 @@
 
 namespace Makefile
 {
-	enum class OperatingSystem : unsigned int
+	enum class OperatingSystem : unsigned short int
 	{
+		/* Don't change ordering, to enable values count */
 		Linux = 0,
-		MacOSX = 1,
-		Windows = 2
+		MacOSX,
+		Windows,
+
+		/* Keep that value in the end */
+		_trailing
 	};
 
-	class Config
+	class Config : public Util::Output
 	{
 	public:
 		Config();
 		Config(const Config& config, bool dependency = false);
 		~Config() = default;
 
+		static std::string getOSName(OperatingSystem OS);
+		static OperatingSystem getOSValue(std::string OS);
 		static OperatingSystem getCurrentOS();
 
 		OperatingSystem getTargetOS() const;
@@ -39,39 +47,22 @@ namespace Makefile
 		void setVerbose(bool verbose);
 
 		const std::vector<std::string>& getIncludePaths() const;
-		bool isIncludePathsModified() const;
+		bool areIncludePathsModified() const;
 		void addIncludePath(std::string includePath);
 
 		const std::vector<std::string>& getLibraryPaths() const;
-		bool isLibraryPathsModified() const;
+		bool areLibraryPathsModified() const;
 		void addLibraryPath(std::string libraryPath);
 
 		const std::vector<std::string>& getLibraries() const;
-		bool isLibrariesModified() const;
+		bool areLibrariesModified() const;
 		void addLibrary(std::string library);
+
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{
-			stream << "Configuration: (Field marked * are inherited)" << std::endl;
-			stream << "\tDebug" << (config.isDebugModified() ? "" : "*") << ": " << (config.isDebug() ? "Yes" : "No") << std::endl;
-			stream << "\tVerbose" << (config.isVerboseModified() ? "" : "*") << ": " << (config.isVerbose()  ? "Yes" : "No") << std::endl;
-
-			stream << "\tInclude paths" << (config.isIncludePathsModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getIncludePaths())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-			stream << "\tLibrary paths" << (config.isLibraryPathsModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getLibraryPaths())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-			stream << "\tLibraries" << (config.isLibrariesModified() ? "" : "*" ) << ":" << std::endl;
-			for (const std::string& name : config.getLibraries())
-			{
-				stream << "\t\t" << name << std::endl;
-			}
-
+			config.list(stream);
 			return stream;
 		}
 

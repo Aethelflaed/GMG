@@ -16,31 +16,18 @@
  * along with "GP's Library".  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GP_OSDETECTION_H
-#define GP_OSDETECTION_H
+#include "case.h"
+#include <boost/algorithm/string.hpp>
 
-#ifndef OPERATING_SYSTEM
+::std::string GP::Strings::stringToLower(::std::string& string)
+{
+	::boost::algorithm::to_lower(string);
+	return string;
+}
 
-#if defined linux || defined __linux
-
-#	define LINUX 0
-#	define OPERATING_SYSTEM LINUX
-
-#elif defined __APPLE__ && defined __MACH__
-
-#	define MACOSX 1
-#	define OPERATING_SYSTEM MACOSX
-
-#elif defined _WIN32 || defined _WIN64 || defined __WIN32__ || \
-    defined __TOS_WIN__ || defined __WINDOWS__ || \
-	defined __CYGWIN__
-
-#	define WINDOWS 2
-#	define OPERATING_SYSTEM WINDOWS
-
-#endif
-
-#endif /* OPERATING_SYSTEM */
-
-#endif /* GP_OSDETECTION_H */
+::std::string GP::Strings::stringToUppder(::std::string& string)
+{
+	::boost::algorithm::to_upper(string);
+	return string;
+}
 

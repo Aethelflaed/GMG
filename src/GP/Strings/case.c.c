@@ -16,31 +16,33 @@
  * along with "GP's Library".  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GP_OSDETECTION_H
-#define GP_OSDETECTION_H
+#include "case.h"
 
-#ifndef OPERATING_SYSTEM
+char* strtolower(char* string)
+{
+	char* stringBegin = string;
+	while (*string != 0)
+	{
+		if (*string >= 'A' && *string <= 'Z')
+		{
+			*string = *string + 'a' - 'A';
+		}
+		string++;
+	}
+	return stringBegin;
+}
 
-#if defined linux || defined __linux
-
-#	define LINUX 0
-#	define OPERATING_SYSTEM LINUX
-
-#elif defined __APPLE__ && defined __MACH__
-
-#	define MACOSX 1
-#	define OPERATING_SYSTEM MACOSX
-
-#elif defined _WIN32 || defined _WIN64 || defined __WIN32__ || \
-    defined __TOS_WIN__ || defined __WINDOWS__ || \
-	defined __CYGWIN__
-
-#	define WINDOWS 2
-#	define OPERATING_SYSTEM WINDOWS
-
-#endif
-
-#endif /* OPERATING_SYSTEM */
-
-#endif /* GP_OSDETECTION_H */
+char* strtoupper(char* string)
+{
+	char* stringBegin = string;
+	while (*string != 0)
+	{
+		if (*string >= 'a' && *string <= 'z')
+		{
+			*string = *string + 'A' - 'a';
+		}
+		string++;
+	}
+	return stringBegin;
+}
 

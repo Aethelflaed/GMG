@@ -5,27 +5,44 @@
 #include <ctype.h>
 
 #include <iostream>
+#include <deque>
 
 #include "Parser.h"
 #include "Makefile/Generator.hpp"
+#include "Makefile/Util/Output.hpp"
+
+#include "config.h"
 
 extern "C"
 {
+#ifndef YY_HEADER_EXPORT_START_CONDITIONS
+#define YY_HEADER_EXPORT_START_CONDITIONS
+#endif
+
+#include "lexer.c.h"
+
 	int yyparse();
-    int yylex();
 
     int yywrap()
     {
         return 1;
     }
 
-	extern char* yytext;
-
 	void yyerror(const char* str)
 	{
+		std::cerr << std::endl;
 		std::cerr << "Error:        \"" << str << "\"" << std::endl;
 		std::cerr << "Scanning:     \"" << yytext << "\"" << std::endl;
-		std::cerr << "Parser state: \"" << Parser::getParser().getState() << "\"" << std::endl;
+		std::cerr << "Parser states stack:" << std::endl;
+		const std::deque<int>& states = Parser::getParser().getStates();
+		for (auto it = states.rbegin(); it != states.rend(); it++)
+		{
+#if defined DEBUG || defined DEBUG_STACK
+			std::cerr << "\t" << *it << " : " << Parser::getStateName(*it) << std::endl;
+#else
+			std::cerr << "\t" << *it << std::endl;
+#endif
+		}
 	}
 }
 
@@ -45,33 +62,51 @@ extern "C"
 %token T_HELP
 
 %token T_LIST
+%token T_CONFIG_LIST
 
 %token T_ADD
 %token T_EDIT
 %token T_RM
 %token T_SET
+%token T_RESET
 
-%token <String>T_BOOL_OPTION
+%token T_DEBUG
+%token T_VERBOSE
+%token T_OPTIMIZATION
+
 %token <Boolean>T_BOOL_VALUE
 
 %token <String>T_CONFIG_PARAM
+
+%token <String>T_OS
+%token T_FLAG
+%token T_PATTERN
+%token T_FILE
+%token T_MODE
 
 %token T_PATH
 %token T_DEPENDENCY
 
 %token T_TARGET
 %token T_CONFIG
+%token T_TOOL
 
-%token T_END
+%token T_CONFIG_END
+%token T_TARGET_END
+%token T_TARGET_TOOL_END
+%token T_TOOL_END
+
 %token T_MODULE
 %token T_VERSION
 
 %token T_TYPE
 %token <Natural>T_TARGET_TYPE
 
-%token <String>T_FILE
+%token <String>T_FILENAME
 %token <String>T_NUMBER
 %token <String>T_WORD
+
+%type <Natural>config_bool_option
 
 %type <Natural>help_command
 
@@ -90,7 +125,9 @@ configurations: /* empty */
 	}
 
 configuration: target
+			 | target_tool
 			 | config
+			 | tool
 			 | help
 			 | newline
 			 | exit
@@ -107,6 +144,7 @@ exit: T_EXIT
 		exit(0);
    }
 
+/* Help */
 help: T_HELP help_command newline
 	{
 		Parser::getParser().help($2);
@@ -116,29 +154,167 @@ help: T_HELP help_command newline
 		Parser::getParser().help(0);
 	}
 
-help_command: T_TARGET		{ $$ = T_TARGET;	}
-			| T_CONFIG		{ $$ = T_CONFIG;	}
+help_command: T_CONFIG		{ $$ = T_CONFIG;		}
+			| T_DEPENDENCY	{ $$ = T_DEPENDENCY;	}
+			| T_EXIT		{ $$ = T_EXIT;			}
+			| T_MODULE		{ $$ = T_MODULE;		}
+			| T_TARGET		{ $$ = T_TARGET;		}
+			| T_TOOL		{ $$ = T_TOOL;			}
+			| T_TYPE		{ $$ = T_TYPE;			}
+			| T_VERSION		{ $$ = T_VERSION;		}
 
-config: T_CONFIG config_command
+/* Tool */
+tool: T_TOOL T_ADD quoted_name quoted_name newline
+	{
+		Parser::getParser().setTool(&Makefile::Tool::addTool($3, $4));
+		Parser::getParser().pushState(TOOL);
+	}
+	| T_TOOL T_RM quoted_name newline
+	{
+		try
+		{
+			Makefile::Tool::removeTool($3);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
+	}
+	| T_TOOL T_EDIT quoted_name newline
+	{
+		try
+		{
+			Parser::getParser().setTool(&Makefile::Tool::getTool($3));
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
+		Parser::getParser().pushState(TOOL);
+	}
+	| T_TOOL T_LIST newline
+	{
+		for (auto tool : Makefile::Tool::getTools())
+		{
+			tool->list(std::cout);
+		}
+	}
+	| tool_command
+
+tool_command: T_RESET T_FLAG newline
+	{
+		Parser::getParser().getTool().resetFlags();
+	}
+			| T_RESET T_DEBUG T_FLAG newline
+	{
+		Parser::getParser().getTool().resetDebugFlags();
+	}
+			| T_RESET T_FILE T_PATTERN newline
+	{
+		Parser::getParser().getTool().resetFilePatterns();
+	}
+			| T_SET T_VERBOSE T_FLAG quoted_file newline
+	{
+		Parser::getParser().getTool().setVerboseFlag($4);
+	}
+			| T_SET T_OPTIMIZATION T_FLAG quoted_file newline
+	{
+		Parser::getParser().getTool().setOptimizationFlag($4);
+	}
+			| T_SET T_OS T_PATH quoted_file newline
+	{
+		Parser::getParser().getTool().setPathForOS(Makefile::Config::getOSValue($2), $4);
+	}
+			| T_ADD T_FLAG quoted_file newline
+	{
+		Parser::getParser().getTool().addFlag($3);
+	}
+			| T_ADD T_DEBUG T_FLAG quoted_file newline
+	{
+		Parser::getParser().getTool().addDebugFlag($4);
+	}
+			| T_ADD T_FILE T_PATTERN quoted_file newline
+	{
+		Parser::getParser().getTool().addFilePattern($4);
+	}
+			| T_RM T_FLAG quoted_file newline
+	{
+		try
+		{
+			Parser::getParser().getTool().removeFlag($3);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror("No such flag");
+		}
+	}
+			| T_RM T_DEBUG T_FLAG quoted_file newline
+	{
+		try
+		{
+			Parser::getParser().getTool().removeDebugFlag($4);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror("No such flag");
+		}
+	}
+			| T_RM T_FILE T_PATTERN quoted_file newline
+	{
+		try
+		{
+			Parser::getParser().getTool().removeFilePattern($4);
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror("No such file pattern");
+		}
+	}
+			| T_TOOL_END newline
+
+target_tool: T_SET T_OPTIMIZATION T_MODE bool_value newline
+	{
+		Parser::getParser().getTargetTool().setOptimizationMode($4);
+	}
+		   | T_SET T_VERBOSE T_MODE bool_value newline
+	{
+		Parser::getParser().getTargetTool().setVerboseMode($4);
+	}
+		   | T_SET T_DEBUG T_MODE bool_value newline
+	{
+		Parser::getParser().getTargetTool().setDebugMode($4);
+	}
+			| T_TARGET_TOOL_END newline
+
+/* Configuration */
+config: T_CONFIG newline
+	{
+		Parser::getParser().pushState(CONFIG);
+	}
+	  | T_CONFIG_END newline
+	  | config_command
 
 config_command: config_bool_param
 			  | config_path_param
 			  | config_param
 			  | config_list
 
-config_bool_param: T_SET T_BOOL_OPTION bool_value newline
+config_bool_param: T_SET config_bool_option bool_value newline
 	{
 		Makefile::Config& config = Parser::getParser().getCurrentConfig();
-		char firstChar = (char) tolower((int) $2[0]);
-		if (firstChar == 'd')
+		if ($2  == T_DEBUG)
 		{
 			config.setDebug($3 != 0);
 		}
-		else
+		else if ($2 == T_VERBOSE)
 		{
 			config.setVerbose($3 != 0);
 		}
 	}
+
+config_bool_option: T_DEBUG			{ $$ = T_DEBUG; }
+				  | T_VERBOSE		{ $$ = T_VERBOSE; }
+				  | T_OPTIMIZATION	{ $$ = T_OPTIMIZATION; }
 
 config_path_param: T_ADD T_CONFIG_PARAM T_PATH quoted_file newline
 	{
@@ -159,7 +335,7 @@ config_param: T_ADD T_CONFIG_PARAM quoted_file newline
 		Parser::getParser().getCurrentConfig().addLibrary($3);
 	}
 
-config_list: T_LIST newline
+config_list: T_CONFIG_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
 		{
@@ -185,11 +361,11 @@ target_add: T_ADD quoted_name newline
 		{
 			Parser& parser = Parser::getParser();
 			parser.setTarget(&(parser.getMakefileGenerator().addTarget($2)));
-			parser.setState(TARGET);
+			parser.pushState(TARGET);
 		}
 		catch (const std::invalid_argument& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -199,11 +375,11 @@ target_edit: T_EDIT quoted_name newline
 		{
 			Parser& parser = Parser::getParser();
 			parser.setTarget(&parser.getMakefileGenerator().getTarget($2));
-			parser.setState(TARGET);
+			parser.pushState(TARGET);
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -215,7 +391,7 @@ target_rm: T_RM quoted_name newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 
@@ -233,11 +409,7 @@ target_list: T_LIST newline
 
 /* Target configuration, i.e. specific to a target */
 
-target_mode: T_END newline
-	{
-		Parser::getParser().setTarget(nullptr);
-		Parser::getParser().setState(INITIAL);
-	}
+target_mode: T_TARGET_END newline
 		   | T_LIST newline
 	{
 		if (Parser::getParser().isInteractive())
@@ -266,6 +438,18 @@ target_mode_add_values: T_ADD T_MODULE quoted_file newline
 	{
 		Parser::getParser().getTarget().addDependency($3);
 	}
+					  | T_ADD T_TOOL quoted_name newline
+	{
+		try
+		{
+			Parser::getParser().setTargetTool(&Parser::getParser().getTarget().addTool($3));
+		}
+		catch (const std::invalid_argument& ex)
+		{
+			yyerror(ex.what());
+		}
+		Parser::getParser().pushState(TARGET_TOOL);
+	}
 
 target_mode_rm_values: T_RM T_MODULE quoted_file newline
 	{
@@ -275,7 +459,7 @@ target_mode_rm_values: T_RM T_MODULE quoted_file newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
 	}
 					 | T_RM T_DEPENDENCY quoted_name newline
@@ -286,34 +470,47 @@ target_mode_rm_values: T_RM T_MODULE quoted_file newline
 		}
 		catch (const std::out_of_range& ex)
 		{
-			std::cerr << ex.what() << std::endl;
+			yyerror(ex.what());
 		}
+	}
+					 | T_RM T_TOOL quoted_name newline
+	{
+		Parser::getParser().getTarget().removeTool($3);
+		Parser::getParser().popState();
 	}
 
 /* Values */
 
 quoted_name: '"' T_WORD '"'
-		   {
-				strcpy($$, $2);
-		   }
+	{
+		strcpy($$, $2);
+	}
+		   | '"' '"'
+	{
+		strcpy($$, "");
+	}
 
-quoted_file: '"' T_FILE '"'
-		   {
-				strcpy($$, $2);
-		   }
+quoted_file: '"' T_FILENAME '"'
+	{
+		strcpy($$, $2);
+	}
 		   | '"' T_WORD '"'
-		   {
-				strcpy($$, $2);
-		   }
+	{
+		strcpy($$, $2);
+	}
+		   | '"' '"'
+	{
+		strcpy($$, "");
+	}
 
 bool_value: T_BOOL_VALUE
-		  {
-				$$ = $1;
-		  }
+	{
+		$$ = $1;
+	}
 		  | T_NUMBER
-		  {
-				$$ = strtol($1, nullptr, 10) != 0;
-		  }
+	{
+		$$ = strtol($1, nullptr, 10) != 0;
+	}
 
 newline: '\n'
 

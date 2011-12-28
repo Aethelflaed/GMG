@@ -4,219 +4,300 @@
 
 using namespace Makefile;
 
-std::map<int, std::string> Tool::typeNames {
-	{(int) ToolType::C, "C"},
-	{(int) ToolType::CXX, "CXX"},
-	{(int) ToolType::LEX, "LEX"},
-	{(int) ToolType::YACC, "YACC"},
-	{(int) ToolType::TEX, "TEX"}
-};
-
-std::map<int, std::string> Tool::typeFlagNames {
-	{(int) ToolType::C, "CFLAGS"},
-	{(int) ToolType::CXX, "CXXFLAGS"},
-	{(int) ToolType::LEX, "LEXFLAGS"},
-	{(int) ToolType::YACC, "YFLAGS"},
-	{(int) ToolType::TEX, "TEXFLAGS"}
-};
-
-std::map<int, std::vector<std::string>> Tool::debugFlags {
-	{(int) ToolType::C, {
+std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
+	std::shared_ptr<Tool>{ new Tool{
+		"C",
+		"CFLAGS",
+		{
+		},
+		{
 			"-g3",
 			"-gdwarf-2",
 			"-W",
 			"-Wall"
-		}
-	},
-	{(int) ToolType::CXX, {
-			"-g3",
-			"-gdwarf-2",
-			"-W",
-			"-Wall"
-		}
-	},
-	{(int) ToolType::LEX, {
-		}
-	},
-	{(int) ToolType::YACC, {
-			"--debug"
-		}
-	},
-	{(int) ToolType::TEX, {
-			""
-		}
-	}
-};
-
-std::map<int, std::string> Tool::verboseFlags {
-	{(int) ToolType::C,    "-v"},
-	{(int) ToolType::CXX,  "-v"},
-	{(int) ToolType::LEX,  "-v"},
-	{(int) ToolType::YACC, "-v"},
-	{(int) ToolType::TEX,  ""}
-};
-
-std::map<int, std::vector<std::string>> Tool::defaultFilePatterns {
-	{(int) ToolType::C, {
+		},
+		"-v",
+		"-O3",
+		{
 			".c"
+		},
+		{
+			"/usr/bin/gcc",
+			"/usr/bin/gcc",
+			"C:\\\\"
 		}
-	},
-	{(int) ToolType::CXX, {
+	}},
+	std::shared_ptr<Tool>{ new Tool{
+		"CXX",
+		"CXXFLAGS",
+		{
+		},
+		{
+			"-g3",
+			"-gdwarf-2",
+			"-W",
+			"-Wall"
+		},
+		"-v",
+		"-O3",
+		{
 			".cpp",
 			".cxx"
+		},
+		{
+			"/usr/bin/g++",
+			"/usr/bin/g++",
+			"C:\\\\"
 		}
-	},
-	{(int) ToolType::LEX, {
+	}},
+	std::shared_ptr<Tool>{ new Tool{
+		"LEX",
+		"LFLAGS",
+		{
+		},
+		{
+		},
+		"-c",
+		"",
+		{
 			".l",
 			".lex"
+		},
+		{
+			"/usr/bin/flex",
+			"/usr/bin/flex",
+			"C:\\\\"
 		}
-	},
-	{(int) ToolType::YACC, {
+	}},
+	std::shared_ptr<Tool>{ new Tool{
+		"YACC",
+		"YFLAGS",
+		{
+			"-d"
+		},
+		{
+			"--debug"
+		},
+		"-v",
+		"",
+		{
 			".y",
 			".ypp"
+		},
+		{
+			"/usr/bin/bison",
+			"/usr/bin/bison",
+			"C:\\\\"
 		}
-	},
-	{(int) ToolType::TEX, {
+	}},
+	std::shared_ptr<Tool>{ new Tool{
+		"TEX",
+		"TEXFLAGS",
+		{
+		},
+		{
+		},
+		"",
+		"",
+		{
 			".tex"
+		},
+		{
+			"/",
+			"/",
+			"C:\\\\"
+		}
+	}}
+};
+
+Tool::Tool(const std::string& name, const std::string& flagName)
+	:name{name}, flagName{flagName}
+{
+}
+
+Tool::Tool(const std::string& name,
+	const std::string& flagName,
+	std::initializer_list<std::string> flags,
+	std::initializer_list<std::string> debugFlags,
+	const std::string& verboseFlag,
+	const std::string& optimizationFlag,
+	std::initializer_list<std::string> filePatterns,
+	std::initializer_list<std::string> paths)
+
+	:name{name}, flagName{flagName},
+	 flags{flags},
+	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
+	 optimizationFlag{optimizationFlag},
+	 filePatterns{filePatterns}
+{
+	const std::string* path = paths.begin();
+	for (std::initializer_list<int>::size_type i = 0;
+		 i < paths.size(); i++, path++)
+	{
+		this->paths[i] = *path;
+	}
+}
+
+Tool& Tool::addTool(const std::string& name, const std::string& flagName)
+{
+	for (auto& tool : Tool::tools)
+	{
+		if (tool->getName() == name)
+		{
+			return *tool;
 		}
 	}
-};
-
-std::map<int, std::map<OperatingSystem, std::string>> Tool::paths {
-	{(int) ToolType::C,		{{OperatingSystem::Linux,	"/usr/bin/gcc"}}},
-	{(int) ToolType::C,		{{OperatingSystem::MacOSX,	"/usr/bin/gcc"}}},
-	{(int) ToolType::C,		{{OperatingSystem::Windows,	"C:\\"}}},
-
-	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/usr/bin/g++"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/usr/bin/g++"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}},
-
-	{(int) ToolType::LEX,	{{OperatingSystem::Linux,	"/usr/bin/flex"}}},
-	{(int) ToolType::LEX,	{{OperatingSystem::MacOSX,	"/usr/bin/flex"}}},
-	{(int) ToolType::LEX,	{{OperatingSystem::Windows,	"C:\\"}}},
-
-	{(int) ToolType::YACC,	{{OperatingSystem::Linux,	"/usr/bin/bison"}}},
-	{(int) ToolType::YACC,	{{OperatingSystem::MacOSX,	"/usr/bin/bison"}}},
-	{(int) ToolType::YACC,	{{OperatingSystem::Windows,	"C:\\"}}},
-
-	{(int) ToolType::CXX,	{{OperatingSystem::Linux,	"/"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::MacOSX,	"/"}}},
-	{(int) ToolType::CXX,	{{OperatingSystem::Windows,	"C:\\"}}}
-};
-
-Tool::Tool(const std::string& typeName, const std::string& typeFlagName)
-	:type(ToolType::OTHER), typeId(0), name(), path(),
-	 filePatterns(), flags(),
-	 debugMode(false), verboseMode(false)
-{
-	int typeId = Tool::typeNames.size();
-	Tool::typeNames[typeId] = typeName;
-	Tool::typeFlagNames[typeId] = typeFlagName;
-
-	this->typeId = typeId;
+	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name, flagName))).first);
 }
 
-Tool::Tool(ToolType type)
-	:type(type), typeId((int) type),
-	 name(Tool::typeNames[(int) type]),
-	 path(Tool::paths[(int) type][Config::getCurrentOS()]),
-	 filePatterns(Tool::defaultFilePatterns[(int) type]),
-	 flags(),
-	 debugMode(false), verboseMode(false)
+void Tool::removeTool(const std::string& name)
 {
-	if (this->type == ToolType::YACC)
+	for (auto tool : Tool::tools)
 	{
-		this->flags.push_back("-d");
+		if (tool->getName() == name)
+		{
+			Tool::tools.erase(tool);
+			break;
+		}
 	}
+
+	throw std::invalid_argument("No such tool.");
 }
 
-Tool::Tool(int type)
-	:type(ToolType::OTHER), typeId(type), name(), path(), flags(),
-	 debugMode(false), verboseMode(false)
+Tool& Tool::getTool(const std::string& name)
 {
+	if (name == "")
+	{
+		throw std::invalid_argument{"No such tool"};
+	}
+
+	Tool* theTool {nullptr};
+	for (auto tool : Tool::tools)
+	{
+		if (tool->getName() == name)
+		{
+			theTool = tool.get();
+			break;
+		}
+	}
+
+	if (theTool == nullptr)
+	{
+		throw std::invalid_argument{"No such tool"};
+	}
+
+	return *theTool;
 }
 
-int Tool::getTypeId() const
+const std::unordered_set<std::shared_ptr<Tool>>& Tool::getTools()
 {
-	return this->typeId;
-}
-ToolType Tool::getType() const
-{
-	return this->type;
+	return Tool::tools;
 }
 
 const std::string& Tool::getName() const
 {
 	return this->name;
 }
-void Tool::setName(const std::string& name)
+
+const std::string& Tool::getFlagName() const
 {
-	this->name = name;
+	return this->flagName;
 }
 
-const std::string& Tool::getPath() const
+void Tool::addFlag(const std::string& flag)
 {
-	return this->path;
+	this->flags.insert(flag);
 }
-void Tool::setPath(const std::string& path)
+void Tool::removeFlag(const std::string& flag)
 {
-	this->path = path;
+	this->flags.erase(flag);
 }
-
-const std::vector<std::string>& Tool::getFlags() const
+void Tool::resetFlags()
+{
+	this->flags.clear();
+}
+const std::unordered_set<std::string>& Tool::getFlags() const
 {
 	return this->flags;
 }
-void Tool::addFlag(const std::string& flag)
+
+void Tool::addDebugFlag(const std::string& flag)
 {
-	this->flags.push_back(flag);
+	this->debugFlags.insert(flag);
 }
-void Tool::removeFlag(const std::string& flag) throw (std::out_of_range)
+void Tool::removeDebugFlag(const std::string& flag)
 {
-	auto iterator =  std::find(this->flags.begin(),
-		this->flags.end(),
-		flag);
-	if (iterator == this->flags.end())
+	this->debugFlags.erase(flag);
+}
+void Tool::resetDebugFlags()
+{
+	this->debugFlags.clear();
+}
+const std::unordered_set<std::string>& Tool::getDebugFlags() const
+{
+	return this->debugFlags;
+}
+
+void Tool::setVerboseFlag(const std::string& flag)
+{
+	this->verboseFlag = flag;
+}
+const std::string& Tool::getVerboseFlag() const
+{
+	return this->verboseFlag;
+}
+
+void Tool::setOptimizationFlag(const std::string& flag)
+{
+	this->optimizationFlag = flag;
+}
+const std::string& Tool::getOptimizationFlag() const
+{
+	return this->optimizationFlag;
+}
+
+void Tool::addFilePattern(const std::string& pattern)
+{
+	this->filePatterns.insert(pattern);
+}
+void Tool::removeFilePattern(const std::string& pattern)
+{
+	this->filePatterns.erase(pattern);
+}
+void Tool::resetFilePatterns()
+{
+	this->filePatterns.clear();
+}
+const std::unordered_set<std::string>& Tool::getFilePatterns() const
+{
+	return this->filePatterns;
+}
+
+void Tool::setPathForOS(OperatingSystem OS, const std::string& path)
+{
+	this->paths[(unsigned short) OS] = path;
+}
+const std::string& Tool::getPathForOS(OperatingSystem OS) const
+{
+	return this->paths[(unsigned short) OS];
+}
+
+std::unordered_set<std::string>&& Tool::getAllFlags(bool debugMode,
+		bool verboseMode, bool optimizationMode) const
+{
+	std::unordered_set<std::string> flags = this->flags;
+
+	if (debugMode)
 	{
-		throw std::out_of_range("No such flag");
+		flags.insert(this->debugFlags.begin(), this->debugFlags.end());
 	}
-
-	this->flags.erase(iterator);
-}
-
-bool Tool::isDebugMode() const
-{
-	return this->debugMode;
-}
-void Tool::setDebugMode(bool debugMode)
-{
-	this->debugMode = debugMode;
-}
-
-bool Tool::isVerboseMode() const
-{
-	return this->verboseMode;
-}
-void Tool::setVerboseMode(bool verboseMode)
-{
-	this->verboseMode = verboseMode;
-}
-
-std::vector<std::string>&& Tool::getAllFlags() const
-{
-	std::vector<std::string> flags = this->flags;
-
-	if (this->debugMode)
+	if (verboseMode)
 	{
-		for (const std::string& flag : Tool::debugFlags[this->typeId])
-		{
-			flags.push_back(flag);
-		}
+		flags.insert(this->verboseFlag);
 	}
-
-	if (this->verboseMode)
+	if (optimizationMode)
 	{
-		flags.push_back(Tool::verboseFlags[this->typeId]);
+		flags.insert(this->optimizationFlag);
 	}
 
 	return std::move(flags);

@@ -1,75 +1,96 @@
 #ifndef MAKEFILE_TOOL_HPP
 #define MAKEFILE_TOOL_HPP
 
+#include <iostream>
 #include <ostream>
 #include <string>
-#include <vector>
 #include <stdexcept>
-#include <map>
+#include <unordered_set>
+#include <array>
+#include <memory>
+
+#include "Util/Output.hpp"
 
 #include "Config.hpp"
 
 namespace Makefile
 {
-	enum class ToolType : int
+	enum class ToolType : unsigned short int
 	{
-		OTHER = -1,
+		/* Don't change ordering, to enable values count */
 		C = 0,
 		CXX,
 		LEX,
 		YACC,
-		TEX
+		TEX,
+
+		/* Keep that value in the end */
+		_trailing
 	};
 
-	class Tool
+	class Tool : public Util::Output
 	{
-	public:
-		Tool(const std::string& typeName, const std::string& typeFlagName);
-		explicit Tool(ToolType type);
-		explicit Tool(int type);
-		~Tool() = default;
+	private:
+		Tool(const std::string& name, const std::string& flagName);
+		Tool(const std::string& name,
+				const std::string& flagName,
+				std::initializer_list<std::string> flags,
+				std::initializer_list<std::string> debugFlags,
+				const std::string& verboseFlag,
+				const std::string& optimizationFlag,
+				std::initializer_list<std::string> filePatterns,
+				std::initializer_list<std::string> paths);
 
-		int getTypeId() const;
-		ToolType getType() const;
+	public:
+		static Tool& addTool(const std::string& name, const std::string& flagName);
+		static void removeTool(const std::string& name);
+		static Tool& getTool(const std::string& name);
+		static const std::unordered_set<std::shared_ptr<Tool>>& getTools();
 
 		const std::string& getName() const;
-		void setName(const std::string& name);
+		const std::string& getFlagName() const;
 
-		const std::string& getPath() const;
-		void setPath(const std::string& path);
-
-		const std::vector<std::string>& getFlags() const;
 		void addFlag(const std::string& flag);
-		void removeFlag(const std::string& flag) throw (std::out_of_range);
+		void removeFlag(const std::string& flag);
+		void resetFlags();
+		const std::unordered_set<std::string>& getFlags() const;
 
-		bool isDebugMode() const;
-		void setDebugMode(bool debugMode);
+		void addDebugFlag(const std::string& flag);
+		void removeDebugFlag(const std::string& flag);
+		void resetDebugFlags();
+		const std::unordered_set<std::string>& getDebugFlags() const;
 
-		bool isVerboseMode() const;
-		void setVerboseMode(bool verboseMode);
+		void setVerboseFlag(const std::string& flag);
+		const std::string& getVerboseFlag() const;
 
-		std::vector<std::string>&& getAllFlags() const;
+		void setOptimizationFlag(const std::string& flag);
+		const std::string& getOptimizationFlag() const;
+
+		void addFilePattern(const std::string& pattern);
+		void removeFilePattern(const std::string& pattern);
+		void resetFilePatterns();
+		const std::unordered_set<std::string>& getFilePatterns() const;
+
+		void setPathForOS(OperatingSystem OS, const std::string& path);
+		const std::string& getPathForOS(OperatingSystem OS) const;
+
+		std::unordered_set<std::string>&& getAllFlags(bool debugMode,
+				bool verboseMode, bool optimizationMode) const;
+
+		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
 
 	private:
-		static std::map<int, std::string> typeNames;
-		static std::map<int, std::string> typeFlagNames;
-		static std::map<int, std::vector<std::string>> debugFlags;
-		static std::map<int, std::string> verboseFlags;
-		static std::map<int, std::vector<std::string>> defaultFilePatterns;
-		static std::map<int, std::map<OperatingSystem, std::string>> paths;
+		static std::unordered_set<std::shared_ptr<Tool>> tools;
 
-		ToolType type;
-		int typeId;
-
+		unsigned short toolId;
 		std::string name;
-		std::string path;
-
-		std::vector<std::string> filePatterns;
-
-		std::vector<std::string> flags;
-		bool debugMode;
-		bool verboseMode;
-		bool optimizationMode = false;
+		std::string flagName;
+		std::unordered_set<std::string> flags;
+		std::unordered_set<std::string> debugFlags;
+		std::string verboseFlag;
+		std::string optimizationFlag;
+		std::unordered_set<std::string> filePatterns;
+		std::array<std::string, (unsigned short) OperatingSystem::_trailing> paths;
 	};
 }
 
