@@ -80,6 +80,12 @@ void __private::Target_output::save(std::ostream& stream, const Target& target)
 		}
 	}
 
+	stream << "\n" << indent << "# Tools\n";
+	for (auto tool : target.getTools())
+	{
+		tool->output(stream, Util::OutputType::Command, indent);
+	}
+
 	stream << "\n" << indent << "# Specific Configuration\n";
 	target.getConfig().output(stream, Util::OutputType::Command, indent);
 

@@ -59,6 +59,7 @@ namespace Makefile
 		TargetTool& addTool(const std::string& name);
 		void removeTool(const std::string& name);
 		TargetTool& getTool(const std::string& name);
+		const std::unordered_set<std::shared_ptr<TargetTool>>& getTools() const;
 
 		void addDependency(const std::string& name);
 		void removeDependency(const std::string& name);

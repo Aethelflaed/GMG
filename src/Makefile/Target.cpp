@@ -116,6 +116,10 @@ TargetTool& Target::getTool(const std::string& name)
 
 	return **it;
 }
+const std::unordered_set<std::shared_ptr<TargetTool>>& Target::getTools() const
+{
+	return this->tools;
+}
 
 void Target::addDependency(const std::string& name)
 {
