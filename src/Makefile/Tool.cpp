@@ -140,6 +140,13 @@ Tool::Tool(const std::string& name,
 
 Tool& Tool::addTool(const std::string& name, const std::string& flagName)
 {
+	for (auto& tool : Tool::tools)
+	{
+		if (tool->getName() == name)
+		{
+			return *tool;
+		}
+	}
 	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name, flagName))).first);
 }
 

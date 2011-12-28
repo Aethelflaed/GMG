@@ -9,63 +9,19 @@ config
 end
 
 # Tools configuration
-tool add "CXX" "CXXFLAGS"
+tool add "TEX" "TEXFLAGS"
 	reset flags
 
 	reset debug flags
-	add debug flag "-Wall"
-	add debug flag "-g3"
-	add debug flag "-W"
-	add debug flag "-gdwarf-2"
 
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".cpp"
-	add file pattern ".cxx"
-
-	set Linux path "/usr/bin/g++"
-	set MacOSX path "/usr/bin/g++"
-	set Windows path "C:\\"
-end
-
-tool add "C" "CFLAGS"
-	reset flags
-
-	reset debug flags
-	add debug flag "-Wall"
-	add debug flag "-g3"
-	add debug flag "-W"
-	add debug flag "-gdwarf-2"
-
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".c"
-
-	set Linux path "/usr/bin/gcc"
-	set MacOSX path "/usr/bin/gcc"
-	set Windows path "C:\\"
-end
-
-tool add "YACC" "YFLAGS"
-	reset flags
-	add flag "-d"
-
-	reset debug flags
-	add debug flag "--debug"
-
-	set verbose flag "-v"
+	set verbose flag ""
 	set optimization  flag ""
 
 	reset file patterns
-	add file pattern ".y"
-	add file pattern ".ypp"
+	add file pattern ".tex"
 
-	set Linux path "/usr/bin/bison"
-	set MacOSX path "/usr/bin/bison"
+	set Linux path "/"
+	set MacOSX path "/"
 	set Windows path "C:\\"
 end
 
@@ -91,23 +47,40 @@ tool add "CXX11" "CXX11FLAGS"
 	set Windows path ""
 end
 
-tool add "C" "CFLAGS"
+tool add "CXX" "CXXFLAGS"
 	reset flags
 
 	reset debug flags
-	add debug flag "-W"
-	add debug flag "-gdwarf-2"
 	add debug flag "-Wall"
+	add debug flag "-gdwarf-2"
+	add debug flag "-W"
 	add debug flag "-g3"
 
 	set verbose flag "-v"
 	set optimization  flag "-O3"
 
 	reset file patterns
-	add file pattern ".c"
+	add file pattern ".cxx"
 
-	set Linux path "/usr/bin/gcc"
-	set MacOSX path "/usr/bin/gcc"
+	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
+	set MacOSX path "/usr/bin/g++"
+	set Windows path "C:\\"
+end
+
+tool add "LEX" "LFLAGS"
+	reset flags
+
+	reset debug flags
+
+	set verbose flag "-c"
+	set optimization  flag ""
+
+	reset file patterns
+	add file pattern ".l"
+	add file pattern ".lex"
+
+	set Linux path "/usr/bin/flex"
+	set MacOSX path "/usr/bin/flex"
 	set Windows path "C:\\"
 end
 
@@ -128,92 +101,6 @@ tool add "CPP" "CPPFLAGS"
 	set Windows path ""
 end
 
-tool add "CXX" "CXXFLAGS"
-	reset flags
-
-	reset debug flags
-	add debug flag "-W"
-	add debug flag "-gdwarf-2"
-	add debug flag "-Wall"
-	add debug flag "-g3"
-
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".cxx"
-
-	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
-	set MacOSX path "/usr/bin/g++"
-	set Windows path "C:\\"
-end
-
-tool add "TEX" "TEXFLAGS"
-	reset flags
-
-	reset debug flags
-
-	set verbose flag ""
-	set optimization  flag ""
-
-	reset file patterns
-	add file pattern ".tex"
-
-	set Linux path "/"
-	set MacOSX path "/"
-	set Windows path "C:\\"
-end
-
-tool add "LEX" "LFLAGS"
-	reset flags
-
-	reset debug flags
-
-	set verbose flag "-c"
-	set optimization  flag ""
-
-	reset file patterns
-	add file pattern ".l"
-	add file pattern ".lex"
-
-	set Linux path "/usr/bin/flex"
-	set MacOSX path "/usr/bin/flex"
-	set Windows path "C:\\"
-end
-
-tool add "LEX" "LFLAGS"
-	reset flags
-
-	reset debug flags
-
-	set verbose flag "-c"
-	set optimization  flag ""
-
-	reset file patterns
-	add file pattern ".lex"
-	add file pattern ".l"
-
-	set Linux path "/usr/bin/flex"
-	set MacOSX path "/usr/bin/flex"
-	set Windows path "C:\\"
-end
-
-tool add "TEX" "TEXFLAGS"
-	reset flags
-
-	reset debug flags
-
-	set verbose flag ""
-	set optimization  flag ""
-
-	reset file patterns
-	add file pattern ".tex"
-
-	set Linux path "/"
-	set MacOSX path "/"
-	set Windows path "C:\\"
-end
-
 tool add "YACC" "YFLAGS"
 	reset flags
 	add flag "-d"
@@ -225,11 +112,31 @@ tool add "YACC" "YFLAGS"
 	set optimization  flag ""
 
 	reset file patterns
-	add file pattern ".ypp"
 	add file pattern ".y"
+	add file pattern ".ypp"
 
 	set Linux path "/usr/bin/bison"
 	set MacOSX path "/usr/bin/bison"
+	set Windows path "C:\\"
+end
+
+tool add "C" "CFLAGS"
+	reset flags
+
+	reset debug flags
+	add debug flag "-Wall"
+	add debug flag "-gdwarf-2"
+	add debug flag "-W"
+	add debug flag "-g3"
+
+	set verbose flag "-v"
+	set optimization  flag "-O3"
+
+	reset file patterns
+	add file pattern ".c"
+
+	set Linux path "/usr/bin/gcc"
+	set MacOSX path "/usr/bin/gcc"
 	set Windows path "C:\\"
 end
 
