@@ -194,6 +194,11 @@ const std::unordered_set<std::shared_ptr<Tool>>& Tool::getTools()
 	return Tool::tools;
 }
 
+void Tool::resetTools()
+{
+	Tool::tools.clear();
+}
+
 const std::string& Tool::getName() const
 {
 	return this->name;

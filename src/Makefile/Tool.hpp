@@ -46,6 +46,7 @@ namespace Makefile
 		static void removeTool(const std::string& name);
 		static Tool& getTool(const std::string& name);
 		static const std::unordered_set<std::shared_ptr<Tool>>& getTools();
+		static void resetTools();
 
 		const std::string& getName() const;
 		const std::string& getFlagName() const;
