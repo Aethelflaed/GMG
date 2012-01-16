@@ -9,80 +9,7 @@ config
 end
 
 # Tools configuration
-tool add "CXX11" "CXX11FLAGS"
-	reset flags
-	add flag "--std=gnu++11"
-	add flag "-W"
-	add flag "-Wall"
-
-	reset debug flags
-	add debug flag "-gdwarf-2"
-	add debug flag "-g3"
-
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".cxx"
-	add file pattern ".cpp"
-
-	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
-	set MacOSX path ""
-	set Windows path ""
-end
-
-tool add "CXX" "CXXFLAGS"
-	reset flags
-
-	reset debug flags
-	add debug flag "-Wall"
-	add debug flag "-gdwarf-2"
-	add debug flag "-W"
-	add debug flag "-g3"
-
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".cxx"
-
-	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
-	set MacOSX path "/usr/bin/g++"
-	set Windows path "C:\\"
-end
-
-tool add "TEX" "TEXFLAGS"
-	reset flags
-
-	reset debug flags
-
-	set verbose flag ""
-	set optimization  flag ""
-
-	reset file patterns
-	add file pattern ".tex"
-
-	set Linux path "/"
-	set MacOSX path "/"
-	set Windows path "C:\\"
-end
-
-tool add "CPP" "CPPFLAGS"
-	reset flags
-
-	reset debug flags
-	add debug flag "-Wall"
-
-	set verbose flag "-v"
-	set optimization  flag "-O3"
-
-	reset file patterns
-	add file pattern ".cpp"
-
-	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
-	set MacOSX path ""
-	set Windows path ""
-end
+reset tools
 
 tool add "LEX" "LFLAGS"
 	reset flags
@@ -125,9 +52,9 @@ tool add "C" "CFLAGS"
 
 	reset debug flags
 	add debug flag "-Wall"
-	add debug flag "-gdwarf-2"
-	add debug flag "-W"
 	add debug flag "-g3"
+	add debug flag "-W"
+	add debug flag "-gdwarf-2"
 
 	set verbose flag "-v"
 	set optimization  flag "-O3"
@@ -137,6 +64,81 @@ tool add "C" "CFLAGS"
 
 	set Linux path "/usr/bin/gcc"
 	set MacOSX path "/usr/bin/gcc"
+	set Windows path "C:\\"
+end
+
+tool add "CXX11" "CXX11FLAGS"
+	reset flags
+	add flag "--std=gnu++11"
+	add flag "-W"
+	add flag "-Wall"
+
+	reset debug flags
+	add debug flag "-gdwarf-2"
+	add debug flag "-g3"
+
+	set verbose flag "-v"
+	set optimization  flag "-O3"
+
+	reset file patterns
+	add file pattern ".cxx"
+	add file pattern ".cpp"
+
+	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
+	set MacOSX path ""
+	set Windows path ""
+end
+
+tool add "CPP" "CPPFLAGS"
+	reset flags
+
+	reset debug flags
+	add debug flag "-Wall"
+
+	set verbose flag "-v"
+	set optimization  flag "-O3"
+
+	reset file patterns
+	add file pattern ".cpp"
+
+	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
+	set MacOSX path ""
+	set Windows path ""
+end
+
+tool add "CXX" "CXXFLAGS"
+	reset flags
+
+	reset debug flags
+	add debug flag "-Wall"
+	add debug flag "-g3"
+	add debug flag "-W"
+	add debug flag "-gdwarf-2"
+
+	set verbose flag "-v"
+	set optimization  flag "-O3"
+
+	reset file patterns
+	add file pattern ".cxx"
+
+	set Linux path "/usr/local/gcc/4.7/bin/x86_64-linux-linux-g++"
+	set MacOSX path "/usr/bin/g++"
+	set Windows path "C:\\"
+end
+
+tool add "TEX" "TEXFLAGS"
+	reset flags
+
+	reset debug flags
+
+	set verbose flag ""
+	set optimization  flag ""
+
+	reset file patterns
+	add file pattern ".tex"
+
+	set Linux path "/"
+	set MacOSX path "/"
 	set Windows path "C:\\"
 end
 

@@ -14,6 +14,7 @@ void Generator::save()
 	file << "\n";
 
 	file << "# Tools configuration\n";
+	file << "reset tools\n\n";
 	for (const auto& tool : Tool::getTools())
 	{
 		tool->save(file);

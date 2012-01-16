@@ -238,6 +238,8 @@ ostream& __private::Parser_output::help_global_tool(ostream& stream)
 
 	stream << " - `tools list'                    List all tools." << endl;
 
+	stream << " - `reset tools`                   Remove all tools." << endl;
+
 	return stream;
 }
 
