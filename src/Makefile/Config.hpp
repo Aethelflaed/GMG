@@ -59,6 +59,7 @@ namespace Makefile
 		void addLibrary(std::string library);
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
+		void help(std::ostream& stream, int command = 0) const override;
 
 		friend std::ostream& operator<< (std::ostream& stream, Config& config)
 		{

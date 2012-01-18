@@ -404,9 +404,9 @@ target_list: T_LIST newline
 		if (Parser::getParser().isInteractive())
 		{
 			std::cout << "Targets list :" << std::endl;
-			for (auto pair : Parser::getParser().getMakefileGenerator().getTargets())
+			for (const auto& pair : Parser::getParser().getMakefileGenerator().getTargets())
 			{
-				std::cout << *(pair.second) << std::endl;
+				pair.second->list(std::cout);
 			}
 		}
 	}
@@ -418,7 +418,7 @@ target_mode: T_TARGET_END newline
 	{
 		if (Parser::getParser().isInteractive())
 		{
-			std::cout << Parser::getParser().getTarget() << std::endl;
+			Parser::getParser().getTarget().list(std::cout);
 		}
 	}
 		   | target_mode_param

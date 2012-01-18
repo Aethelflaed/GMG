@@ -18,7 +18,6 @@ namespace Makefile
 		typedef std::shared_ptr<Target> target_type;
 		typedef std::unordered_map<std::string, target_type> targets_map;
 
-
 		Generator();
 		~Generator() = default;
 
@@ -32,6 +31,7 @@ namespace Makefile
 		void removeTarget(const std::string& name);
 
 		Config& getConfig();
+
 	private:
 		targets_map targets;
 		Config config;

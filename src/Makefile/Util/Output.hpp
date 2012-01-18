@@ -19,7 +19,7 @@ namespace Util
 	public:
 		virtual void output(std::ostream& stream, OutputType type, unsigned short indentLevel = 0) const = 0;
 
-		void generate(std::ostream& stream) const
+		void make(std::ostream& stream) const
 		{
 			this->output(stream, OutputType::Makefile);
 		}
@@ -31,6 +31,8 @@ namespace Util
 		{
 			this->output(stream, OutputType::Command);
 		}
+
+		virtual void help(std::ostream& stream, int command = 0) const = 0;
 	};
 }
 }

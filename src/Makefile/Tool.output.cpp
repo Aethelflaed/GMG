@@ -1,6 +1,8 @@
 #include "Tool.hpp"
 #include "Config.hpp"
 
+#include "grammar.hpp"
+
 #include "Util/Output.hpp"
 #include "Util/Indent.hpp"
 
@@ -10,39 +12,62 @@
 
 using namespace Makefile;
 
-namespace __private
+namespace _private
 {
 	struct Tool_output
 	{
 		static void save(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
 		static void list(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
+		static void make(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
+
+		static void help_global(std::ostream& stream) VISIBILITY_LOCAL;
 
 		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-::Makefile::Util::Indent __private::Tool_output::indent{0};
+::Makefile::Util::Indent _private::Tool_output::indent{0};
 
 void Tool::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
-	__private::Tool_output::indent = indentLevel;
+	_private::Tool_output::indent = indentLevel;
 
 	switch(outputType)
 	{
 		case Util::OutputType::Command:
-			__private::Tool_output::save(stream, *this);
+			_private::Tool_output::save(stream, *this);
 			break;
 		case Util::OutputType::List:
-			__private::Tool_output::list(stream, *this);
+			_private::Tool_output::list(stream, *this);
 			break;
 		case Util::OutputType::Makefile:
+			_private::Tool_output::make(stream, *this);
 			break;
 		default:
 			break;
 	}
 }
 
-void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
+void Tool::help(std::ostream& stream, int command) const
+{
+	_private::Tool_output::indent = 0;
+
+	switch(command)
+	{
+		case T_ADD:
+			break;
+		case T_RM:
+			break;
+		case T_RESET:
+			break;
+		case T_SET:
+			break;
+		default:
+			_private::Tool_output::help_global(stream);
+	}
+}
+
+void _private::Tool_output::save(std::ostream& stream, const Tool& tool)
 {
 	stream << indent << "tool add \"" << tool.getName()
 		<< "\" \"" << tool.getFlagName() << "\"\n";
@@ -81,7 +106,7 @@ void __private::Tool_output::save(std::ostream& stream, const Tool& tool)
 	stream << indent << "end\n";
 }
 
-void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
+void _private::Tool_output::list(std::ostream& stream, const Tool& tool)
 {
 	stream << indent << "Tool \"" << tool.getName() << "\"\n";
 
@@ -132,5 +157,24 @@ void __private::Tool_output::list(std::ostream& stream, const Tool& tool)
 	-- indent;
 
 	-- indent;
+}
+
+void _private::Tool_output::make(std::ostream& stream, const Tool& tool)
+{
+}
+
+void _private::Tool_output::help_global(std::ostream& stream)
+{
+	stream << "Manage tools\n\n";
+
+	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   Add a new tool.\n";
+
+	stream << " - `tool edit \"NAME\"'              Edit a tool.\n";
+
+	stream << " - `tool rm \"NAME\"'                Remove a tool.\n";
+
+	stream << " - `tools list'                    List all tools.\n";
+
+	stream << " - `reset tools`                   Remove all tools.\n";
 }
 

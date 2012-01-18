@@ -79,6 +79,7 @@ namespace Makefile
 				bool verboseMode, bool optimizationMode) const;
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
+		void help(std::ostream& stream, int command = 0) const override;
 
 	private:
 		static std::unordered_set<std::shared_ptr<Tool>> tools;

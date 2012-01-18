@@ -15,41 +15,54 @@
 
 using namespace Makefile;
 
-namespace __private
+namespace _private
 {
 	struct Config_output
 	{
 		static void save(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
 		static void list(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
-		static void generate(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
+		static void make(std::ostream& stream, const Config& config) VISIBILITY_LOCAL;
+
+		static void help_global(std::ostream& stream) VISIBILITY_LOCAL;
 
 		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-::Makefile::Util::Indent __private::Config_output::indent{0};
+::Makefile::Util::Indent _private::Config_output::indent{0};
 
 void Config::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
-	__private::Config_output::indent = indentLevel;
+	_private::Config_output::indent = indentLevel;
 
 	switch(outputType)
 	{
 		case Util::OutputType::Command:
-			__private::Config_output::save(stream, *this);
+			_private::Config_output::save(stream, *this);
 			break;
 		case Util::OutputType::List:
-			__private::Config_output::list(stream, *this);
+			_private::Config_output::list(stream, *this);
 			break;
 		case Util::OutputType::Makefile:
-			__private::Config_output::generate(stream, *this);
+			_private::Config_output::make(stream, *this);
 			break;
 		default:
 			break;
 	}
 }
 
-void __private::Config_output::save(std::ostream& stream, const Config& config)
+void Config::help(std::ostream& stream, int command) const
+{
+	_private::Config_output::indent = 0;
+
+	switch(command)
+	{
+		default:
+			_private::Config_output::help_global(stream);
+	}
+}
+
+void _private::Config_output::save(std::ostream& stream, const Config& config)
 {
 	stream << indent << "config\n";
 	++ indent;
@@ -111,7 +124,7 @@ void __private::Config_output::save(std::ostream& stream, const Config& config)
 	stream << indent << "end\n";
 }
 
-void __private::Config_output::list(std::ostream& stream, const Config& config)
+void _private::Config_output::list(std::ostream& stream, const Config& config)
 {
 	stream << "Configuration\n";
 	stream << "\tFileds marked * are inherited.\n\n";
@@ -137,7 +150,11 @@ void __private::Config_output::list(std::ostream& stream, const Config& config)
 	}
 }
 
-void __private::Config_output::generate(std::ostream& stream, const Config& config)
+void _private::Config_output::make(std::ostream& stream, const Config& config)
+{
+}
+
+void _private::Config_output::help_global(std::ostream& stream)
 {
 }
 

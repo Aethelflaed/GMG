@@ -8,40 +8,53 @@
 
 using namespace Makefile;
 
-namespace __private
+namespace _private
 {
 	struct Target_output
 	{
 		static void save(std::ostream& stream, const Target& target) VISIBILITY_LOCAL;
 		static void list(std::ostream& stream, const Target& target) VISIBILITY_LOCAL;
-		static void generate(std::ostream& stream, const Target& target) VISIBILITY_LOCAL;
+		static void make(std::ostream& stream, const Target& target) VISIBILITY_LOCAL;
+
+		static void help_global(std::ostream& stream) VISIBILITY_LOCAL;
 
 		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
 }
 
-::Makefile::Util::Indent __private::Target_output::indent{0};
+::Makefile::Util::Indent _private::Target_output::indent{0};
 
 void Target::output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel) const
 {
-	__private::Target_output::indent = indentLevel;
+	_private::Target_output::indent = indentLevel;
 	switch(outputType)
 	{
 		case Util::OutputType::Command:
-			__private::Target_output::save(stream, *this);
+			_private::Target_output::save(stream, *this);
 			break;
 		case Util::OutputType::List:
-			__private::Target_output::list(stream, *this);
+			_private::Target_output::list(stream, *this);
 			break;
 		case Util::OutputType::Makefile:
-			__private::Target_output::generate(stream, *this);
+			_private::Target_output::make(stream, *this);
 			break;
 		default:
 			break;
 	}
 }
 
-void __private::Target_output::save(std::ostream& stream, const Target& target)
+void Target::help(std::ostream& stream, int command) const
+{
+	_private::Target_output::indent = 0;
+
+	switch(command)
+	{
+		default:
+			_private::Target_output::help_global(stream);
+	}
+}
+
+void _private::Target_output::save(std::ostream& stream, const Target& target)
 {
 	std::string type;
 	switch(target.getType())
@@ -93,7 +106,7 @@ void __private::Target_output::save(std::ostream& stream, const Target& target)
 	stream << indent << "end\n";
 }
 
-void __private::Target_output::list(std::ostream& stream, const Target& target)
+void _private::Target_output::list(std::ostream& stream, const Target& target)
 {
 	std::string type;
 	switch(target.getType())
@@ -139,7 +152,11 @@ void __private::Target_output::list(std::ostream& stream, const Target& target)
 	target.getConfig().list(stream);
 }
 
-void __private::Target_output::generate(std::ostream& stream, const Target& target)
+void _private::Target_output::make(std::ostream& stream, const Target& target)
+{
+}
+
+void _private::Target_output::help_global(std::ostream& stream)
 {
 }
 
