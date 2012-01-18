@@ -38,7 +38,10 @@ namespace GP
 namespace Strings
 {
 	::std::string stringToLower(::std::string& string);
-	::std::string stringToUppder(::std::string& string);
+	::std::string stringToUpper(::std::string& string);
+
+	::std::string&& stringToLower(const ::std::string& string);
+	::std::string&& stringToUpper(const ::std::string& string);
 }
 }
 #endif /* __cplusplus */

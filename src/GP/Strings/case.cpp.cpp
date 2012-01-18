@@ -18,6 +18,7 @@
 
 #include "case.h"
 #include <boost/algorithm/string.hpp>
+#include <memory>
 
 ::std::string GP::Strings::stringToLower(::std::string& string)
 {
@@ -25,9 +26,23 @@
 	return string;
 }
 
-::std::string GP::Strings::stringToUppder(::std::string& string)
+::std::string GP::Strings::stringToUpper(::std::string& string)
 {
 	::boost::algorithm::to_upper(string);
 	return string;
+}
+
+::std::string&& GP::Strings::stringToLower(const ::std::string& string)
+{
+	std::string newString {string};
+	::boost::algorithm::to_lower(newString);
+	return ::std::move(newString);
+}
+
+::std::string&& GP::Strings::stringToUpper(const ::std::string& string)
+{
+	std::string newString {string};
+	::boost::algorithm::to_upper(newString);
+	return ::std::move(newString);
 }
 
