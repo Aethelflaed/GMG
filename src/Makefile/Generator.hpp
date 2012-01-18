@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <memory>
 
 #include "define.hpp"
@@ -33,6 +34,8 @@ namespace Makefile
 		Config& getConfig();
 
 	private:
+		static std::unordered_set<std::string> reservedWords;
+
 		targets_map targets;
 		Config config;
 	};

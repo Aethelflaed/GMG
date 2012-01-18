@@ -5,6 +5,15 @@
 
 using namespace Makefile;
 
+std::unordered_set<std::string> Generator::reservedWords {
+	"all",
+	"install",
+	"clean",
+	"mrproper",
+	"debug",
+	"release"
+};
+
 Generator::Generator()
 	:targets()
 {
@@ -47,12 +56,7 @@ Generator::target_type Generator::getTargetPointer(const std::string& name)
 }
 Target& Generator::addTarget(const std::string& name)
 {
-	if (name == "all" ||
-		name == "install" ||
-		name == "clean" ||
-		name == "mrproper" ||
-		name == "debug" ||
-		name == "release")
+	if (Generator::reservedWords.find(name) != Generator::reservedWords.end())
 	{
 		throw std::invalid_argument(std::string("Invalid use of reserved name : ") + name);
 	}
