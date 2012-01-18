@@ -31,8 +31,6 @@ namespace Util
 		{
 			this->output(stream, OutputType::Command);
 		}
-
-		virtual void help(std::ostream& stream, int command = 0) const = 0;
 	};
 }
 }

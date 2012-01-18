@@ -29,7 +29,7 @@ namespace Makefile
 		std::unordered_set<std::string>&& getAllFlags() const;
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
-		void help(std::ostream& stream, int command = 0) const override;
+		static void help(std::ostream& stream, int command = 0);
 
 	private:
 		Tool& tool;

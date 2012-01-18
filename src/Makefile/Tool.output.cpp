@@ -21,6 +21,10 @@ namespace _private
 		static void make(std::ostream& stream, const Tool& tool) VISIBILITY_LOCAL;
 
 		static void help_global(std::ostream& stream) VISIBILITY_LOCAL;
+		static void help_add(std::ostream& stream) VISIBILITY_LOCAL;
+		static void help_reset(std::ostream& stream) VISIBILITY_LOCAL;
+		static void help_remove(std::ostream& stream) VISIBILITY_LOCAL;
+		static void help_set(std::ostream& stream) VISIBILITY_LOCAL;
 
 		static ::Makefile::Util::Indent indent VISIBILITY_LOCAL;
 	};
@@ -48,19 +52,23 @@ void Tool::output(std::ostream& stream, Util::OutputType outputType, unsigned sh
 	}
 }
 
-void Tool::help(std::ostream& stream, int command) const
+void Tool::help(std::ostream& stream, int command)
 {
 	_private::Tool_output::indent = 0;
 
 	switch(command)
 	{
 		case T_ADD:
+			_private::Tool_output::help_add(stream);
 			break;
 		case T_RM:
+			_private::Tool_output::help_remove(stream);
 			break;
 		case T_RESET:
+			_private::Tool_output::help_reset(stream);
 			break;
 		case T_SET:
+			_private::Tool_output::help_set(stream);
 			break;
 		default:
 			_private::Tool_output::help_global(stream);
@@ -176,5 +184,21 @@ void _private::Tool_output::help_global(std::ostream& stream)
 	stream << " - `tools list'                    List all tools.\n";
 
 	stream << " - `reset tools`                   Remove all tools.\n";
+}
+
+void _private::Tool_output::help_add(std::ostream& stream)
+{
+}
+
+void _private::Tool_output::help_reset(std::ostream& stream)
+{
+}
+
+void _private::Tool_output::help_remove(std::ostream& stream)
+{
+}
+
+void _private::Tool_output::help_set(std::ostream& stream)
+{
 }
 

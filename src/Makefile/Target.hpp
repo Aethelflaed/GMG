@@ -66,7 +66,7 @@ namespace Makefile
 		const dependencies_vector& getDependencies() const;
 
 		void output(std::ostream& stream, Util::OutputType outputType, unsigned short indentLevel = 0) const override;
-		void help(std::ostream& stream, int command = 0) const override;
+		static void help(std::ostream& stream, int command = 0);
 
 	private:
 		std::string name;

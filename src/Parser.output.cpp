@@ -16,7 +16,7 @@ extern "C"
 
 using namespace std;
 
-namespace __private
+namespace _private
 {
 	struct Parser_output
 	{
@@ -25,7 +25,6 @@ namespace __private
 		static ostream& help_stateChooser_global(ostream& stream, int command);
 		static ostream& help_stateChooser_target(ostream& stream, int command);
 		static ostream& help_stateChooser_targetTool(ostream& stream, int command);
-		static ostream& help_stateChooser_tool(ostream& stream, int command);
 
 		static ostream& help_config(ostream& stream);
 
@@ -33,7 +32,6 @@ namespace __private
 		static ostream& help_global_config(ostream& stream);
 		static ostream& help_global_exit(ostream& stream);
 		static ostream& help_global_target(ostream& stream);
-		static ostream& help_global_tool(ostream& stream);
 
 		static ostream& help_target(ostream& stream);
 		static ostream& help_target_config(ostream& stream);
@@ -44,12 +42,6 @@ namespace __private
 
 		static ostream& help_targetTool(ostream& stream);
 		static ostream& help_targetTool_set(ostream& stream);
-
-		static ostream& help_tool(ostream& stream);
-		static ostream& help_tool_add(ostream& stream);
-		static ostream& help_tool_reset(ostream& stream);
-		static ostream& help_tool_remove(ostream& stream);
-		static ostream& help_tool_set(ostream& stream);
 	};
 }
 
@@ -57,28 +49,28 @@ void Parser::help(int command) const
 {
 	if (this->interactive == true)
 	{
-		__private::Parser_output::help_stateChooser(cout, this->states.back(), command);
+		_private::Parser_output::help_stateChooser(cout, this->states.back(), command);
 	}
 }
 
-ostream& __private::Parser_output::help_stateChooser(ostream& stream, int state, int command)
+ostream& _private::Parser_output::help_stateChooser(ostream& stream, int state, int command)
 {
 	switch(state)
 	{
 		case INITIAL:
-			__private::Parser_output::help_stateChooser_global(stream, command);
+			_private::Parser_output::help_stateChooser_global(stream, command);
 			break;
 		case CONFIG:
-			__private::Parser_output::help_stateChooser_config(stream, command);
+			_private::Parser_output::help_stateChooser_config(stream, command);
 			break;
 		case TARGET:
-			__private::Parser_output::help_stateChooser_target(stream, command);
+			_private::Parser_output::help_stateChooser_target(stream, command);
 			break;
 		case TARGET_TOOL:
-			__private::Parser_output::help_stateChooser_targetTool(stream, command);
+			_private::Parser_output::help_stateChooser_targetTool(stream, command);
 			break;
 		case TOOL:
-			__private::Parser_output::help_stateChooser_tool(stream, command);
+			Makefile::Tool::help(stream, command);
 			break;
 		default:
 			break;
@@ -87,93 +79,84 @@ ostream& __private::Parser_output::help_stateChooser(ostream& stream, int state,
 	return stream;
 }
 
-ostream& __private::Parser_output::help_stateChooser_config(ostream& stream, int command)
+ostream& _private::Parser_output::help_stateChooser_config(ostream& stream, int command)
 {
 	switch(command)
 	{
 		default:
-			__private::Parser_output::help_config(stream);
+			_private::Parser_output::help_config(stream);
 			break;
 	}
 	return stream;
 }
 
-ostream& __private::Parser_output::help_stateChooser_global(ostream& stream, int command)
+ostream& _private::Parser_output::help_stateChooser_global(ostream& stream, int command)
 {
 	switch(command)
 	{
 		case T_CONFIG:
-			__private::Parser_output::help_global_config(stream);
+			_private::Parser_output::help_global_config(stream);
 			break;
 		case T_EXIT:
-			__private::Parser_output::help_global_exit(stream);
+			_private::Parser_output::help_global_exit(stream);
 			break;
 		case T_TARGET:
-			__private::Parser_output::help_global_target(stream);
+			_private::Parser_output::help_global_target(stream);
 			break;
 		case T_TOOL:
-			__private::Parser_output::help_global_tool(stream);
+			Makefile::Tool::help(stream);
 			break;
 		default:
-			__private::Parser_output::help_global(stream);
+			_private::Parser_output::help_global(stream);
 			break;
 	}
 
 	return stream;
 }
 
-ostream& __private::Parser_output::help_stateChooser_target(ostream& stream, int command)
+ostream& _private::Parser_output::help_stateChooser_target(ostream& stream, int command)
 {
 	switch(command)
 	{
 		case T_CONFIG:
-			__private::Parser_output::help_target_config(stream);
+			_private::Parser_output::help_target_config(stream);
 			break;
 		case T_DEPENDENCY:
-			__private::Parser_output::help_target_dependency(stream);
+			_private::Parser_output::help_target_dependency(stream);
 			break;
 		case T_MODULE:
-			__private::Parser_output::help_target_module(stream);
+			_private::Parser_output::help_target_module(stream);
 			break;
 		case T_TYPE:
-			__private::Parser_output::help_target_type(stream);
+			_private::Parser_output::help_target_type(stream);
 			break;
 		case T_VERSION:
-			__private::Parser_output::help_target_version(stream);
+			_private::Parser_output::help_target_version(stream);
 			break;
 		default:
-			__private::Parser_output::help_target(stream);
+			_private::Parser_output::help_target(stream);
 			break;
 	}
 
 	return stream;
 }
 
-ostream& __private::Parser_output::help_stateChooser_targetTool(ostream& stream, int command)
+ostream& _private::Parser_output::help_stateChooser_targetTool(ostream& stream, int command)
 {
 	switch(command)
 	{
 		case T_SET:
-			__private::Parser_output::help_targetTool_set(stream);
+			_private::Parser_output::help_targetTool_set(stream);
 			break;
 		default:
-			__private::Parser_output::help_targetTool(stream);
+			_private::Parser_output::help_targetTool(stream);
 			break;
 	}
 
 	return stream;
 }
 
-ostream& __private::Parser_output::help_stateChooser_tool(ostream& stream, int command)
-{
-	switch(command)
-	{
-	}
-
-	return stream;
-}
-
-ostream& __private::Parser_output::help_global(ostream& stream)
+ostream& _private::Parser_output::help_global(ostream& stream)
 {
 	stream << "Global help" << endl << endl;
 
@@ -191,7 +174,7 @@ ostream& __private::Parser_output::help_global(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_global_config(ostream& stream)
+ostream& _private::Parser_output::help_global_config(ostream& stream)
 {
 	stream << "Specify global configuration options." << endl;
 	stream << "All other configurations inherit from this one." << endl << endl;
@@ -200,7 +183,7 @@ ostream& __private::Parser_output::help_global_config(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_global_exit(ostream& stream)
+ostream& _private::Parser_output::help_global_exit(ostream& stream)
 {
 	stream << " - `exit'" << endl << endl;
 
@@ -212,7 +195,7 @@ ostream& __private::Parser_output::help_global_exit(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_global_target(ostream& stream)
+ostream& _private::Parser_output::help_global_target(ostream& stream)
 {
 	stream << "Manage targets" << endl << endl;
 
@@ -226,24 +209,8 @@ ostream& __private::Parser_output::help_global_target(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_global_tool(ostream& stream)
-{
-	stream << "Manage tools" << endl << endl;
 
-	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   Add a new tool." << endl;
-
-	stream << " - `tool edit \"NAME\"'              Edit a tool." << endl;
-
-	stream << " - `tool rm \"NAME\"'                Remove a tool." << endl;
-
-	stream << " - `tools list'                    List all tools." << endl;
-
-	stream << " - `reset tools`                   Remove all tools." << endl;
-
-	return stream;
-}
-
-ostream& __private::Parser_output::help_config(ostream& stream)
+ostream& _private::Parser_output::help_config(ostream& stream)
 {
 	stream << "Tune configuration." << endl << endl;
 
@@ -260,7 +227,7 @@ ostream& __private::Parser_output::help_config(ostream& stream)
 	return stream;
 }
 
-ostream& __private::Parser_output::help_target(ostream& stream)
+ostream& _private::Parser_output::help_target(ostream& stream)
 {
 	stream << "Configure a specific target" << endl << endl;
 
@@ -281,7 +248,7 @@ ostream& __private::Parser_output::help_target(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_target_config(ostream& stream)
+ostream& _private::Parser_output::help_target_config(ostream& stream)
 {
 	stream << "Target specific configuration" << endl << endl;
 
@@ -289,7 +256,7 @@ ostream& __private::Parser_output::help_target_config(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_target_dependency(ostream& stream)
+ostream& _private::Parser_output::help_target_dependency(ostream& stream)
 {
 	stream << "Manage target dependencies, i.e. other targets that are required." << endl << endl;
 
@@ -299,7 +266,7 @@ ostream& __private::Parser_output::help_target_dependency(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_target_module(ostream& stream)
+ostream& _private::Parser_output::help_target_module(ostream& stream)
 {
 	stream << "Manage target modules, i.e. where to search for sources from src/{target_name} directory" << endl << endl;
 
@@ -309,7 +276,7 @@ ostream& __private::Parser_output::help_target_module(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_target_type(ostream& stream)
+ostream& _private::Parser_output::help_target_type(ostream& stream)
 {
 	stream << "Manage target type. Currently supported values (case-insensitive) are:" << endl << endl;
 
@@ -321,7 +288,7 @@ ostream& __private::Parser_output::help_target_type(ostream& stream)
 
 	return stream;
 }
-ostream& __private::Parser_output::help_target_version(ostream& stream)
+ostream& _private::Parser_output::help_target_version(ostream& stream)
 {
 	stream << "Set the target version." << endl << endl;
 
@@ -329,32 +296,12 @@ ostream& __private::Parser_output::help_target_version(ostream& stream)
 	return stream;
 }
 
-ostream& __private::Parser_output::help_targetTool(ostream& stream)
+ostream& _private::Parser_output::help_targetTool(ostream& stream)
 {
 	return stream;
 }
-ostream& __private::Parser_output::help_targetTool_set(ostream& stream)
+ostream& _private::Parser_output::help_targetTool_set(ostream& stream)
 {
 	return stream;
 }
 
-ostream& __private::Parser_output::help_tool(ostream& stream)
-{
-	return stream;
-}
-ostream& __private::Parser_output::help_tool_add(ostream& stream)
-{
-	return stream;
-}
-ostream& __private::Parser_output::help_tool_reset(ostream& stream)
-{
-	return stream;
-}
-ostream& __private::Parser_output::help_tool_remove(ostream& stream)
-{
-	return stream;
-}
-ostream& __private::Parser_output::help_tool_set(ostream& stream)
-{
-	return stream;
-}
