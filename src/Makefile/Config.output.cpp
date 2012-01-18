@@ -51,7 +51,7 @@ void Config::output(std::ostream& stream, Util::OutputType outputType, unsigned 
 	}
 }
 
-void Config::help(std::ostream& stream, int command) const
+void Config::help(std::ostream& stream, int command)
 {
 	_private::Config_output::indent = 0;
 

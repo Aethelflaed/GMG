@@ -57,7 +57,7 @@ void TargetTool::output(std::ostream& stream, Util::OutputType outputType, unsig
 	}
 }
 
-void TargetTool::help(std::ostream& stream, int command) const
+void TargetTool::help(std::ostream& stream, int command)
 {
 	_private::TargetTool_output::indent = 0;
 

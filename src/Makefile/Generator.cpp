@@ -19,15 +19,6 @@ Generator::Generator()
 {
 }
 
-void Generator::generate()
-{
-	for (targets_map::value_type& target_pair : this->targets)
-	{
-		target_pair.second->clean();
-	}
-	this->save();
-}
-
 const Generator::targets_map& Generator::getTargets() const
 {
 	return this->targets;

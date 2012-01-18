@@ -43,7 +43,7 @@ void Target::output(std::ostream& stream, Util::OutputType outputType, unsigned 
 	}
 }
 
-void Target::help(std::ostream& stream, int command) const
+void Target::help(std::ostream& stream, int command)
 {
 	_private::Target_output::indent = 0;
 

@@ -5,6 +5,23 @@
 
 using namespace Makefile;
 
+namespace _private
+{
+	struct Generator_output
+	{
+		static void make_tools();
+	};
+}
+
+void Generator::generate()
+{
+	for (targets_map::value_type& target_pair : this->targets)
+	{
+		target_pair.second->clean();
+	}
+	this->save();
+}
+
 void Generator::save()
 {
 	std::ofstream file("maker.gmg");
@@ -30,5 +47,10 @@ void Generator::save()
 	}
 
 	file.close();
+}
+
+void _private::Generator_output::make_tools()
+{
+	std::ofstream stream {"Makefile.tools", std::ios_base::out | std::ios_base::trunc};
 }
 
