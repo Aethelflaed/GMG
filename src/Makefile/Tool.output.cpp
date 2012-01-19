@@ -77,8 +77,7 @@ void Tool::help(std::ostream& stream, int command)
 
 void _private::Tool_output::save(std::ostream& stream, const Tool& tool)
 {
-	stream << indent << "tool add \"" << tool.getName()
-		<< "\" \"" << tool.getFlagName() << "\"\n";
+	stream << indent << "tool add \"" << tool.getName() << "\"\n";
 
 	++ indent;
 
@@ -119,7 +118,6 @@ void _private::Tool_output::list(std::ostream& stream, const Tool& tool)
 	stream << indent << "Tool \"" << tool.getName() << "\"\n";
 
 	++ indent;
-	stream << indent << "Flag name : \"" << tool.getFlagName() << "\"\n";
 
 	stream << "\n" << indent << "Flags:\n";
 	++ indent;
@@ -169,13 +167,21 @@ void _private::Tool_output::list(std::ostream& stream, const Tool& tool)
 
 void _private::Tool_output::make(std::ostream& stream, const Tool& tool)
 {
+	stream << tool.getGeneratedName() << " := " << tool.getPathForCurrentOS() << "\n";
+	stream << tool.getGeneratedFlagName() << " :=";
+
+	for (const auto& flag : tool.getFlags())
+	{
+		stream << " " << flag;
+	}
+	stream << "\n";
 }
 
 void _private::Tool_output::help_global(std::ostream& stream)
 {
 	stream << "Manage tools\n\n";
 
-	stream << " - `tool add \"NAME\" \"FLAG_NAME\"'   Add a new tool.\n";
+	stream << " - `tool add \"NAME\"'               Add a new tool.\n";
 
 	stream << " - `tool edit \"NAME\"'              Edit a tool.\n";
 

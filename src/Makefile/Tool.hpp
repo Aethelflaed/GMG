@@ -31,9 +31,8 @@ namespace Makefile
 	class Tool : public Util::Output
 	{
 	private:
-		Tool(const std::string& name, const std::string& flagName);
+		Tool(const std::string& name);
 		Tool(const std::string& name,
-				const std::string& flagName,
 				std::initializer_list<std::string> flags,
 				std::initializer_list<std::string> debugFlags,
 				const std::string& verboseFlag,
@@ -42,14 +41,16 @@ namespace Makefile
 				std::initializer_list<std::string> paths);
 
 	public:
-		static Tool& addTool(const std::string& name, const std::string& flagName);
+		static Tool& addTool(const std::string& name);
 		static void removeTool(const std::string& name);
 		static Tool& getTool(const std::string& name);
 		static const std::unordered_set<std::shared_ptr<Tool>>& getTools();
 		static void resetTools();
 
 		const std::string& getName() const;
+		std::string getGeneratedName() const;
 		const std::string& getFlagName() const;
+		std::string getGeneratedFlagName() const;
 
 		void addFlag(const std::string& flag);
 		void removeFlag(const std::string& flag);
@@ -74,6 +75,7 @@ namespace Makefile
 
 		void setPathForOS(OperatingSystem OS, const std::string& path);
 		const std::string& getPathForOS(OperatingSystem OS) const;
+		const std::string& getPathForCurrentOS() const;
 
 		std::unordered_set<std::string>&& getAllFlags(bool debugMode,
 				bool verboseMode, bool optimizationMode) const;
@@ -86,7 +88,6 @@ namespace Makefile
 
 		unsigned short toolId;
 		std::string name;
-		std::string flagName;
 		std::unordered_set<std::string> flags;
 		std::unordered_set<std::string> debugFlags;
 		std::string verboseFlag;

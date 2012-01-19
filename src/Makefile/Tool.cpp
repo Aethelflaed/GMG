@@ -1,13 +1,13 @@
 #include "Tool.hpp"
 
 #include <algorithm>
+#include <sstream>
 
 using namespace Makefile;
 
 std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	std::shared_ptr<Tool>{ new Tool{
 		"C",
-		"CFLAGS",
 		{
 		},
 		{
@@ -29,7 +29,6 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	}},
 	std::shared_ptr<Tool>{ new Tool{
 		"CXX",
-		"CXXFLAGS",
 		{
 		},
 		{
@@ -52,7 +51,6 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	}},
 	std::shared_ptr<Tool>{ new Tool{
 		"LEX",
-		"LFLAGS",
 		{
 		},
 		{
@@ -71,7 +69,6 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	}},
 	std::shared_ptr<Tool>{ new Tool{
 		"YACC",
-		"YFLAGS",
 		{
 			"-d"
 		},
@@ -92,7 +89,6 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	}},
 	std::shared_ptr<Tool>{ new Tool{
 		"TEX",
-		"TEXFLAGS",
 		{
 		},
 		{
@@ -110,13 +106,12 @@ std::unordered_set<std::shared_ptr<Tool>> Tool::tools {
 	}}
 };
 
-Tool::Tool(const std::string& name, const std::string& flagName)
-	:name{name}, flagName{flagName}
+Tool::Tool(const std::string& name)
+	:name{name}
 {
 }
 
 Tool::Tool(const std::string& name,
-	const std::string& flagName,
 	std::initializer_list<std::string> flags,
 	std::initializer_list<std::string> debugFlags,
 	const std::string& verboseFlag,
@@ -124,7 +119,7 @@ Tool::Tool(const std::string& name,
 	std::initializer_list<std::string> filePatterns,
 	std::initializer_list<std::string> paths)
 
-	:name{name}, flagName{flagName},
+	:name{name},
 	 flags{flags},
 	 debugFlags{debugFlags}, verboseFlag{verboseFlag},
 	 optimizationFlag{optimizationFlag},
@@ -138,7 +133,7 @@ Tool::Tool(const std::string& name,
 	}
 }
 
-Tool& Tool::addTool(const std::string& name, const std::string& flagName)
+Tool& Tool::addTool(const std::string& name)
 {
 	for (auto& tool : Tool::tools)
 	{
@@ -147,7 +142,7 @@ Tool& Tool::addTool(const std::string& name, const std::string& flagName)
 			return *tool;
 		}
 	}
-	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name, flagName))).first);
+	return **(Tool::tools.insert(std::shared_ptr<Tool>(new Tool(name))).first);
 }
 
 void Tool::removeTool(const std::string& name)
@@ -203,10 +198,18 @@ const std::string& Tool::getName() const
 {
 	return this->name;
 }
-
-const std::string& Tool::getFlagName() const
+std::string Tool::getGeneratedName() const
 {
-	return this->flagName;
+	std::stringstream name;
+	name << "TOOL_" << this->name;
+	return name.str();
+}
+
+std::string Tool::getGeneratedFlagName() const
+{
+	std::stringstream name;
+	name << "TOOL_" << this->name << "FLAGS";
+	return name.str();
 }
 
 void Tool::addFlag(const std::string& flag)
@@ -284,6 +287,11 @@ void Tool::setPathForOS(OperatingSystem OS, const std::string& path)
 }
 const std::string& Tool::getPathForOS(OperatingSystem OS) const
 {
+	return this->paths[(unsigned short) OS];
+}
+const std::string& Tool::getPathForCurrentOS() const
+{
+	OperatingSystem OS = Config::getCurrentOS();
 	return this->paths[(unsigned short) OS];
 }
 

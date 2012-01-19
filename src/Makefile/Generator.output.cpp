@@ -2,6 +2,7 @@
 
 #include "Generator.hpp"
 #include "Target.hpp"
+#include "Tool.hpp"
 
 using namespace Makefile;
 
@@ -83,6 +84,11 @@ void _private::Generator_output::make_tools()
 		   << "	CP := copy\n"
 		   << "	RM := rmdir /S /Q\n"
 		   << "	SHELL := cmd\n"
-		   << "endif\n";
+		   << "endif\n\n";
+
+	for (const auto& tool : Tool::getTools())
+	{
+		tool->make(stream);
+	}
 }
 
