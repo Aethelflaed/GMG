@@ -174,7 +174,8 @@ void _private::Tool_output::make(std::ostream& stream, const Tool& tool)
 	{
 		stream << " " << flag;
 	}
-	stream << "\n";
+
+	stream << "\n\n";
 }
 
 void _private::Tool_output::help_global(std::ostream& stream)
