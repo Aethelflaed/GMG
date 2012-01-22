@@ -5,6 +5,7 @@
 
 #include "Util/Output.hpp"
 #include "Util/Indent.hpp"
+#include "Util/StringContainerOutput.hpp"
 
 #include "GP/ObjectVisibility.h"
 
@@ -168,12 +169,13 @@ void _private::Tool_output::list(std::ostream& stream, const Tool& tool)
 void _private::Tool_output::make(std::ostream& stream, const Tool& tool)
 {
 	stream << tool.getGeneratedName() << " := " << tool.getPathForCurrentOS() << "\n";
-	stream << tool.getGeneratedFlagName() << " :=";
+	stream << tool.getGeneratedFlagName() << " := ";
+	stream << tool.getFlags();
 
-	for (const auto& flag : tool.getFlags())
+	/*for (const auto& flag : tool.getFlags())
 	{
 		stream << " " << flag;
-	}
+	}*/
 
 	stream << "\n\n";
 }

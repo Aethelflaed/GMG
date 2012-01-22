@@ -2,6 +2,7 @@
 
 #include "Util/Output.hpp"
 #include "Util/Indent.hpp"
+#include "Util/StringContainerOutput.hpp"
 
 #include "GP/ObjectVisibility.h"
 
