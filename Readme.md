@@ -16,14 +16,14 @@ Functional features includes:
 
 * Working lex/yacc parser
 * Customization of tools and default settings to enable fast-use
+* Current configuration is saved in a file
 
 Features under development:
 
 * Help command, which is updated all the time
-* Current configuration is saved in a file
+* Makefile generation
 
 Next features to be developed:
 
-* Makefile generation
 * Take control over terminal concerning character input
 
